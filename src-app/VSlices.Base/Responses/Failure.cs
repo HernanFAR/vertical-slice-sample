@@ -44,10 +44,7 @@ public enum FailureKind
 /// <param name="Detail">
 /// A human-readable explanation of the error
 /// </param>
-/// <param name="Path">
-/// Path to the property 
-/// </param>
-public readonly record struct ValidationError(string Name, string Detail, string Path);
+public readonly record struct ValidationError(string Name, string Detail);
 
 /// <summary>
 /// A free-interpretation of RFC9457 problem details, it is used to represent a failure in the given feature.

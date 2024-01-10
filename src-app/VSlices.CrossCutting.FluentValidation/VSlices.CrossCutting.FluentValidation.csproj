@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Implementation package for a CrossCutting validation behavior that uses FluentValidation</Description>
+		<PackageTags>functional;request;result;pipeline;crosscutting;validation;fluent-validation</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\VSlices.CrossCutting\VSlices.CrossCutting.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FluentValidation" Version="11.0.0" />
+	</ItemGroup>
+
+</Project>

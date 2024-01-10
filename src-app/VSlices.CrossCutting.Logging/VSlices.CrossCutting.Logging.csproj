@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Implementation package for a CrossCutting logging behavior that uses Microsoft.Extensions.Logging</Description>
+		<PackageTags>functional;request;result;pipeline;crosscutting;logging;</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\VSlices.CrossCutting\VSlices.CrossCutting.csproj" />
+	</ItemGroup>
+
+</Project>

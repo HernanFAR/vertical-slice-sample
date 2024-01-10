@@ -10,8 +10,4 @@ public readonly struct Success
     /// </summary>
     public static readonly Success Value = new();
 
-    /// <summary>
-    /// A static instance of <see cref="ValueTask"/> of <see cref="Success"/>
-    /// </summary>
-    public static ValueTask<Success> TaskValue => ValueTask.FromResult(Value);
 }
