@@ -93,6 +93,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Integration", "Integration"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Integration.AspNetCore.IntegTests", "tests\VSlices.Integration.AspNetCore.IntegTests\VSlices.Integration.AspNetCore.IntegTests.csproj", "{8DE485C0-1909-496F-B821-5B9C7170F5B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.Base", "src-app\VSlices.Base\VSlices.Base.csproj", "{4EF77010-A361-4FE8-A79B-D6E2EF7BBF53}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -219,6 +221,10 @@ Global
 		{8DE485C0-1909-496F-B821-5B9C7170F5B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8DE485C0-1909-496F-B821-5B9C7170F5B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8DE485C0-1909-496F-B821-5B9C7170F5B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EF77010-A361-4FE8-A79B-D6E2EF7BBF53}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EF77010-A361-4FE8-A79B-D6E2EF7BBF53}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EF77010-A361-4FE8-A79B-D6E2EF7BBF53}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EF77010-A361-4FE8-A79B-D6E2EF7BBF53}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -267,6 +273,7 @@ Global
 		{D63FCEC9-B074-4348-8DA1-0236FEEE4AE3} = {7DC540DB-C61E-4D91-BB0C-53457C9CC215}
 		{46DD6F46-19EA-4B56-84A1-90E3B4CF763A} = {6F484706-EDFC-49EF-A419-D3F6943C2E36}
 		{8DE485C0-1909-496F-B821-5B9C7170F5B7} = {46DD6F46-19EA-4B56-84A1-90E3B4CF763A}
+		{4EF77010-A361-4FE8-A79B-D6E2EF7BBF53} = {E846D8C9-E927-43E8-8B46-CEA3ADB50F6F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {653AE7A1-A4C4-42F2-9804-FE7E032C3E8C}

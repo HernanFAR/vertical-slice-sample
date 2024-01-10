@@ -1,0 +1,30 @@
+<Project>
+	<PropertyGroup>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Authors>Enryu20</Authors>
+		<Product>VSlices</Product>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Copyright>Hernán Fernando Álvarez Rubio</Copyright>
+		<PackageProjectUrl>https://vslice-framework.readthedocs.io/en/latest/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/HernanFAR/vslices-framework</RepositoryUrl>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<PackageIcon>icon lq.png</PackageIcon>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\LICENSE">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\icons\icon lq.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+</Project>
