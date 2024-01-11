@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Extension package for data access in Core implementations in the VSlices framework</Description>
+		<PackageTags>functional;request;result;repository</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\VSlices.Core\VSlices.Core.csproj" />
+	</ItemGroup>
+
+</Project>
