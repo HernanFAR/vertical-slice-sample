@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Implementation package for data access in Core implementations using EntityFrameworkCore in the VSlices framework</Description>
+		<PackageTags>functional;request;result;repository;entity-framework-core</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\VSlices.Core.DataAccess\VSlices.Core.DataAccess.csproj" />
+	</ItemGroup>
+
+</Project>
