@@ -4,7 +4,7 @@
 		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Description>Base package for VSlices framework</Description>
+		<Description>Base package</Description>
 		<PackageTags>functional;request;result</PackageTags>
 	</PropertyGroup>
 

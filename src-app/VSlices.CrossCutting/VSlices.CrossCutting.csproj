@@ -4,7 +4,7 @@
 		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Description>Base package for CrossCutting implementations in the VSlices framework</Description>
+		<Description>Base package for implementations in CrossCutting projects</Description>
 		<PackageTags>functional;request;result;pipeline;crosscutting</PackageTags>
 	</PropertyGroup>
 

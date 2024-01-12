@@ -4,7 +4,7 @@
 		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Description>Implementation package for a CrossCutting exception handling behavior</Description>
+		<Description>Extension package for exception handling behavior implementations in CrossCutting projects</Description>
 		<PackageTags>functional;request;result;pipeline;crosscutting;exception-handling</PackageTags>
 	</PropertyGroup>
 
