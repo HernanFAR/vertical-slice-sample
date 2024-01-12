@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
 using VSlices.Base.Responses;
-using VSlices.Core.Events.ReflectionPublisher.Strategies;
+using VSlices.Core.Events.Strategies;
 using VSlices.CrossCutting;
 
-namespace VSlices.Core.Events.ReflectionPublisher.Internals;
+namespace VSlices.Core.Events.Internals;
 
 internal abstract class AbstractHandlerWrapper
 {

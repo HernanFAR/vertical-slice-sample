@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 using VSlices.Base.Responses;
-// ReSharper disable MemberHidesStaticFromOuterClass
 
-namespace VSlices.Core.DataAccess.EntityFramework;
+// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable PartialTypeWithSinglePart
+
+namespace VSlices.Core.DataAccess;
 
 public abstract partial class Repository
 {

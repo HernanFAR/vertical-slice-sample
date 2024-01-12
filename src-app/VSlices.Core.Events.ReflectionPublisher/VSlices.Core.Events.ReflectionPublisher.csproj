@@ -6,6 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Description>Extension package for event implementations in Core projects</Description>
 		<PackageTags>functional;request;result;vertical-slice;event;event-listener;event-queue;publisher;reflection</PackageTags>
+		<RootNamespace>VSlices.Core.Events</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>

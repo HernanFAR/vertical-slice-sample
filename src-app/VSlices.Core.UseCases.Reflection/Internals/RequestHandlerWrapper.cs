@@ -3,7 +3,7 @@ using VSlices.Base;
 using VSlices.Base.Responses;
 using VSlices.CrossCutting;
 
-namespace VSlices.Core.UseCases.Reflection.Internals;
+namespace VSlices.Core.UseCases.Internals;
 
 internal abstract class AbstractHandlerWrapper
 {

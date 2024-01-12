@@ -1,6 +1,6 @@
 ﻿using VSlices.CrossCutting;
 
-namespace VSlices.Core.Events.ReflectionPublisher.Strategies;
+namespace VSlices.Core.Events.Strategies;
 
 /// <summary>
 /// A publishing strategy that awaits all handlers in parallel.

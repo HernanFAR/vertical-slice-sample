@@ -1,4 +1,4 @@
-﻿namespace VSlices.Core.Events.InMemoryEventQueue;
+﻿namespace VSlices.Core.Events;
 
 /// <summary>
 /// Configuration for <see cref="InMemoryEventQueue"/>

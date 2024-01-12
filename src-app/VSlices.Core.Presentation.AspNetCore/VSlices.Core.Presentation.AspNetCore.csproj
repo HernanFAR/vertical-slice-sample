@@ -6,6 +6,7 @@
 		<Nullable>enable</Nullable>
 		<Description>Extension package for AspNetCore WebApi endpoints implementations in Core projects</Description>
 		<PackageTags>functional;request;result;vertical-slice;endpoint;webapi;aspnetcore</PackageTags>
+		<RootNamespace>VSlices.Core.Presentation</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>

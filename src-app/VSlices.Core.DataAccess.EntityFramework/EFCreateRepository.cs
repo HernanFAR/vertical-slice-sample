@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 using VSlices.Base.Responses;
-// ReSharper disable MemberHidesStaticFromOuterClass
 
-namespace VSlices.Core.DataAccess.EntityFramework;
+// ReSharper disable MemberHidesStaticFromOuterClass
+// ReSharper disable PartialTypeWithSinglePart
+
+namespace VSlices.Core.DataAccess;
 
 /// <summary>
 /// Start point of a FluentAPI that helps with the definition of <see cref="ICreateRepository{TEntity}"/> implementations
@@ -15,7 +17,7 @@ public abstract partial class Repository
     /// Represents a repository that creates <typeparamref name="TTable"/> entities
     /// </summary>
     /// <typeparam name="TTable">The entity type to create</typeparam>
-    public abstract  class ThatCreates<TTable>
+    public abstract partial class ThatCreates<TTable>
         where TTable : class
     {
         /// <summary>

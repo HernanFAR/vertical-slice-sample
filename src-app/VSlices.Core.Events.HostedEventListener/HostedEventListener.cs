@@ -2,9 +2,9 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using VSlices.Core.Events.HostedEventListener.Configurations;
+using VSlices.Core.Events.Configurations;
 
-namespace VSlices.Core.Events.HostedEventListener;
+namespace VSlices.Core.Events;
 
 /// <summary>
 /// Listens to an event queue and publishes the event to an event pipeline

@@ -1,6 +1,6 @@
 ﻿using System.Threading.Channels;
 
-namespace VSlices.Core.Events.InMemoryEventQueue;
+namespace VSlices.Core.Events;
 
 /// <summary>
 /// Allows to publish, peek and dequeue events through an in memory channel

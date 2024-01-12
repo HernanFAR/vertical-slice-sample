@@ -1,5 +1,4 @@
 ﻿using VSlices.Core.UseCases;
-using VSlices.Core.UseCases.Reflection;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;

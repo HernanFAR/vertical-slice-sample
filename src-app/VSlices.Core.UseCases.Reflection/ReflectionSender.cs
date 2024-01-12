@@ -1,8 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using VSlices.Base.Responses;
-using VSlices.Core.UseCases.Reflection.Internals;
+using VSlices.Core.UseCases.Internals;
 
-namespace VSlices.Core.UseCases.Reflection;
+namespace VSlices.Core.UseCases;
 
 /// <summary>
 /// Sends a request through the VSlices pipeline to be handled by a single handler, using reflection

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using VSlices.Base.Responses;
-using VSlices.Core.Events.ReflectionPublisher.Internals;
-using VSlices.Core.Events.ReflectionPublisher.Strategies;
+using VSlices.Core.Events.Internals;
+using VSlices.Core.Events.Strategies;
 
-namespace VSlices.Core.Events.ReflectionPublisher;
+namespace VSlices.Core.Events;
 
 /// <summary>
 /// Sends a request through the VSlices pipeline to be handled by a many handlers, using reflection

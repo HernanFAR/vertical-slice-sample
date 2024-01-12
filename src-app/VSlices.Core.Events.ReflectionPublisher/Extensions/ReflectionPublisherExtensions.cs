@@ -1,5 +1,5 @@
-﻿using VSlices.Core.Events.ReflectionPublisher;
-using VSlices.Core.Events.ReflectionPublisher.Strategies;
+﻿using VSlices.Core.Events;
+using VSlices.Core.Events.Strategies;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;

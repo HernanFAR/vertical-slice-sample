@@ -1,6 +1,6 @@
 ﻿using VSlices.CrossCutting;
 
-namespace VSlices.Core.Events.ReflectionPublisher.Strategies;
+namespace VSlices.Core.Events.Strategies;
 
 /// <summary>
 /// Defines a publishing strategy for the <see cref="IPublisher"/>.

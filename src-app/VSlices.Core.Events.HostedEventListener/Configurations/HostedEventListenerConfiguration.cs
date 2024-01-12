@@ -1,4 +1,4 @@
-﻿namespace VSlices.Core.Events.HostedEventListener.Configurations;
+﻿namespace VSlices.Core.Events.Configurations;
 
 /// <summary>
 /// Represents what to do in the background event listener when a problem occurs in the event's <see cref="IHandler{TRequest}"/>

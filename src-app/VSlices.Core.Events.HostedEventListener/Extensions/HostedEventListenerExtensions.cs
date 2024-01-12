@@ -1,6 +1,5 @@
 ﻿using VSlices.Core.Events;
-using VSlices.Core.Events.HostedEventListener;
-using VSlices.Core.Events.HostedEventListener.Configurations;
+using VSlices.Core.Events.Configurations;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;

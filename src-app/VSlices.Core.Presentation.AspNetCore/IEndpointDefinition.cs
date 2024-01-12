@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Routing;
 
-namespace VSlices.Core.Presentation.AspNetCore.WebApi;
+namespace VSlices.Core.Presentation;
 
 /// <summary>
 /// Defines an endpoint of a use case without dependencies
