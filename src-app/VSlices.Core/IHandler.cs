@@ -4,13 +4,13 @@ using VSlices.Base.Responses;
 namespace VSlices.Core;
 
 /// <summary>
-/// Defines a handler for a <see cref="IBaseRequest{TResult}"/>
+/// Defines a handler for a <see cref="IFeature{TResult}"/>
 /// </summary>
 /// <remarks>If idempotency is necessary, the handler itself must ensure it</remarks>
 /// <typeparam name="TRequest">The request to be handled</typeparam>
 /// <typeparam name="TResult">The expected response of the handler</typeparam>
 public interface IHandler<in TRequest, TResult>
-    where TRequest : IBaseRequest<TResult>
+    where TRequest : IFeature<TResult>
 {
     /// <summary>
     /// Handles the request
@@ -25,9 +25,9 @@ public interface IHandler<in TRequest, TResult>
 }
 
 /// <summary>
-/// Defines a handler for a <see cref="IBaseRequest{TResult}"/>
+/// Defines a handler for a <see cref="IFeature{TResult}"/>
 /// </summary>
 /// <typeparam name="TRequest">The request to be handled</typeparam>
 public interface IHandler<in TRequest> : IHandler<TRequest, Success>
-    where TRequest : IBaseRequest<Success>
+    where TRequest : IFeature<Success>
 { }

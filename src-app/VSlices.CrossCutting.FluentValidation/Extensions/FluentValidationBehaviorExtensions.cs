@@ -34,12 +34,12 @@ public static class FluentValidationBehaviorExtensions
     {
         var requestDefinition = requestType.GetInterfaces()
             .Where(x => x.IsGenericType)
-            .SingleOrDefault(x => x.GetGenericTypeDefinition() == typeof(IBaseRequest<>));
+            .SingleOrDefault(x => x.GetGenericTypeDefinition() == typeof(IFeature<>));
 
         if (requestDefinition is null)
         {
             throw new InvalidOperationException(
-                $"{requestType.FullName} does not implement {typeof(IBaseRequest<>).FullName}");
+                $"{requestType.FullName} does not implement {typeof(IFeature<>).FullName}");
         }
 
         var pipelineBehaviorType = typeof(IPipelineBehavior<,>)

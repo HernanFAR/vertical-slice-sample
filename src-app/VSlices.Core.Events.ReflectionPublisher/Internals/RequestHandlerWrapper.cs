@@ -17,13 +17,13 @@ internal abstract class AbstractHandlerWrapper
 internal abstract class AbstractHandlerWrapper<TResponse> : AbstractHandlerWrapper
 {
     public abstract ValueTask HandleAsync(
-        IBaseRequest<TResponse> request,
+        IFeature<TResponse> request,
         IServiceProvider serviceProvider,
         CancellationToken cancellationToken);
 }
 
 internal class RequestHandlerWrapper<TRequest, TResponse> : AbstractHandlerWrapper<TResponse>
-    where TRequest : IBaseRequest<TResponse>
+    where TRequest : IFeature<TResponse>
 {
     private readonly IPublishingStrategy _strategy;
 
@@ -34,10 +34,10 @@ internal class RequestHandlerWrapper<TRequest, TResponse> : AbstractHandlerWrapp
 
     public override async ValueTask HandleAsync(
         object request, IServiceProvider serviceProvider, CancellationToken cancellationToken) =>
-        await HandleAsync((IBaseRequest<TResponse>)request, serviceProvider, cancellationToken);
+        await HandleAsync((IFeature<TResponse>)request, serviceProvider, cancellationToken);
 
     public override async ValueTask HandleAsync(
-        IBaseRequest<TResponse> request, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+        IFeature<TResponse> request, IServiceProvider serviceProvider, CancellationToken cancellationToken)
     {
         var handlers = serviceProvider.GetServices<IHandler<TRequest, TResponse>>();
 

@@ -9,7 +9,8 @@ using VSlices.Base.Responses;
 namespace VSlices.Core.DataAccess;
 
 /// <summary>
-/// Start point of a FluentAPI that helps with the definition of <see cref="ICreateRepository{TEntity}"/> implementations
+/// Start point of a FluentAPI that helps with the definition of <see cref="ICreateRepository{TEntity}"/>
+/// implementations
 /// </summary>
 public abstract partial class Repository
 {

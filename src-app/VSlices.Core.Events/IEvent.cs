@@ -6,7 +6,7 @@ namespace VSlices.Core.Events;
 /// <summary>
 /// Represents the start point of a side effect of a use case
 /// </summary>
-public interface IEvent : IBaseRequest<Success>
+public interface IEvent : IFeature<Success>
 {
     /// <summary>
     /// The unique identifier of this event

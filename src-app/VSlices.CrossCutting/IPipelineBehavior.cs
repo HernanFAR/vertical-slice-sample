@@ -14,12 +14,12 @@ namespace VSlices.CrossCutting;
 public delegate ValueTask<Result<T>> RequestHandlerDelegate<T>();
 
 /// <summary>
-/// A middleware behavior for a <see cref="IBaseRequest{TResult}"/>
+/// A middleware behavior for a <see cref="IFeature{TResult}"/>
 /// </summary>
 /// <typeparam name="TRequest">The request to intercept</typeparam>
 /// <typeparam name="TResult">The expected result</typeparam>
 public interface IPipelineBehavior<in TRequest, TResult>
-    where TRequest : IBaseRequest<TResult>
+    where TRequest : IFeature<TResult>
 {
     /// <summary>
     /// A method that intercepts the pipeline
@@ -40,7 +40,7 @@ public interface IPipelineBehavior<in TRequest, TResult>
 /// <typeparam name="TRequest">The request to intercept</typeparam>
 /// <typeparam name="TResult">The expected result</typeparam>
 public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBehavior<TRequest, TResult> 
-    where TRequest : IBaseRequest<TResult>
+    where TRequest : IFeature<TResult>
 {
     /// <summary>
     /// A method that intercepts the pipeline

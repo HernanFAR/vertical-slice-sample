@@ -10,7 +10,7 @@ namespace VSlices.CrossCutting.FluentValidation;
 /// <typeparam name="TRequest">The intercepted request to validate</typeparam>
 /// <typeparam name="TResult">The expected successful response</typeparam>
 public sealed class FluentValidationBehavior<TRequest, TResult> : AbstractPipelineBehavior<TRequest, TResult>
-    where TRequest : IBaseRequest<TResult>
+    where TRequest : IFeature<TResult>
 {
     private readonly IValidator<TRequest> _requestValidator;
 
