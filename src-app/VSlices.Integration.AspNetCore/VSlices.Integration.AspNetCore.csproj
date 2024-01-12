@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Implementation package for AspNetCore endpoints implementations in Integration projects</Description>
+		<PackageTags>functional;request;result;sender;vertical-slice;endpoint;webapi;aspnetcore</PackageTags>
+	</PropertyGroup>
+
+</Project>
