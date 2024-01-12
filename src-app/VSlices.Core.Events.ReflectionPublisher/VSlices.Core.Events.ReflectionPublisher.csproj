@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Extension package for event implementations in Core projects</Description>
+		<PackageTags>functional;request;result;vertical-slice;event;event-listener;event-queue;publisher;reflection</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\VSlices.Core.Events\VSlices.Core.Events.csproj" />
+		<ProjectReference Include="..\VSlices.CrossCutting\VSlices.CrossCutting.csproj" />
+	</ItemGroup>
+
+</Project>
