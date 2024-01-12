@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Extension package for event implementations in Core projects</Description>
+		<PackageTags>functional;request;result;vertical-slice</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\VSlices.Core\VSlices.Core.csproj" />
+	</ItemGroup>
+
+</Project>
