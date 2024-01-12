@@ -1,9 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<Description>Implementation package for use cases implementations in Core projects using reflection</Description>
+		<PackageTags>functional;request;result;vertical-slice;sender;reflection</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>

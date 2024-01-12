@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Description>Extension package for AspNetCore WebApi endpoints implementations in Core projects</Description>
-		<PackageTags>functional;request;result;sender;vertical-slice;endpoint;webapi;aspnetcore</PackageTags>
+		<PackageTags>functional;request;result;vertical-slice;endpoint;webapi;aspnetcore</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>

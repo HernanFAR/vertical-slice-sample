@@ -4,7 +4,7 @@
 		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Description>Implementation package for logging implementation using Microsoft.Extensions.Logging in CrossCutting projects</Description>
+		<Description>Implementation package for logging behavior implementations in CrossCutting projects using Microsoft.Extensions.Logging</Description>
 		<PackageTags>functional;request;result;pipeline;crosscutting;logging;</PackageTags>
 	</PropertyGroup>
 
