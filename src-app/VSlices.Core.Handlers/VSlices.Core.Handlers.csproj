@@ -1,14 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Extension package for more specific handler implementations in Core projects</Description>
+		<PackageTags>functional;request;result;vertical-slice</PackageTags>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\VSlices.Core.DataAccess\VSlices.Core.DataAccess.csproj" />
-    <ProjectReference Include="..\VSlices.Core\VSlices.Core.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\VSlices.Core.DataAccess\VSlices.Core.DataAccess.csproj" />
+		<ProjectReference Include="..\VSlices.Core\VSlices.Core.csproj" />
+	</ItemGroup>
 
 </Project>
