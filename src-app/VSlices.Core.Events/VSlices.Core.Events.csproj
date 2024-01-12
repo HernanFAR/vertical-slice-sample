@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Description>Extension package for event implementations in Core projects</Description>
-		<PackageTags>functional;request;result;vertical-slice</PackageTags>
+		<PackageTags>functional;request;result;vertical-slice;event;event-listener;event-queue;publisher</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>

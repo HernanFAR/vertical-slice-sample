@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Description>Implementation package for event implementations in Core projects using Microsoft.Extensions.Hosting</Description>
-		<PackageTags>functional;request;result;vertical-slice;hosted-service</PackageTags>
+		<PackageTags>functional;request;result;vertical-slice;event;event-listener;event-queue;publisher;aspnetcore;hosted</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
