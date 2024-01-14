@@ -1,13 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Implementation package for more specific handler implementations in Core projects using FluentValidation</Description>
+		<PackageTags>functional;request;result;vertical-slice</PackageTags>
+		<RootNamespace>VSlices.Core.Handlers</RootNamespace>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\VSlices.Core.Handlers\VSlices.Core.Handlers.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\VSlices.Core.Handlers\VSlices.Core.Handlers.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="FluentValidation" Version="11.0.0" />
+	</ItemGroup>
 
 </Project>
