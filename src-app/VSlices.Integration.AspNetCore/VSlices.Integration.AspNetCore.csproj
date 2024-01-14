@@ -8,4 +8,8 @@
 		<PackageTags>functional;request;result;sender;vertical-slice;endpoint;webapi;aspnetcore</PackageTags>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\VSlices.Core.Presentation.AspNetCore\VSlices.Core.Presentation.AspNetCore.csproj" />
+	</ItemGroup>
+
 </Project>

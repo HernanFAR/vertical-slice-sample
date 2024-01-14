@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using VSlices.Core.Presentation.AspNetCore.WebApi;
+using VSlices.Core.Presentation;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.AspNetCore.Builder;
