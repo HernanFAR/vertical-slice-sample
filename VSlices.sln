@@ -143,6 +143,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Integration.AspNetC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events.HostedEventListener", "src-app\VSlices.Core.Events.HostedEventListener\VSlices.Core.Events.HostedEventListener.csproj", "{E578B802-4859-435A-AE91-DB6CADFB59CD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.Domain", "VSlices.Domain\VSlices.Domain.csproj", "{ADCD1FEB-5F8F-4476-84C0-056A0A81B354}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -341,6 +343,10 @@ Global
 		{E578B802-4859-435A-AE91-DB6CADFB59CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E578B802-4859-435A-AE91-DB6CADFB59CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E578B802-4859-435A-AE91-DB6CADFB59CD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ADCD1FEB-5F8F-4476-84C0-056A0A81B354}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADCD1FEB-5F8F-4476-84C0-056A0A81B354}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADCD1FEB-5F8F-4476-84C0-056A0A81B354}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADCD1FEB-5F8F-4476-84C0-056A0A81B354}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -413,6 +419,7 @@ Global
 		{96F687A6-EC35-44FF-8982-1474A3345105} = {A8929B0C-D991-43AF-AC46-3BBE69C3D788}
 		{83D8016E-6DA1-4CDB-AC58-4C8B1D2921A5} = {5AF3B2BC-C727-4BA8-AD10-769FFDF9DA82}
 		{E578B802-4859-435A-AE91-DB6CADFB59CD} = {E714C616-8B5A-48C3-97E4-C5514AF0C859}
+		{ADCD1FEB-5F8F-4476-84C0-056A0A81B354} = {5AF3B2BC-C727-4BA8-AD10-769FFDF9DA82}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {653AE7A1-A4C4-42F2-9804-FE7E032C3E8C}
