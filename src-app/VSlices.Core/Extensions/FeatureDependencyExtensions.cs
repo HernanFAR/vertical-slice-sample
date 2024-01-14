@@ -19,7 +19,7 @@ public static class FeatureDependencyExtensions
     /// <exception cref="InvalidOperationException"></exception>
     public static IServiceCollection AddFeatureDependenciesFromAssemblyContaining<TAnchor>(this IServiceCollection services)
     {
-        return services.AddFeatureDependenciesFromAssembly(typeof(TAnchor).Assembly);
+        return services.AddFeatureDependenciesFromAssemblyContaining(typeof(TAnchor));
     }
 
     /// <summary>
