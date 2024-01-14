@@ -149,6 +149,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test-app", "test-app", "{5B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Domain", "src-app\VSlices.Domain\VSlices.Domain.csproj", "{F23AF739-DB12-443B-8A16-63658283231E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.Integration.AspNetCore.IntegTests", "tests-app\VSlices.Integration.AspNetCore.IntegTests\VSlices.Integration.AspNetCore.IntegTests.csproj", "{2F05C137-40CD-4ED4-B2CA-6FA910DE1202}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -355,6 +357,10 @@ Global
 		{F23AF739-DB12-443B-8A16-63658283231E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F23AF739-DB12-443B-8A16-63658283231E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F23AF739-DB12-443B-8A16-63658283231E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2F05C137-40CD-4ED4-B2CA-6FA910DE1202}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2F05C137-40CD-4ED4-B2CA-6FA910DE1202}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2F05C137-40CD-4ED4-B2CA-6FA910DE1202}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2F05C137-40CD-4ED4-B2CA-6FA910DE1202}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -429,6 +435,7 @@ Global
 		{E578B802-4859-435A-AE91-DB6CADFB59CD} = {E714C616-8B5A-48C3-97E4-C5514AF0C859}
 		{5F2DF6B6-ACE9-4C73-9FFB-1EA947BD0201} = {5BB887E7-468E-4C47-A539-E09916A1A82B}
 		{F23AF739-DB12-443B-8A16-63658283231E} = {5AF3B2BC-C727-4BA8-AD10-769FFDF9DA82}
+		{2F05C137-40CD-4ED4-B2CA-6FA910DE1202} = {5BB887E7-468E-4C47-A539-E09916A1A82B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {653AE7A1-A4C4-42F2-9804-FE7E032C3E8C}
