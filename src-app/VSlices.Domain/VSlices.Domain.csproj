@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\src-app\VSlices.Base\VSlices.Base.csproj" />
+    <ProjectReference Include="..\VSlices.Base\VSlices.Base.csproj" />
   </ItemGroup>
 
 </Project>
