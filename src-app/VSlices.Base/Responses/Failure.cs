@@ -75,9 +75,9 @@ public readonly record struct ValidationError(string Name, string Detail);
 /// </param>
 public readonly record struct Failure(
     FailureKind Kind,
+    string? Type = null,
     string? Title = null,
     string? Detail = null,
-    string? Type = null,
     string? Instance = null,
     ValidationError[]? Errors = null,
     IDictionary<string, object?>? CustomExtensions = null);
