@@ -157,6 +157,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{B0409F5E-8
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.Core.UnitTests", "tests-app\VSlices.Core.UnitTests\VSlices.Core.UnitTests.csproj", "{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.Core.Presentation.AspNetCore.IntegTests", "tests-app\VSlices.Core.Presentation.AspNetCore.IntegTests\VSlices.Core.Presentation.AspNetCore.IntegTests.csproj", "{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -375,6 +377,10 @@ Global
 		{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -453,6 +459,7 @@ Global
 		{E1CA2A01-2B69-4C44-AD07-6570DF7C8612} = {5BB887E7-468E-4C47-A539-E09916A1A82B}
 		{B0409F5E-8A42-4FC1-8A07-F56A212FCF39} = {5BB887E7-468E-4C47-A539-E09916A1A82B}
 		{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B} = {B0409F5E-8A42-4FC1-8A07-F56A212FCF39}
+		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F} = {B0409F5E-8A42-4FC1-8A07-F56A212FCF39}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {653AE7A1-A4C4-42F2-9804-FE7E032C3E8C}
