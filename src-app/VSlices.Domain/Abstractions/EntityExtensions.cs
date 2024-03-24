@@ -1,4 +1,6 @@
 ﻿// ReSharper disable once CheckNamespace
+using VSlices.Domain.Interfaces;
+
 namespace VSlices.Domain;
 
 /// <summary>

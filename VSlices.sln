@@ -111,12 +111,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{A8929B0C-D
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core", "src-app\VSlices.Core\VSlices.Core.csproj", "{DCF82443-6761-4C5D-A934-53C73D09581E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.DataAccess", "src-app\VSlices.Core.DataAccess\VSlices.Core.DataAccess.csproj", "{DC477479-AB34-46C2-BB15-6AE7E8F5D724}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.DataAccess.EntityFramework", "src-app\VSlices.Core.DataAccess.EntityFramework\VSlices.Core.DataAccess.EntityFramework.csproj", "{A20EAEBF-59B6-455C-8D25-ED7F92935F9F}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data-access", "data-access", "{153920B5-5447-455A-9A45-24F205D9CD7A}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.UseCases", "src-app\VSlices.Core.UseCases\VSlices.Core.UseCases.csproj", "{59D4B161-FF2E-4E56-B5E5-CDF41494E3CE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.UseCases.Reflection", "src-app\VSlices.Core.UseCases.Reflection\VSlices.Core.UseCases.Reflection.csproj", "{1703F89E-E951-4B1E-A71B-27D98579ABD5}"
@@ -143,21 +137,25 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Integration.AspNetC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events.HostedEventListener", "src-app\VSlices.Core.Events.HostedEventListener\VSlices.Core.Events.HostedEventListener.csproj", "{E578B802-4859-435A-AE91-DB6CADFB59CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.Domain.UnitTests", "tests-app\VSlices.Domain.UnitTests\VSlices.Domain.UnitTests.csproj", "{5F2DF6B6-ACE9-4C73-9FFB-1EA947BD0201}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Domain.UnitTests", "tests-app\VSlices.Domain.UnitTests\VSlices.Domain.UnitTests.csproj", "{5F2DF6B6-ACE9-4C73-9FFB-1EA947BD0201}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test-app", "test-app", "{5BB887E7-468E-4C47-A539-E09916A1A82B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Domain", "src-app\VSlices.Domain\VSlices.Domain.csproj", "{F23AF739-DB12-443B-8A16-63658283231E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.Integration.AspNetCore.IntegTests", "tests-app\VSlices.Integration.AspNetCore.IntegTests\VSlices.Integration.AspNetCore.IntegTests.csproj", "{2F05C137-40CD-4ED4-B2CA-6FA910DE1202}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Integration.AspNetCore.IntegTests", "tests-app\VSlices.Integration.AspNetCore.IntegTests\VSlices.Integration.AspNetCore.IntegTests.csproj", "{2F05C137-40CD-4ED4-B2CA-6FA910DE1202}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.Base.UnitTests", "tests-app\VSlices.Base.UnitTests\VSlices.Base.UnitTests.csproj", "{E1CA2A01-2B69-4C44-AD07-6570DF7C8612}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Base.UnitTests", "tests-app\VSlices.Base.UnitTests\VSlices.Base.UnitTests.csproj", "{E1CA2A01-2B69-4C44-AD07-6570DF7C8612}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{B0409F5E-8A42-4FC1-8A07-F56A212FCF39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.Core.UnitTests", "tests-app\VSlices.Core.UnitTests\VSlices.Core.UnitTests.csproj", "{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.UnitTests", "tests-app\VSlices.Core.UnitTests\VSlices.Core.UnitTests.csproj", "{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.Core.Presentation.AspNetCore.IntegTests", "tests-app\VSlices.Core.Presentation.AspNetCore.IntegTests\VSlices.Core.Presentation.AspNetCore.IntegTests.csproj", "{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Presentation.AspNetCore.IntegTests", "tests-app\VSlices.Core.Presentation.AspNetCore.IntegTests\VSlices.Core.Presentation.AspNetCore.IntegTests.csproj", "{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "data-access", "data-access", "{04426E9F-A351-417E-8C9D-11469CD7C07C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.DataAccess.EntityFramework", "src-app\VSlices.Core.DataAccess.EntityFramework\VSlices.Core.DataAccess.EntityFramework.csproj", "{1E0C0C04-09F0-48FF-81A5-5FFCDF4A7D5E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -309,14 +307,6 @@ Global
 		{DCF82443-6761-4C5D-A934-53C73D09581E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCF82443-6761-4C5D-A934-53C73D09581E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCF82443-6761-4C5D-A934-53C73D09581E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DC477479-AB34-46C2-BB15-6AE7E8F5D724}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DC477479-AB34-46C2-BB15-6AE7E8F5D724}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DC477479-AB34-46C2-BB15-6AE7E8F5D724}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DC477479-AB34-46C2-BB15-6AE7E8F5D724}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A20EAEBF-59B6-455C-8D25-ED7F92935F9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A20EAEBF-59B6-455C-8D25-ED7F92935F9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A20EAEBF-59B6-455C-8D25-ED7F92935F9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A20EAEBF-59B6-455C-8D25-ED7F92935F9F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{59D4B161-FF2E-4E56-B5E5-CDF41494E3CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{59D4B161-FF2E-4E56-B5E5-CDF41494E3CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59D4B161-FF2E-4E56-B5E5-CDF41494E3CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -381,6 +371,10 @@ Global
 		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E0C0C04-09F0-48FF-81A5-5FFCDF4A7D5E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E0C0C04-09F0-48FF-81A5-5FFCDF4A7D5E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E0C0C04-09F0-48FF-81A5-5FFCDF4A7D5E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E0C0C04-09F0-48FF-81A5-5FFCDF4A7D5E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -437,9 +431,6 @@ Global
 		{3D20519C-AB73-4034-B724-FA398B69EB20} = {5AF3B2BC-C727-4BA8-AD10-769FFDF9DA82}
 		{A8929B0C-D991-43AF-AC46-3BBE69C3D788} = {5AF3B2BC-C727-4BA8-AD10-769FFDF9DA82}
 		{DCF82443-6761-4C5D-A934-53C73D09581E} = {A8929B0C-D991-43AF-AC46-3BBE69C3D788}
-		{DC477479-AB34-46C2-BB15-6AE7E8F5D724} = {153920B5-5447-455A-9A45-24F205D9CD7A}
-		{A20EAEBF-59B6-455C-8D25-ED7F92935F9F} = {153920B5-5447-455A-9A45-24F205D9CD7A}
-		{153920B5-5447-455A-9A45-24F205D9CD7A} = {A8929B0C-D991-43AF-AC46-3BBE69C3D788}
 		{59D4B161-FF2E-4E56-B5E5-CDF41494E3CE} = {767D22E9-1EB5-4D55-A25E-0CA9ABB366BF}
 		{1703F89E-E951-4B1E-A71B-27D98579ABD5} = {767D22E9-1EB5-4D55-A25E-0CA9ABB366BF}
 		{767D22E9-1EB5-4D55-A25E-0CA9ABB366BF} = {A8929B0C-D991-43AF-AC46-3BBE69C3D788}
@@ -460,6 +451,8 @@ Global
 		{B0409F5E-8A42-4FC1-8A07-F56A212FCF39} = {5BB887E7-468E-4C47-A539-E09916A1A82B}
 		{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B} = {B0409F5E-8A42-4FC1-8A07-F56A212FCF39}
 		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F} = {B0409F5E-8A42-4FC1-8A07-F56A212FCF39}
+		{04426E9F-A351-417E-8C9D-11469CD7C07C} = {A8929B0C-D991-43AF-AC46-3BBE69C3D788}
+		{1E0C0C04-09F0-48FF-81A5-5FFCDF4A7D5E} = {04426E9F-A351-417E-8C9D-11469CD7C07C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {653AE7A1-A4C4-42F2-9804-FE7E032C3E8C}

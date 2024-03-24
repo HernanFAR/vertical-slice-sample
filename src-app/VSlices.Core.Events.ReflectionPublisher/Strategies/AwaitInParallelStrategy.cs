@@ -17,3 +17,4 @@ public class AwaitInParallelStrategy : IPublishingStrategy
     {
         await Task.WhenAll(handlerDelegates.Select(async handlerDelegate => await handlerDelegate()));
     }
+}

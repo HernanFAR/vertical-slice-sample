@@ -4,9 +4,8 @@
 		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Description>Implementation package for data access in Core projects using EntityFrameworkCore</Description>
-		<PackageTags>functional;request;result;vertical-slice;repository;ef-core;entity-framework-core</PackageTags>
-		<RootNamespace>VSlices.Core.DataAccess</RootNamespace>
+		<Description>Extension package for data access implementations in Core projects</Description>
+		<PackageTags>functional;request;result;domain-driven-design;ddd;data-access;entity-framework-core;ef-core</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -14,7 +13,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\VSlices.Core.DataAccess\VSlices.Core.DataAccess.csproj" />
+	  <ProjectReference Include="..\..\src\VSlices.Core.Abstracts\VSlices.Core.Abstracts.csproj" />
+	  <ProjectReference Include="..\VSlices.Domain\VSlices.Domain.csproj" />
 	</ItemGroup>
 
 </Project>

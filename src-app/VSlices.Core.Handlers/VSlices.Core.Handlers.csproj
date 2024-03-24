@@ -9,7 +9,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\VSlices.Core.DataAccess\VSlices.Core.DataAccess.csproj" />
 		<ProjectReference Include="..\VSlices.Core\VSlices.Core.csproj" />
 	</ItemGroup>
 

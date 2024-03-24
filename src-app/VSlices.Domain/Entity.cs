@@ -1,23 +1,6 @@
-﻿namespace VSlices.Domain;
+﻿using VSlices.Domain.Interfaces;
 
-/// <summary>
-/// Defines an entity with non specified keys
-/// </summary>
-public interface IEntity
-{
-    /// <summary>
-    /// Gets the keys of the entity
-    /// </summary>
-    /// <returns>An array with the keys of the entity</returns>
-    object[] GetKeys();
-
-    /// <summary>
-    /// Performs a identity check between two entities
-    /// </summary>
-    /// <param name="other">The other entity to </param>
-    /// <returns>true if is equal, false if not</returns>
-    bool EntityEquals(IEntity? other);
-}
+namespace VSlices.Domain;
 
 /// <summary>
 /// Base entity with non specified keys
@@ -39,11 +22,9 @@ public abstract class Entity : IEntity
 /// Base entity with a strong typed key
 /// </summary>
 /// <remarks>Provides a better <see cref="Entity.ToString()"/> implementation, aside of a <see cref="GetKeys()"/> and an <see cref="Entity.EntityEquals"/> method</remarks>
-public abstract class Entity<TKey> : Entity
+public abstract class Entity<TKey> : Entity, IEntity<TKey>
 {
-    /// <summary>
-    /// The key of the entity
-    /// </summary>
+    /// <inheritdoc />
     public TKey Id { get; private set; }
 
     /// <summary>

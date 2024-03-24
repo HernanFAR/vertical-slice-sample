@@ -1,14 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net7.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Base package for implementations in Domain projects</Description>
+		<PackageTags>functional;request;result;domain-driven-design;ddd;data-access</PackageTags>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\src-app\VSlices.Base\VSlices.Base.csproj" />
-    <ProjectReference Include="..\VSlices.Base\VSlices.Base.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\src-app\VSlices.Base\VSlices.Base.csproj" />
+		<ProjectReference Include="..\VSlices.Base\VSlices.Base.csproj" />
+	</ItemGroup>
 
 </Project>
