@@ -3,13 +3,16 @@
 namespace VSlices.Domain.Interfaces;
 
 /// <summary>
-/// Defines a repository used to interact with the <typeparam name="TEntity" /> entity
+/// Defines a repository for the specified <typeparamref name="TRoot" />
 /// </summary>
-/// <typeparam name="TEntity"></typeparam>
-public interface IRepository<TEntity>
+/// <typeparam name="TRoot"><see cref="IAggregateRoot{TKey}" /> that this repository manages</typeparam>
+/// <typeparam name="TKey">Key of the <see cref="IAggregateRoot{TKey}" /></typeparam>
+public interface IRepository<TRoot, TKey>
+    where TRoot : IAggregateRoot<TKey>
+    where TKey : struct, IEquatable<TKey>
 {
     /// <summary>
-    /// Creates a new <typeparamref name="TEntity"/> entity
+    /// Creates a new <typeparamref name="TRoot"/>
     /// </summary>
     /// <param name="entity">The values to create the entity</param>
     /// <param name="cancellationToken">Cancellation token</param>
@@ -17,21 +20,21 @@ public interface IRepository<TEntity>
     /// A <see cref="ValueTask{T}"/> holding a <see cref="Result{TRequest}"/> of <see cref="Success"/> that
     /// represents the result of the operation
     /// </returns>
-    ValueTask<Result<TEntity>> CreateAsync(TEntity entity, CancellationToken cancellationToken);
+    ValueTask<Result<TRoot>> AddAsync(TRoot entity, CancellationToken cancellationToken);
 
     /// <summary>
     /// Queries the entity using the primary keys
     /// </summary>
-    /// <param name="key">The primary keys of the object</param>
+    /// <param name="key">The primary keys values of the <typeparamref name="TRoot"/></param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>
-    /// A <see cref="ValueTask{T}"/> holding a <see cref="Result{TRequest}"/> of <typeparamref cref="TEntity"/>
+    /// A <see cref="ValueTask{T}"/> holding a <see cref="Result{TRequest}"/> of <typeparamref name="TRoot"/>
     /// that represents the result of the operation
     /// </returns>
-    ValueTask<Result<TEntity>> ReadAsync(object[] key, CancellationToken cancellationToken);
+    ValueTask<Result<TRoot>> ReadAsync(TKey key, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Updates a new <typeparamref name="TEntity"/> entity
+    /// Updates a <typeparamref name="TRoot"/>
     /// </summary>
     /// <param name="entity">The values to update the entity</param>
     /// <param name="cancellationToken">Cancellation token</param>
@@ -39,18 +42,29 @@ public interface IRepository<TEntity>
     /// A <see cref="ValueTask{T}"/> holding a <see cref="Result{TRequest}"/> of <see cref="Success"/> that
     /// represents the result of the operation
     /// </returns>
-    ValueTask<Result<TEntity>> UpdateAsync(TEntity entity, CancellationToken cancellationToken);
+    ValueTask<Result<TRoot>> UpdateAsync(TRoot entity, CancellationToken cancellationToken);
 
 
     /// <summary>
-    /// Deletes a new <typeparamref name="TEntity"/> entity
+    /// Deletes a <typeparamref name="TRoot"/>
     /// </summary>
-    /// <param name="entity">The entity to remove</param>
+    /// <param name="entity">The <typeparamref name="TRoot"/> to remove</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>
     /// A <see cref="ValueTask{T}"/> holding a <see cref="Result{TRequest}"/> of <see cref="Success"/> that
     /// represents the result of the operation
     /// </returns>
-    ValueTask<Result<TEntity>> DeleteAsync(TEntity entity, CancellationToken cancellationToken);
+    ValueTask<Result<TRoot>> DeleteAsync(TRoot entity, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Verifies the existense of the entity using the primary keys
+    /// </summary>
+    /// <param name="key">The primary keys values of the <typeparamref name="TRoot"/></param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>
+    /// A <see cref="ValueTask{T}"/> holding a <see cref="Result{TRequest}"/> of a <see cref="bool"/> that
+    /// that represents the result of the operation
+    /// </returns>
+    ValueTask<Result<bool>> AnyAsync(TKey key, CancellationToken cancellationToken);
 
 }

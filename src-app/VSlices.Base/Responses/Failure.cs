@@ -61,12 +61,6 @@ public readonly record struct ValidationError(string Name, string Detail);
 /// <param name="Detail">
 /// A human-readable explanation specific to this occurrence of the problem
 /// </param>
-/// <param name="Type">
-/// A URI reference that identifies the problem type
-/// </param>
-/// <param name="Instance">
-/// A URI reference that identifies the specific occurrence of the problem
-/// </param>
 /// <param name="Errors">
 /// A list of validation errors
 /// </param>
@@ -75,10 +69,8 @@ public readonly record struct ValidationError(string Name, string Detail);
 /// </param>
 public readonly record struct Failure(
     FailureKind Kind,
-    string? Type = null,
     string? Title = null,
     string? Detail = null,
-    string? Instance = null,
     ValidationError[]? Errors = null,
     IDictionary<string, object?>? CustomExtensions = null);
 
