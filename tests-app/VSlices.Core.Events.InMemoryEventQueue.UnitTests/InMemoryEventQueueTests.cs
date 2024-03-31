@@ -1,6 +1,6 @@
 using FluentAssertions;
 using Moq;
-using VSlices.Core.Abstracts.Requests;
+using VSlices.Domain.Interfaces;
 
 namespace VSlices.Core.Events.EventQueue.InMemory.UnitTests;
 
@@ -56,6 +56,6 @@ public class InMemoryEventQueueTests
         inMemoryEventQueue._channel.Reader.Count.Should().Be(expCount);
         item.Should().Be(eventMock);
 
-        
+
     }
 }
