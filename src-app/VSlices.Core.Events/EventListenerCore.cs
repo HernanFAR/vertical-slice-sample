@@ -16,7 +16,7 @@ public sealed class EventListenerCore : IEventListenerCore
 {
     private readonly ILogger<EventListenerCore> _logger;
     private readonly IServiceProvider _serviceProvider;
-    private readonly IOptionsMonitor<EventListenerConfiguration> _configOptions;
+    private readonly EventListenerConfiguration _config;
     private readonly IEventQueue _eventQueue;
     private readonly Dictionary<Guid, int> _retries = new();
 
@@ -28,11 +28,11 @@ public sealed class EventListenerCore : IEventListenerCore
     /// <param name="configOptions">Configuration</param>
     public EventListenerCore(ILogger<EventListenerCore> logger,
         IServiceProvider serviceProvider,
-        IOptionsMonitor<EventListenerConfiguration> configOptions)
+        EventListenerConfiguration configOptions)
     {
         _logger = logger;
         _serviceProvider = serviceProvider;
-        _configOptions = configOptions;
+        _config = configOptions;
         _eventQueue = serviceProvider.GetRequiredService<IEventQueue>();
     }
 
@@ -78,17 +78,17 @@ public sealed class EventListenerCore : IEventListenerCore
             _retries.Add(workItem.Id, 1);
         }
 
-        if (_retries[workItem.Id] > _configOptions.CurrentValue.MaxRetries)
+        if (_retries[workItem.Id] > _config.MaxRetries)
         {
             _logger.LogError("Max retries {RetryLimit} reached for {WorkItem}.",
-                _configOptions.CurrentValue.MaxRetries, workItem);
+                _config.MaxRetries, workItem);
 
             _retries.Remove(workItem.Id);
 
             return false;
         }
 
-        switch (_configOptions.CurrentValue.ActionInException)
+        switch (_config.ActionInException)
         {
             case MoveActions.MoveLast:
                 await _eventQueue.EnqueueAsync(workItem, stoppingToken);
@@ -100,7 +100,7 @@ public sealed class EventListenerCore : IEventListenerCore
                 return true;
 
             default:
-                throw new InvalidOperationException(nameof(_configOptions.CurrentValue.ActionInException));
+                throw new InvalidOperationException(nameof(_config.ActionInException));
         }
     }
 }
