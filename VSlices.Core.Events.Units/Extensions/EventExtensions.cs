@@ -73,11 +73,11 @@ public class EventExtensions
     {
         var services = new ServiceCollection();
 
-        services.AddEventListener<EventListener>();
+        services.AddEventListener<EventListenerCore>();
 
         services
-            .Where(e => e.ServiceType == typeof(IEventListener))
-            .Where(e => e.ImplementationType == typeof(EventListener))
+            .Where(e => e.ServiceType == typeof(IEventListenerCore))
+            .Where(e => e.ImplementationType == typeof(EventListenerCore))
             .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
 
@@ -99,14 +99,14 @@ public class EventExtensions
         const MoveActions moveActions = MoveActions.ImmediateRetry;
         var services = new ServiceCollection();
 
-        services.AddEventListener<EventListener>(config =>
+        services.AddDefaultEventListener(config =>
         {
             config.ActionInException = moveActions;
         });
 
         services
-            .Where(e => e.ServiceType == typeof(IEventListener))
-            .Where(e => e.ImplementationType == typeof(EventListener))
+            .Where(e => e.ServiceType == typeof(IEventListenerCore))
+            .Where(e => e.ImplementationType == typeof(EventListenerCore))
             .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
 

@@ -3,7 +3,7 @@
 /// <summary>
 /// Defines a listener for events
 /// </summary>
-public interface IEventListener
+public interface IEventListenerCore
 {
     /// <summary>
     /// Starts an event listener process

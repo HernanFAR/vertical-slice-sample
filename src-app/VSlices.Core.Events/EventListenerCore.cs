@@ -7,26 +7,26 @@ using VSlices.Domain.Interfaces;
 namespace VSlices.Core.Events;
 
 /// <summary>
-/// Default implementation of <see cref="IEventListener" />
+/// Default implementation of <see cref="IEventListenerCore" />
 /// </summary>
 /// <remarks>
 /// It has a retry mecanism for each <see cref="IEvent" />
 /// </remarks>
-public sealed class EventListener : IEventListener
+public sealed class EventListenerCore : IEventListenerCore
 {
-    private readonly ILogger<EventListener> _logger;
+    private readonly ILogger<EventListenerCore> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly IOptionsMonitor<EventListenerConfiguration> _configOptions;
     private readonly IEventQueue _eventQueue;
     private readonly Dictionary<Guid, int> _retries = new();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="EventListener"/> class.
+    /// Initializes a new instance of the <see cref="EventListenerCore"/> class.
     /// </summary>
     /// <param name="logger">Logger</param>
     /// <param name="serviceProvider">Service provider</param>
     /// <param name="configOptions">Configuration</param>
-    public EventListener(ILogger<EventListener> logger,
+    public EventListenerCore(ILogger<EventListenerCore> logger,
         IServiceProvider serviceProvider,
         IOptionsMonitor<EventListenerConfiguration> configOptions)
     {

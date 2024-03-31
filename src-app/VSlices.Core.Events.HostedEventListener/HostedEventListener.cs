@@ -15,9 +15,9 @@ namespace VSlices.Core.Events;
 /// </remarks>
 public sealed class HostedEventListener : BackgroundService
 {
-    private readonly IEventListener _eventListener;
+    private readonly IEventListenerCore _eventListener;
 
-    public HostedEventListener(IEventListener eventListener)
+    public HostedEventListener(IEventListenerCore eventListener)
     {
         _eventListener = eventListener;
     }

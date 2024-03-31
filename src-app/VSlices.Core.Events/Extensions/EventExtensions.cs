@@ -6,7 +6,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// <see cref="IServiceCollection"/> extensions for <see cref="IPublisher"/>, <see cref="IEventQueue"/> and
-/// <see cref="IEventListener"/>
+/// <see cref="IEventListenerCore"/>
 /// </summary>
 public static class EventExtensions
 {
@@ -84,9 +84,21 @@ public static class EventExtensions
     /// <typeparam name="T">Implementation Type</typeparam>
     /// <param name="services">Service Collection</param>
     /// <returns>Service Collection</returns>
+    public static IServiceCollection AddDefaultEventListener(this IServiceCollection services,
+        Action<EventListenerConfiguration>? configAction = null)
+    {
+        return services.AddEventListener(typeof(EventListenerCore), configAction);
+    }
+
+    /// <summary>
+    /// Adds a hosted service that will listen for events in the background
+    /// </summary>
+    /// <typeparam name="T">Implementation Type</typeparam>
+    /// <param name="services">Service Collection</param>
+    /// <returns>Service Collection</returns>
     public static IServiceCollection AddEventListener<T>(this IServiceCollection services,
         Action<EventListenerConfiguration>? configAction = null)
-        where T : IEventListener
+        where T : IEventListenerCore
     {
         return services.AddEventListener(typeof(T), configAction);
     }
@@ -101,16 +113,16 @@ public static class EventExtensions
     public static IServiceCollection AddEventListener(this IServiceCollection services,
         Type type, Action<EventListenerConfiguration>? configAction)
     {
-        if (!typeof(IEventListener).IsAssignableFrom(type))
+        if (!typeof(IEventListenerCore).IsAssignableFrom(type))
         {
-            throw new InvalidOperationException($"{type.FullName} does not implement {typeof(IEventListener).FullName}");
+            throw new InvalidOperationException($"{type.FullName} does not implement {typeof(IEventListenerCore).FullName}");
         }
 
         EventListenerConfiguration config = new();
 
         configAction?.Invoke(config);
 
-        return services.AddSingleton(typeof(IEventListener), type)
+        return services.AddSingleton(typeof(IEventListenerCore), type)
             .AddSingleton(config);
     }
 
