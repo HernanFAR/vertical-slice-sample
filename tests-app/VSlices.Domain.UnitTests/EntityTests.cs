@@ -1,52 +1,23 @@
 ﻿using FluentAssertions;
-using Xunit;
+using Moq;
 
 namespace VSlices.Domain.UnitTests;
 
 public class EntityTests
 {
-    public class TwoKeyEntity1 : Entity
-    {
-        public int Key1 { get; }
-        public int Key2 { get; }
-
-        public TwoKeyEntity1(int key1, int key2)
-        {
-            Key1 = key1;
-            Key2 = key2;
-        }
-
-        public override object[] GetKeys() => new object[] { Key1, Key2 };
-
-    }
-
-    public class TwoKeyEntity2 : Entity
-    {
-        public int Key1 { get; }
-        public int Key2 { get; }
-
-        public TwoKeyEntity2(int key1, int key2)
-        {
-            Key1 = key1;
-            Key2 = key2;
-        }
-
-        public override object[] GetKeys() => new object[] { Key1, Key2 };
-
-    }
-
     [Fact]
     public void ToString_ShouldStringWithReturnEntityAndKeyInfo()
     {
         // Arrange
         const int key1 = 1;
-        const int key2 = 2;
 
-        IEntity entity = new TwoKeyEntity1(key1, key2);
+        var entityMock = new Mock<Entity<int>>(key1);
+        var entity = entityMock.Object;
 
+        entityMock.Setup(x => x.ToString()).CallBase();
 
         // Assert
-        entity.ToString().Should().Be($"[{nameof(TwoKeyEntity1)} | {key1}, {key2}]");
+        entity.ToString().Should().Be($"[{entity.GetType().Name} | {key1}]");
 
 
     }
@@ -56,13 +27,14 @@ public class EntityTests
     {
         // Arrange
         const int key1 = 1;
-        const int key2 = 2;
 
-        IEntity entity = new TwoKeyEntity1(key1, key2);
+        var entityMock = new Mock<Entity<int>>(key1);
+        var entity = entityMock.Object;
 
+        entityMock.Setup(x => x.Equals(entity)).CallBase();
 
         // Assert
-        entity.EntityEquals(entity).Should().BeTrue();
+        entity.Equals(entity).Should().BeTrue();
 
 
     }
@@ -72,14 +44,15 @@ public class EntityTests
     {
         // Arrange
         const int key1 = 1;
-        const int key2 = 2;
 
-        IEntity entity1 = new TwoKeyEntity1(key1, key2);
-        IEntity entity2 = new TwoKeyEntity1(key1, key2);
+        var entityMock = new Mock<Entity<int>>(key1);
+        var entity1 = entityMock.Object;
+        var entity2 = Mock.Of<Entity<int>>(x => x.Id == key1);
 
+        entityMock.Setup(x => x.Equals(entity2)).CallBase();
 
         // Assert
-        entity1.EntityEquals(entity2).Should().BeTrue();
+        entity1.Equals(entity2).Should().BeTrue();
 
 
     }
@@ -90,49 +63,35 @@ public class EntityTests
         // Arrange
         const int key1 = 1;
         const int key2 = 2;
-        const int key3 = 3;
 
-        IEntity entity1 = new TwoKeyEntity1(key1, key2);
-        IEntity entity2 = new TwoKeyEntity1(key1, key3);
-
+        var entityMock1 = new Mock<Entity<int>>(key1);
+        var entity1 = entityMock1.Object;
+        var entityMock2 = new Mock<Entity<int>>(key2);
+        var entity2 = entityMock2.Object;
 
         // Assert
-        entity1.EntityEquals(entity2).Should().BeFalse();
+        entity1.Equals(entity2).Should().BeFalse();
 
 
     }
 
-    [Fact]
+    [Fact]  
     public void EqualsOperator_ShouldReturnTrue_DetailOtherEntityIsNull()
     {
         // Arrange
         const int key1 = 1;
-        const int key2 = 2;
 
-        IEntity entity1 = new TwoKeyEntity1(key1, key2);
-        IEntity? entity2 = null;
+        var entityMock1 = new Mock<Entity<int>>(key1);
+        var entity1 = entityMock1.Object;
 
+        entityMock1.Setup(x => x.Equals(entity1)).CallBase();
+
+        Entity<int>? entity2 = null;
 
         // Assert
-        entity1.EntityEquals(entity2).Should().BeFalse();
+        entity1.Equals(entity2).Should().BeFalse();
 
 
     }
 
-    [Fact]
-    public void EqualsOperator_ShouldReturnTrue_DetailOtherEntityIsOtherType()
-    {
-        // Arrange
-        const int key1 = 1;
-        const int key2 = 2;
-
-        IEntity entity1 = new TwoKeyEntity1(key1, key2);
-        IEntity entity2 = new TwoKeyEntity2(key1, key2);
-
-
-        // Assert
-        entity1.EntityEquals(entity2).Should().BeFalse();
-
-
-    }
 }

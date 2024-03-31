@@ -1,4 +1,5 @@
 ﻿using System.Threading.Channels;
+using VSlices.Domain.Interfaces;
 
 namespace VSlices.Core.Events;
 

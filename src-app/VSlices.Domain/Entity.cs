@@ -22,7 +22,7 @@ public abstract class Entity<TKey> : IEntity<TKey>
     /// Creates a new entity with the specified key
     /// </summary>
     /// <param name="id">The key of the entity</param>
-    protected Entity(TKey id)
+    protected Entity(TKey id) : this()
     {
         Id = id;
     }

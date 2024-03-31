@@ -16,11 +16,11 @@ public static class HostedEventListenerExtensions
     /// <param name="configAct">Action to configure the service</param>
     /// <returns>Service Collection</returns>
     public static IServiceCollection AddHostedEventListener(this IServiceCollection services,
-        Action<HostedEventListenerConfiguration>? configAct = null)
+        Action<EventListenerConfiguration>? configAct = null)
     {
         services.AddHostedService<HostedEventListener>();
 
-        var config = new HostedEventListenerConfiguration();
+        var config = new EventListenerConfiguration();
         configAct?.Invoke(config);
 
         services.AddSingleton(config);
