@@ -1,4 +1,6 @@
-﻿namespace VSlices.Core.Events;
+﻿using VSlices.Domain.Interfaces;
+
+namespace VSlices.Core.Events;
 
 /// <summary>
 /// Represents a queue writer of events

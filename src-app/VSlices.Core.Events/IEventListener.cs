@@ -10,5 +10,5 @@ public interface IEventListener
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>A <see cref="Task" /> that represents the asynchronous execution of the process</returns>
-    Task ProcessEvents(CancellationToken  cancellationToken);
+    Task ProcessEvents(CancellationToken cancellationToken);
 }

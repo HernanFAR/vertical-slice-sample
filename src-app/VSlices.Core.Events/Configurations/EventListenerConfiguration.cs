@@ -18,7 +18,7 @@ public enum MoveActions
 /// <summary>
 /// Represents the configuration for the background event listener
 /// </summary>
-public class HostedEventListenerConfiguration
+public sealed class EventListenerConfiguration
 {
     /// <summary>
     /// Represents what to do then an exception occurs in the event's <see cref="IHandler{TRequest}"/>

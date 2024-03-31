@@ -2,6 +2,7 @@
 using VSlices.Base.Responses;
 using VSlices.Core.Events.Internals;
 using VSlices.Core.Events.Strategies;
+using VSlices.Domain.Interfaces;
 
 namespace VSlices.Core.Events;
 

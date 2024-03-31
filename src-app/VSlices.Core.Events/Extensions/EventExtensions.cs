@@ -1,5 +1,5 @@
-﻿using VSlices.Core;
-using VSlices.Core.Events;
+﻿using VSlices.Core.Events;
+using VSlices.Core.Events.Configurations;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
@@ -84,9 +84,11 @@ public static class EventExtensions
     /// <typeparam name="T">Implementation Type</typeparam>
     /// <param name="services">Service Collection</param>
     /// <returns>Service Collection</returns>
-    public static IServiceCollection AddEventListenerService<T>(this IServiceCollection services)
+    public static IServiceCollection AddEventListener<T>(this IServiceCollection services,
+        Action<EventListenerConfiguration>? configAction = null)
+        where T : IEventListener
     {
-        return services.AddEventListenerService(typeof(T));
+        return services.AddEventListener(typeof(T), configAction);
     }
 
     /// <summary>
@@ -94,15 +96,22 @@ public static class EventExtensions
     /// </summary>
     /// <param name="services">Service Collection</param>
     /// <param name="type">Implementation Type</param>
+    /// <param name="configAction">Action to configure the <see cref="EventListenerConfiguration" /></param>
     /// <returns>Service Collection</returns>
-    public static IServiceCollection AddEventListenerService(this IServiceCollection services,
-        Type type)
+    public static IServiceCollection AddEventListener(this IServiceCollection services,
+        Type type, Action<EventListenerConfiguration>? configAction)
     {
         if (!typeof(IEventListener).IsAssignableFrom(type))
         {
             throw new InvalidOperationException($"{type.FullName} does not implement {typeof(IEventListener).FullName}");
         }
 
-        return services.AddSingleton(typeof(IEventListener), type);
+        EventListenerConfiguration config = new();
+
+        configAction?.Invoke(config);
+
+        return services.AddSingleton(typeof(IEventListener), type)
+            .AddSingleton(config);
     }
+
 }

@@ -33,9 +33,7 @@ public static class BusinessFailureExtensions
         {
             Status = statusCode,
             Detail = failure.Detail,
-            Title = failure.Title,
-            Instance = failure.Instance,
-            Type = failure.Type
+            Title = failure.Title
         };
 
         if (failure.CustomExtensions is not null)
@@ -60,7 +58,7 @@ public static class BusinessFailureExtensions
                 propertyName => failure.Errors
                     .Where(x => x.Name == propertyName)
                     .Select(e => e.Detail)
-                    .ToArray()); ;
+                    .ToArray());
 
         return problemDetails;
     }
