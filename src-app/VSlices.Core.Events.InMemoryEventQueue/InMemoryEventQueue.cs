@@ -8,7 +8,7 @@ namespace VSlices.Core.Events;
 /// </summary>
 public sealed class InMemoryEventQueue : IEventQueue
 {
-    readonly Channel<IEvent> _channel;
+    internal readonly Channel<IEvent> _channel;
 
     /// <summary>
     /// Creates a new instance of <see cref="InMemoryEventQueue"/>
