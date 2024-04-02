@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
 using VSlices.Base.Responses;
-using VSlices.CrossCutting;
+using VSlices.CrossCutting.Pipeline;
 
 namespace VSlices.Core.UseCases.Internals;
 

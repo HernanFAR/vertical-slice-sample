@@ -1,4 +1,5 @@
 ﻿using VSlices.CrossCutting;
+using VSlices.CrossCutting.Pipeline;
 
 namespace VSlices.Core.Events.Strategies;
 
