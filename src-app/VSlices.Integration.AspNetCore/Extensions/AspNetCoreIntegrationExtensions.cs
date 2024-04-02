@@ -6,8 +6,8 @@ using VSlices.Core.Presentation;
 namespace Microsoft.AspNetCore.Builder;
 
 /// <summary>
-/// <see cref="IEndpointRouteBuilder"/> extensions to expose <see cref="IEndpointDefinition" /> and
-/// <see cref="ISimpleEndpointDefinition"/> in the <see cref="IServiceProvider"/>
+/// <see cref="IEndpointRouteBuilder"/> extensions to expose <see cref="IEndpoint" /> and
+/// <see cref="ISimpleEndpoint"/> in the <see cref="IServiceProvider"/>
 /// </summary>
 public static class AspNetCoreIntegrationExtensions
 {
@@ -19,7 +19,7 @@ public static class AspNetCoreIntegrationExtensions
     {
         using var services = app.ServiceProvider.CreateScope();
 
-        var endpoints = services.ServiceProvider.GetServices<ISimpleEndpointDefinition>();
+        var endpoints = services.ServiceProvider.GetServices<ISimpleEndpoint>();
 
         foreach (var endpoint in endpoints)
         {
