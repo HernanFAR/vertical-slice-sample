@@ -1,30 +1,31 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base.Responses;
+using VSlices.Core.Builder;
 
 namespace VSlices.Core.UnitTests.Extensions;
 
 public class FeatureDependencyExtensionsTests
 {
-    public class DependencyDefinition1 : IFeatureDependencyDefinition
+    public class DependencyDefinition1 : IFeatureDependencies
     {
         public class A { }
         public class B { }
 
-        public static void DefineDependencies(IServiceCollection services)
+        public static void DefineDependencies(FeatureBuilder featureBuilder)
         {
-            services.AddTransient<A>();
-            services.AddTransient<B>();
+            featureBuilder.Services.AddTransient<A>();
+            featureBuilder.Services.AddTransient<B>();
         }
     }
 
-    public class DependencyDefinition2 : IFeatureDependencyDefinition
+    public class DependencyDefinition2 : IFeatureDependencies
     {
         public class C { }
 
-        public static void DefineDependencies(IServiceCollection services)
+        public static void DefineDependencies(FeatureBuilder featureBuilder)
         {
-            services.AddTransient<C>();
+            featureBuilder.Services.AddTransient<C>();
         }
     }
 
@@ -64,7 +65,8 @@ public class FeatureDependencyExtensionsTests
         var act = () => services.AddFeatureDependency(typeof(Success));
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage($"{typeof(Success).FullName} does not implement {nameof(IFeatureDependencyDefinition)}");
+            .WithMessage($"{typeof(Success).FullName} does not implement {nameof(IFeatureDependencies)}");
+
     }
 
     public record Anchor;
