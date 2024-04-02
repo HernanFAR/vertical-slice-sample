@@ -1,32 +1,26 @@
-﻿using VSlices.Core;
-// ReSharper disable CheckNamespace
+﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace VSlices.Core.Builder;
 
-/// <summary>
-/// <see cref="IServiceCollection"/> extensions for <see cref="IHandler{TRequest,TResult}"/>
-/// </summary>
-public static class HandlerExtensions
+public static class FeatureBuilderExtensions
 {
     /// <summary>
     /// Adds <typeparamref name="T"/> as <see cref="IHandler{TRequest,TResult}"/> to the service collection.
     /// </summary>
     /// <typeparam name="T">The endpoint definition to be added</typeparam>
-    /// <param name="services">Service collection</param>
+    /// <param name="featureBuilder">Service collection</param>
     /// <returns>Service collection</returns>
-    public static IServiceCollection AddHandler<T>(this IServiceCollection services)
-    {
-        return services.AddHandler(typeof(T));
-    }
+    public static FeatureBuilder AddHandler<T>(this FeatureBuilder featureBuilder)
+        => featureBuilder.AddHandler(typeof(T));
 
     /// <summary>
     /// Adds an the specified <see cref="Type"/> as <see cref="IHandler{TRequest,TResult}"/> to the service collection.
     /// </summary>
-    /// <param name="services">Service collection</param>
+    /// <param name="featureBuilder">Service collection</param>
     /// <param name="handlerType">The endpoint definition to be added</param>
     /// <exception cref="InvalidOperationException"></exception>
     /// <returns>Service collection</returns>
-    public static IServiceCollection AddHandler(this IServiceCollection services,
+    public static FeatureBuilder AddHandler(this FeatureBuilder featureBuilder,
         Type handlerType)
     {
         var handlerInterface = handlerType.GetInterfaces()
@@ -39,8 +33,10 @@ public static class HandlerExtensions
                 $"The type {handlerType.FullName} does not implement {typeof(IHandler<,>).FullName}");
         }
 
-        services.AddTransient(handlerInterface, handlerType);
+        featureBuilder.Services.AddTransient(handlerInterface, handlerType);
 
-        return services;
+        return featureBuilder;
+
     }
 }
+

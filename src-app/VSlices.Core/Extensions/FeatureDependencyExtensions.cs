@@ -1,16 +1,17 @@
 ﻿using System.Reflection;
 using VSlices.Core;
+using VSlices.Core.Builder;
 // ReSharper disable CheckNamespace
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// <see cref="IServiceCollection"/> extensions for <see cref="IFeatureDependencyDefinition"/>
+/// <see cref="IServiceCollection"/> extensions for <see cref="IFeatureDependencies"/>
 /// </summary>
 public static class FeatureDependencyExtensions
 {
     /// <summary>
-    /// Adds the dependencies defined in the <see cref="IFeatureDependencyDefinition"/> implementations from the
+    /// Adds the dependencies defined in the <see cref="IFeatureDependencies"/> implementations from the
     /// <see cref="Assembly"/>'s <typeparamref name="TAnchor"></typeparamref>
     /// </summary>
     /// <typeparam name="TAnchor"></typeparam>
@@ -23,7 +24,7 @@ public static class FeatureDependencyExtensions
     }
 
     /// <summary>
-    /// Adds the dependencies defined in the <see cref="IFeatureDependencyDefinition"/> implementations from the
+    /// Adds the dependencies defined in the <see cref="IFeatureDependencies"/> implementations from the
     /// <see cref="Assembly"/>'s specified <see cref="Type"/>
     /// </summary>
     /// <param name="type"></param>
@@ -37,7 +38,7 @@ public static class FeatureDependencyExtensions
     }
 
     /// <summary>
-    /// Adds the dependencies defined in the <see cref="IFeatureDependencyDefinition"/> implementations from the specified
+    /// Adds the dependencies defined in the <see cref="IFeatureDependencies"/> implementations from the specified
     /// <see cref="Assembly"/>
     /// </summary>
     /// <param name="assembly">Assembly to scan</param>
@@ -48,7 +49,7 @@ public static class FeatureDependencyExtensions
         Assembly assembly)
     {
         var types = assembly.ExportedTypes
-            .Where(e => typeof(IFeatureDependencyDefinition).IsAssignableFrom(e))
+            .Where(e => typeof(IFeatureDependencies).IsAssignableFrom(e))
             .Where(e => e is { IsAbstract: false, IsInterface: false });
 
         foreach (var type in types)
@@ -62,38 +63,38 @@ public static class FeatureDependencyExtensions
     /// <summary>
     /// Adds the dependencies defined in the <typeparamref name="T"></typeparamref> implementation
     /// </summary>
-    /// <typeparam name="T"><see cref="IFeatureDependencyDefinition"/> implementation</typeparam>
+    /// <typeparam name="T"><see cref="IFeatureDependencies"/> implementation</typeparam>
     /// <param name="services">Service collection</param>
     /// <returns>Service collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
     public static IServiceCollection AddFeatureDependency<T>(this IServiceCollection services)
-        where T : IFeatureDependencyDefinition
+        where T : IFeatureDependencies
     {
-        T.DefineDependencies(services);
+        T.DefineDependencies(new FeatureBuilder(services));
 
         return services;
     }
 
     /// <summary>
-    /// Adds the dependencies defined in the <see cref="IFeatureDependencyDefinition"/> implementations from the
+    /// Adds the dependencies defined in the <see cref="IFeatureDependencies"/> implementations from the
     /// specified <see cref="Type"/>
     /// </summary>
     /// <param name="services">Service collection</param>
-    /// <param name="type"><see cref="IFeatureDependencyDefinition"/> implementation</param>
+    /// <param name="type"><see cref="IFeatureDependencies"/> implementation</param>
     /// <returns>Service collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
     public static IServiceCollection AddFeatureDependency(this IServiceCollection services,
         Type type)
     {
-        if (!typeof(IFeatureDependencyDefinition).IsAssignableFrom(type))
+        if (!typeof(IFeatureDependencies).IsAssignableFrom(type))
         {
             throw new InvalidOperationException(
-                $"{type.FullName} does not implement {nameof(IFeatureDependencyDefinition)}");
+                $"{type.FullName} does not implement {nameof(IFeatureDependencies)}");
         }
 
-        var defineDependenciesMethod = type.GetMethod(nameof(IFeatureDependencyDefinition.DefineDependencies));
+        var defineDependenciesMethod = type.GetMethod(nameof(IFeatureDependencies.DefineDependencies));
 
-        defineDependenciesMethod!.Invoke(null, new object?[] { services });
+        defineDependenciesMethod!.Invoke(null, new object?[] { new FeatureBuilder(services) });
 
         return services;
     }

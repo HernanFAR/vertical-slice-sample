@@ -1,11 +1,13 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics;
 using VSlices.Base;
 using VSlices.Base.Responses;
+using VSlices.Core.Builder;
 
 namespace VSlices.Core.UnitTests.Extensions;
 
-public class HandlerExtensionsTests
+public class FeatureBuilderExtensionsTests
 {
     public record Feature1 : IFeature<Success>
     { }
@@ -13,7 +15,7 @@ public class HandlerExtensionsTests
     {
         public ValueTask<Result<Success>> HandleAsync(Feature1 request, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            throw new UnreachableException();
         }
     }
 
@@ -23,7 +25,7 @@ public class HandlerExtensionsTests
     {
         public ValueTask<Result<Response2>> HandleAsync(Feature2 request, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            throw new UnreachableException();
         }
     }
 
@@ -31,20 +33,20 @@ public class HandlerExtensionsTests
     public void AddHandlersFrom_ShouldAdHandlerImplementationsUsingTwoGenericOverload()
     {
         // Arrange
-        var services = new ServiceCollection();
+        var featureBuilder = new FeatureBuilder(new ServiceCollection());
 
         // Act
-        services.AddHandler<Handler1>();
-        services.AddHandler<Handler2>();
+        featureBuilder.AddHandler<Handler1>();
+        featureBuilder.AddHandler<Handler2>();
 
 
         // Assert
-        services
+        featureBuilder.Services
             .Where(e => e.ImplementationType == typeof(Handler1))
             .Any(e => e.ServiceType == typeof(IHandler<Feature1, Success>))
             .Should().BeTrue();
 
-        services
+        featureBuilder.Services
             .Where(e => e.ImplementationType == typeof(Handler2))
             .Any(e => e.ServiceType == typeof(IHandler<Feature2, Response2>))
             .Should().BeTrue();
