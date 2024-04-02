@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Description>Implementation package for validation behavior implementation in CrossCutting projects using FluentValidation</Description>
-		<PackageTags>functional;request;result;pipeline;crosscutting;validation;fluent-validation</PackageTags>
+		<PackageTags>functional;request;result;pipeline;cross-cutting;validation;fluent-validation</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -13,7 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\VSlices.CrossCutting\VSlices.CrossCutting.csproj" />
+	  <ProjectReference Include="..\VSlices.CrossCutting.Pipeline\VSlices.CrossCutting.Pipeline.csproj" />
 	</ItemGroup>
 
 </Project>

@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using VSlices.Base;
 using VSlices.Base.Responses;
-using VSlices.CrossCutting.Logging.Describers;
+using VSlices.CrossCutting.Pipeline.Logging.Describers;
 
-namespace VSlices.CrossCutting.Logging;
+namespace VSlices.CrossCutting.Pipeline.Logging;
 
 /// <summary>
 /// Base logging behavior

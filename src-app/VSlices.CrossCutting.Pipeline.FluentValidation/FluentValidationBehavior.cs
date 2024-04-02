@@ -2,7 +2,7 @@
 using VSlices.Base;
 using VSlices.Base.Responses;
 
-namespace VSlices.CrossCutting.FluentValidation;
+namespace VSlices.CrossCutting.Pipeline.FluentValidation;
 
 /// <summary>
 /// A validation behavior that uses FluentValidation

@@ -1,4 +1,4 @@
-﻿namespace VSlices.CrossCutting.Logging.Describers;
+﻿namespace VSlices.CrossCutting.Pipeline.Logging.Describers;
 
 /// <summary>
 /// Describer for logging messages in english

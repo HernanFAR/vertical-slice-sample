@@ -1,7 +1,7 @@
 ﻿using VSlices.Base;
 using VSlices.Base.Responses;
 
-namespace VSlices.CrossCutting;
+namespace VSlices.CrossCutting.Pipeline;
 
 /// <summary>
 /// A delegate that represents the next action in the pipeline
