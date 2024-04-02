@@ -11,7 +11,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\VSlices.Core.UseCases\VSlices.Core.UseCases.csproj" />
-		<ProjectReference Include="..\VSlices.CrossCutting\VSlices.CrossCutting.csproj" />
+		<ProjectReference Include="..\VSlices.CrossCutting.Pipeline\VSlices.CrossCutting.Pipeline.csproj" />
 	</ItemGroup>
 
 </Project>
