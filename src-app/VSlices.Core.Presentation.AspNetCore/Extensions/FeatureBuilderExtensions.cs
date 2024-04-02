@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using VSlices.Base;
 using VSlices.Core.Presentation;
 
 namespace VSlices.Core.Builder;
 
 /// <summary>
-/// <see cref="FeatureBuilder"/> extensions for <see cref="IEndpoint"/>
+/// <see cref="FeatureBuilder" /> extensions to simplify <see cref="IFeature{TResult}" />'s 
+/// <see cref="IEndpoint" /> definitions
 /// </summary>
 public static class FeatureBuilderExtensions
 {

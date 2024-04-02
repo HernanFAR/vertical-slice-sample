@@ -1,7 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using VSlices.Base;
 
 namespace VSlices.Core.Builder;
 
+/// <summary>
+/// <see cref="FeatureBuilder" /> extensions to simplify <see cref="IFeature{TResult}" />'s 
+/// <see cref="IHandler{TFeature, TResult}" /> definitions
+/// </summary>
 public static class FeatureBuilderExtensions
 {
     /// <summary>
