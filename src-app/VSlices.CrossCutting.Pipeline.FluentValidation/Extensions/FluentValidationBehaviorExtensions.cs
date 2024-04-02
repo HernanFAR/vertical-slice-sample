@@ -1,8 +1,6 @@
-﻿// ReSharper disable CheckNamespace
-
-using VSlices.Base;
-using VSlices.CrossCutting;
-using VSlices.CrossCutting.FluentValidation;
+﻿using VSlices.Base;
+using VSlices.CrossCutting.Pipeline;
+using VSlices.CrossCutting.Pipeline.FluentValidation;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

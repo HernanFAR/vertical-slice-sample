@@ -1,6 +1,4 @@
-﻿// ReSharper disable CheckNamespace
-
-using VSlices.CrossCutting.ExceptionHandling;
+﻿using VSlices.CrossCutting.Pipeline.ExceptionHandling;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

@@ -1,7 +1,7 @@
 ﻿using VSlices.Base;
 using VSlices.Base.Responses;
 
-namespace VSlices.CrossCutting.ExceptionHandling;
+namespace VSlices.CrossCutting.Pipeline.ExceptionHandling;
 
 /// <summary>
 /// Base exception handling behavior
