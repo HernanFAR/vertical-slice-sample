@@ -13,10 +13,8 @@ public static class SenderExtensions
     /// </summary>
     /// <typeparam name="T">Implementation of the <see cref="ISender"/></typeparam>
     /// <param name="services">Service collection</param>
-    /// <param name="lifetime">The lifetime of the <see cref="ISender"/> implemented</param>
     /// <returns>Service collection</returns>
-    public static IServiceCollection AddSender<T>(this IServiceCollection services,
-        ServiceLifetime lifetime = ServiceLifetime.Scoped)
+    public static IServiceCollection AddSender<T>(this IServiceCollection services)
         where T : ISender
     {
         services.AddScoped(typeof(ISender), typeof(T));
