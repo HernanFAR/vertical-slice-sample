@@ -2,7 +2,7 @@
 using VSlices.Base;
 using VSlices.Base.Responses;
 using VSlices.Core.Events.Strategies;
-using VSlices.CrossCutting;
+using VSlices.CrossCutting.Pipeline;
 
 namespace VSlices.Core.Events.Internals;
 

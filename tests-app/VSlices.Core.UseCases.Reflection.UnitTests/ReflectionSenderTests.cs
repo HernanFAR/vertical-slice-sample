@@ -1,9 +1,8 @@
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using VSlices.Base;
 using VSlices.Base.Responses;
 using VSlices.Core.UseCases;
-using VSlices.CrossCutting;
+using VSlices.CrossCutting.Pipeline;
 
 namespace VSlices.Core.Sender.Reflection.IntegTests;
 

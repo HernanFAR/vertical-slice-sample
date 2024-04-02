@@ -4,7 +4,7 @@ using System.Diagnostics;
 using VSlices.Base;
 using VSlices.Base.Responses;
 using VSlices.Core.Events.Strategies;
-using VSlices.CrossCutting;
+using VSlices.CrossCutting.Pipeline;
 using VSlices.Domain;
 
 namespace VSlices.Core.Events.Publisher.Reflection.IntegTests;
