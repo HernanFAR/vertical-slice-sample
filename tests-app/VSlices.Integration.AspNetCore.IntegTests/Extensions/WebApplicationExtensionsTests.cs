@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using FluentAssertions;
 using VSlices.Core.Presentation;
+using VSlices.Core.Builder;
 
 namespace VSlices.Integration.AspNetCore.IntegTests.Extensions;
 
@@ -28,7 +29,7 @@ public class WebApplicationExtensionsTests
         public ICollection<EndpointDataSource> DataSources { get; }
     }
 
-    public class Endpoint : IEndpointDefinition
+    public class Endpoint : IEndpoint
     {
         public const string ApiRoute = "api/test";
 
@@ -39,7 +40,7 @@ public class WebApplicationExtensionsTests
 
         public static Task Test(HttpContext context) => Task.FromResult<IResult>(EmptyHttpResult.Instance);
 
-        public static void DefineDependencies(IServiceCollection services)
+        public static void DefineDependencies(FeatureBuilder featureBuilder)
         {
 
         }
@@ -48,11 +49,11 @@ public class WebApplicationExtensionsTests
     [Fact]
     public void UseEndpointDefinitions_ShouldCallMethods()
     {
-        var services = new ServiceCollection();
+        var featureBuilder = new FeatureBuilder(new ServiceCollection());
 
-        services.AddEndpointDefinition<Endpoint>();
+        featureBuilder.AddEndpoint<Endpoint>();
 
-        var provider = services.BuildServiceProvider();
+        var provider = featureBuilder.Services.BuildServiceProvider();
 
         var webAppDummy = new WebAppDummy(provider);
 
