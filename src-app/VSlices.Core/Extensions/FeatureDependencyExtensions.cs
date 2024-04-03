@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿
+using System.Reflection;
 using VSlices.Core;
 using VSlices.Core.Builder;
 // ReSharper disable CheckNamespace
