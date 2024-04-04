@@ -7,7 +7,7 @@ using VSlices.Core.Builder;
 
 namespace VSlices.Core.UnitTests.Extensions;
 
-public class FeatureBuilderExtensionsTests
+public class HandlerExtensionsTests
 {
     public record Feature1 : IFeature<Success>
     { }
