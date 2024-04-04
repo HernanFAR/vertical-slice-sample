@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using VSlices.CrossCutting.Pipeline;
 using VSlices.CrossCutting.Pipeline.ExceptionHandling;
 
 namespace VSlices.Core.Builder;
@@ -27,12 +28,24 @@ public static class ExceptionHandlingBehaviorExtensions
     public static FeatureBuilder AddExceptionHandlingPipeline(this FeatureBuilder featureBuilder,
         Type exceptionHandlingBehavior)
     {
-        if (!exceptionHandlingBehavior.IsAssignableTo(typeof(AbstractExceptionHandlingBehavior<,>)))
+        var pipelineInterface = exceptionHandlingBehavior.GetInterfaces()
+            .Where(o => o.IsGenericType)
+            .SingleOrDefault(o => o.GetGenericTypeDefinition() == typeof(IPipelineBehavior<,>))
+            ?? throw new InvalidOperationException(
+                $"The type {exceptionHandlingBehavior.FullName} does not implement {typeof(IPipelineBehavior<,>).FullName}");
+
+        var exceptionHandlingBehaviorBase = typeof(AbstractExceptionHandlingBehavior<,>)
+            .MakeGenericType(pipelineInterface.GetGenericArguments()[0], pipelineInterface.GetGenericArguments()[1]);
+
+        if (!exceptionHandlingBehavior.IsAssignableTo(exceptionHandlingBehaviorBase))
         {
             throw new InvalidOperationException(
                 $"Type {exceptionHandlingBehavior.FullName} must inherit from {typeof(AbstractExceptionHandlingBehavior<,>).FullName}");
         }
 
-        return featureBuilder.AddPipeline(exceptionHandlingBehavior);
+        featureBuilder.Services.AddTransient(pipelineInterface, exceptionHandlingBehavior);
+
+        return featureBuilder;
+
     }
 }
