@@ -53,6 +53,18 @@ public class EventExtensionsTests
     }
 
     [Fact]
+    public void AddPublisher_ShouldThrowException()
+    {
+        var expMessage = $"{typeof(object).FullName} does not implement {typeof(IPublisher).FullName}";
+        var services = new ServiceCollection();
+
+        var act = () => services.AddPublisher(typeof(object));
+
+        act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
+
+    }
+
+    [Fact]
     public void AddEventQueue_ShouldAddEventQueue()
     {
         var services = new ServiceCollection();
@@ -64,6 +76,18 @@ public class EventExtensionsTests
             .Where(e => e.ImplementationType == typeof(EventQueue))
             .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
+
+    }
+
+    [Fact]
+    public void AddEventQueue_ShouldThrowInvalidOperationException()
+    {
+        var expMessage = $"{typeof(object).FullName} does not implement {typeof(IEventQueue).FullName}";
+        var services = new ServiceCollection();
+
+        var act = () => services.AddEventQueue(typeof(object));
+
+        act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 
     }
 
@@ -117,6 +141,19 @@ public class EventExtensionsTests
 
         opts.ActionInException.Should().Be(moveActions);
         opts.MaxRetries.Should().Be(3);
+
+
+    }
+
+    [Fact]
+    public void AddDefaultEventListener_ShouldThrowInvalidOperationException()
+    {
+        var expMessage = $"{typeof(object).FullName} does not implement {typeof(IEventListenerCore).FullName}";
+        var services = new ServiceCollection();
+
+        var act = () => services.AddEventListener(typeof(object), null);
+
+        act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 
 
     }
