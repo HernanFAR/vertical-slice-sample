@@ -1,8 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using VSlices.Core.UseCases;
 
-namespace VSlices.Core.Sender.Reflection.IntegTests.Extensions;
+namespace VSlices.Core.UseCases.Reflection.UnitTests.Extensions;
 
 public class ReflectionSenderExtensionsTests
 {

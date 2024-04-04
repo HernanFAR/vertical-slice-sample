@@ -1,12 +1,11 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using VSlices.Core.Events;
 using VSlices.Core.Events.Configurations;
 using VSlices.Domain.Interfaces;
 
-namespace VSlices.Core.Abstracts.UnitTests.Extensions;
+namespace VSlices.Core.Events.Units.Extensions;
 
-public class EventExtensions
+public class EventExtensionsTests
 {
     public class Publisher : IPublisher
     {

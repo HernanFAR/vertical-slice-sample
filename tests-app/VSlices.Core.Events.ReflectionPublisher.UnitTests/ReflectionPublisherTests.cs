@@ -7,7 +7,7 @@ using VSlices.Core.Events.Strategies;
 using VSlices.CrossCutting.Pipeline;
 using VSlices.Domain;
 
-namespace VSlices.Core.Events.Publisher.Reflection.IntegTests;
+namespace VSlices.Core.Events._ReflectionPublisher.UnitTests;
 
 public class ReflectionPublisherTests
 {

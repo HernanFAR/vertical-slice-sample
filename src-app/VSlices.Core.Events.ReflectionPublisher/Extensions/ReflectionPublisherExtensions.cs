@@ -1,7 +1,6 @@
 ﻿using VSlices.Core.Events;
 using VSlices.Core.Events.Strategies;
 
-// ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
@@ -16,7 +15,7 @@ public static class ReflectionPublisherExtensions
     /// <param name="services">Service Collection</param>
     /// <param name="strategy">Publishing strategy</param>
     /// <returns>Service Collection</returns>
-    public static IServiceCollection AddReflectionPublisher(this IServiceCollection services, 
+    public static IServiceCollection AddReflectionPublisher(this IServiceCollection services,
         IPublishingStrategy? strategy = null)
     {
         strategy ??= new AwaitInParallelStrategy();

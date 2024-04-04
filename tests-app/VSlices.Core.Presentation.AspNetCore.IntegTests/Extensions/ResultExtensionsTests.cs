@@ -1,8 +1,7 @@
-using System.Diagnostics;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
 using VSlices.Base.Responses;
 
 namespace VSlices.Core.Presentation.AspNetCore.IntegTests.Extensions;
@@ -44,7 +43,7 @@ public class ResponseExtensionsTests
         const string expTitle = "Title";
         const string expDetail = "Detail";
 
-        Result<Success> oneOf = new Failure(FailureKind.UserNotAuthenticated, 
+        Result<Success> oneOf = new Failure(FailureKind.UserNotAuthenticated,
             Title: expTitle, Detail: expDetail);
 
         var result = oneOf.MatchEndpointResult(_ => throw new UnreachableException());
@@ -64,7 +63,7 @@ public class ResponseExtensionsTests
         const string expTitle = "Title";
         const string expDetail = "Detail";
 
-        Result<Success> oneOf = new Failure(FailureKind.UserNotAllowed, 
+        Result<Success> oneOf = new Failure(FailureKind.UserNotAllowed,
             Title: expTitle, Detail: expDetail);
 
         var result = oneOf.MatchEndpointResult(_ => throw new UnreachableException());
@@ -133,8 +132,8 @@ public class ResponseExtensionsTests
         };
 
         Result<Success> oneOf = new Failure(FailureKind.ValidationError,
-            Title: expTitle, 
-            Detail: expDetail, 
+            Title: expTitle,
+            Detail: expDetail,
             Errors: errors);
 
         var result = oneOf.MatchEndpointResult(_ => throw new UnreachableException());
@@ -145,7 +144,7 @@ public class ResponseExtensionsTests
         problemDetails.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
         problemDetails.Title.Should().Be(expTitle);
         problemDetails.Detail.Should().Be(expDetail);
-        ((Dictionary<string, string[]>) problemDetails.Extensions["Errors"].Should().BeOfType<Dictionary<string, string[]>>()
+        ((Dictionary<string, string[]>)problemDetails.Extensions["Errors"].Should().BeOfType<Dictionary<string, string[]>>()
             .And.Subject)
             .Should().BeEquivalentTo(new Dictionary<string, string[]>
             {
@@ -173,9 +172,9 @@ public class ResponseExtensionsTests
         };
 
         Result<Success> oneOf = new Failure(FailureKind.ValidationError,
-            Title: expTitle, 
-            Detail: expDetail, 
-            CustomExtensions: new Dictionary<string, object?>()  { { "Errors", errors } });
+            Title: expTitle,
+            Detail: expDetail,
+            CustomExtensions: new Dictionary<string, object?>() { { "Errors", errors } });
 
         var result = oneOf.MatchEndpointResult(_ => throw new UnreachableException());
 

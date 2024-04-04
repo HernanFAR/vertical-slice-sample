@@ -1,23 +1,20 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.VisualStudio.TestPlatform.ObjectModel.Client;
 using System.Diagnostics;
 using VSlices.Base;
 using VSlices.Base.Responses;
 using VSlices.Core.Builder;
-using VSlices.CrossCutting.Pipeline;
-using static VSlices.CrossCutting.UnitTests.Extensions.FeatureBuilderExtensions;
 
-namespace VSlices.CrossCutting.UnitTests.Extensions;
+namespace VSlices.CrossCutting.Pipeline.UnitTests.Extensions;
 
-public class FeatureBuilderExtensions
+public class FeatureBuilderExtensionsTests
 {
     public record RequestResult;
     public record Request : IFeature<RequestResult>;
     public class TestPipeline<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        public ValueTask<Result<TResult>> HandleAsync(TRequest request, 
+        public ValueTask<Result<TResult>> HandleAsync(TRequest request,
             RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
         {
             throw new UnreachableException();

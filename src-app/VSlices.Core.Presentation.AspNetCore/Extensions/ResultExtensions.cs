@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-// ReSharper disable once CheckNamespace
 namespace VSlices.Base.Responses;
 
 /// <summary>
@@ -21,8 +20,8 @@ public static class ResponseExtensions
     public static IResult MatchEndpointResult<TSuccess>(this Result<TSuccess> result,
         Func<TSuccess, IResult> successFunc)
     {
-        return result.IsSuccess 
-            ? successFunc(result.Data) 
+        return result.IsSuccess
+            ? successFunc(result.Data)
             : TypedResults.Problem(result.Failure.ToProblemDetails());
     }
 }

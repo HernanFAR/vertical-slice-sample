@@ -1,9 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using VSlices.Core.Events.Configurations;
-using VSlices.Domain.Interfaces;
+﻿using Microsoft.Extensions.Hosting;
 
 namespace VSlices.Core.Events;
 

@@ -52,4 +52,21 @@ public class HandlerExtensionsTests
             .Should().BeTrue();
 
     }
+
+    [Fact]
+    public void AddHandlersFrom_ShouldThrowInvalidOperationException()
+    {
+        // Arrange
+        var featureBuilder = new FeatureBuilder(new ServiceCollection());
+        var expMessage = $"The type {typeof(object).FullName} does not implement {typeof(IHandler<,>).FullName}";
+
+        // Act
+        var act = () => featureBuilder.AddHandler<object>();
+
+
+        // Assert
+        act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
+        featureBuilder.Services.Should().BeEmpty();
+
+    }
 }

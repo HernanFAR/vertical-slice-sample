@@ -1,9 +1,7 @@
-﻿using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using VSlices.Core.Presentation;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.AspNetCore.Builder;
+namespace Microsoft.AspNetCore.Routing;
 
 /// <summary>
 /// <see cref="IEndpointRouteBuilder"/> extensions to expose <see cref="IEndpoint" /> and
