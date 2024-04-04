@@ -30,13 +30,9 @@ public static class HandlerExtensions
     {
         var handlerInterface = handlerType.GetInterfaces()
             .Where(o => o.IsGenericType)
-            .SingleOrDefault(o => o.GetGenericTypeDefinition() == typeof(IHandler<,>));
-
-        if (handlerInterface is null)
-        {
-            throw new InvalidOperationException(
+            .SingleOrDefault(o => o.GetGenericTypeDefinition() == typeof(IHandler<,>))
+            ?? throw new InvalidOperationException(
                 $"The type {handlerType.FullName} does not implement {typeof(IHandler<,>).FullName}");
-        }
 
         featureBuilder.Services.AddTransient(handlerInterface, handlerType);
 

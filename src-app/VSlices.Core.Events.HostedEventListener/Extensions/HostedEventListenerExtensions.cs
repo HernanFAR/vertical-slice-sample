@@ -1,7 +1,6 @@
 ﻿using VSlices.Core.Events;
 using VSlices.Core.Events.Configurations;
 
-// ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
@@ -33,8 +32,6 @@ public static class HostedEventListenerExtensions
     public static IServiceCollection AddDefaultHostedEventListener(this IServiceCollection services,
         Action<EventListenerConfiguration>? configAct = null)
     {
-        return services
-            .AddEventListener<EventListenerCore>(configAct)
-            .AddHostedService<HostedEventListener>();
+        return services.AddHostedEventListener<EventListenerCore>(configAct);
     }
 }

@@ -2,12 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using VSlices.Base;
-using VSlices.Base.Responses;
 using VSlices.Core.Builder;
-using VSlices.CrossCutting.Pipeline;
-using VSlices.CrossCutting.Pipeline.ExceptionHandling;
 
-namespace VSlices.CrossCutting.UnitTests.Extensions;
+namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests.Extensions;
 
 public class ExceptionHandlingBehaviorExtensionsTests
 {

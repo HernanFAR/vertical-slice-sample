@@ -1,5 +1,4 @@
-﻿// ReSharper disable CheckNamespace
-using VSlices.Core.UseCases;
+﻿using VSlices.Core.UseCases;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

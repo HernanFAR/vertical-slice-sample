@@ -1,8 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using System.Linq;
 
-namespace VSlices.Core.Events.EventQueue.InMemory.UnitTests.Extensions;
+namespace VSlices.Core.Events._InMemoryEventQueue.UnitTests.Extensions;
 
 public class InMemoryEventQueueExtensionsTests
 {
@@ -54,7 +53,7 @@ public class InMemoryEventQueueExtensionsTests
             .Where(e => e.ImplementationType == typeof(InMemoryEventQueue))
             .Any()
             .Should().BeTrue();
-        
+
         InMemoryEventQueueConfiguration? config = services
             .Where(e => e.ServiceType == typeof(InMemoryEventQueueConfiguration))
             .Single().ImplementationInstance as InMemoryEventQueueConfiguration;

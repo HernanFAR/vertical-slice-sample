@@ -1,6 +1,6 @@
 ﻿using VSlices.Domain.Interfaces;
 
-namespace VSlices.Domain;
+namespace VSlices.Domain.Abstractions;
 
 /// <summary>
 /// A static class that contains abstractions for classes that can't implement <see cref="Entity{TKey}"/>.

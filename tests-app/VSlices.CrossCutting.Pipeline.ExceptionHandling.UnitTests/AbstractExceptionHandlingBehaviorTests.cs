@@ -4,7 +4,7 @@ using System.Diagnostics;
 using VSlices.Base;
 using VSlices.Base.Responses;
 
-namespace VSlices.CrossCutting.Pipeline.ExceptionHandling;
+namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests;
 
 public class AbstractExceptionHandlingBehaviorTests
 {
@@ -30,7 +30,7 @@ public class AbstractExceptionHandlingBehaviorTests
             .Verifiable();
 
         pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
-            .ReturnsAsync(successResult)
+            .CallBase()
             .Verifiable();
 
         pipelineMock.Setup(e => e.InHandleAsync(request, next, default))
@@ -42,6 +42,7 @@ public class AbstractExceptionHandlingBehaviorTests
                 It.Is<Result<RequestResult>>(e => e.Data == result),
                 default
             ))
+            .CallBase()
             .Verifiable();
 
         var handlerResult = await pipeline.HandleAsync(request, next, default);
@@ -73,7 +74,7 @@ public class AbstractExceptionHandlingBehaviorTests
             .Verifiable();
 
         pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
-            .ReturnsAsync(successResult)
+            .CallBase()
             .Verifiable();
 
         pipelineMock.Setup(e => e.ProcessExceptionAsync(ex, request))
@@ -88,6 +89,7 @@ public class AbstractExceptionHandlingBehaviorTests
                 It.Is<Result<RequestResult>>(e => e.Failure == failure),
                 default
             ))
+            .CallBase()
             .Verifiable();
 
         var handlerResult = await pipeline.HandleAsync(request, next, default);

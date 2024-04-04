@@ -3,14 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using Newtonsoft.Json;
 using VSlices.Base.Responses;
-using VSlices.Core.Events;
 using VSlices.Domain;
 
-namespace VSlices.Core.InMemoryQueue.ReflectionPublisher.IntegTests;
+namespace VSlices.Core.Events.Hosted.InMemory.Reflection.IntegTests;
 
-public class EventFlow
+public class EventFlowTests
 {
     public record AlwaysSuccessEvent() : Event;
 

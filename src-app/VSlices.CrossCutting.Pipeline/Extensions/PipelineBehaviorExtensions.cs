@@ -31,10 +31,10 @@ public static class PipelineBehaviorExtensions
     {
         var pipelineInterface = handlerType.GetInterfaces()
             .Where(o => o.IsGenericType)
-            .SingleOrDefault(o => o.GetGenericTypeDefinition() == typeof(IPipelineBehavior<,>)) 
+            .SingleOrDefault(o => o.GetGenericTypeDefinition() == typeof(IPipelineBehavior<,>))
             ?? throw new InvalidOperationException(
                 $"The type {handlerType.FullName} does not implement {typeof(IPipelineBehavior<,>).FullName}");
-        
+
         featureBuilder.Services.AddTransient(pipelineInterface, handlerType);
 
         return featureBuilder;

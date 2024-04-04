@@ -4,7 +4,7 @@ using VSlices.Base.Responses;
 using VSlices.Core.UseCases;
 using VSlices.CrossCutting.Pipeline;
 
-namespace VSlices.Core.Sender.Reflection.IntegTests;
+namespace VSlices.Core.UseCases.Reflection.UnitTests;
 
 public class ReflectionSenderTests
 {
@@ -96,7 +96,7 @@ public class ReflectionSenderTests
         var provider = services.BuildServiceProvider();
         var sender = provider.GetRequiredService<ISender>();
 
-        var response = await sender.SendAsync<Success>(new RequestOne(), default);
+        var response = await sender.SendAsync(new RequestOne(), default);
 
         response.IsSuccess.Should().BeTrue();
 

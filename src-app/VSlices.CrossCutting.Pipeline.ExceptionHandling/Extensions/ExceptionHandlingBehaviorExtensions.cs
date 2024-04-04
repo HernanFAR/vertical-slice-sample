@@ -15,7 +15,7 @@ public static class ExceptionHandlingBehaviorExtensions
     /// <param name="featureBuilder">Service Collection</param>
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static FeatureBuilder AddExceptionHandlingPipeline<T>(this FeatureBuilder featureBuilder) 
+    public static FeatureBuilder AddExceptionHandlingPipeline<T>(this FeatureBuilder featureBuilder)
         => featureBuilder.AddExceptionHandlingPipeline(typeof(T));
 
     /// <summary>

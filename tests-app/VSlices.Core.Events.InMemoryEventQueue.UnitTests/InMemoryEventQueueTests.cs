@@ -2,7 +2,7 @@ using FluentAssertions;
 using Moq;
 using VSlices.Domain.Interfaces;
 
-namespace VSlices.Core.Events.EventQueue.InMemory.UnitTests;
+namespace VSlices.Core.Events._InMemoryEventQueue.UnitTests;
 
 public class InMemoryEventQueueTests
 {

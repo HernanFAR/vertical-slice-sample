@@ -1,13 +1,11 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using VSlices.Core.Events;
 using VSlices.Core.Events.Configurations;
-using VSlices.Domain.Interfaces;
 
-namespace VSlices.Core.Abstracts.UnitTests.Extensions;
+namespace VSlices.Core.Events._HostedEventListener.UnitTests.Extensions;
 
-public class HostedEventListenerExtensions
+public class HostedEventListenerExtensionsTests
 {
     [Fact]
     public void AddDefaultHostedEventListener_ShouldAddEventListener_DetailWithoutConfig()

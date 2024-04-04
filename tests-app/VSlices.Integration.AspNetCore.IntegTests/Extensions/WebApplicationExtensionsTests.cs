@@ -1,12 +1,12 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using FluentAssertions;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
-using FluentAssertions;
-using VSlices.Core.Presentation;
 using VSlices.Core.Builder;
+using VSlices.Core.Presentation;
 
 namespace VSlices.Integration.AspNetCore.IntegTests.Extensions;
 

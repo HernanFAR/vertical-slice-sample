@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Core.Events.Strategies;
 
-namespace VSlices.Core.Events.Publisher.Reflection.IntegTests.Extensions;
+namespace VSlices.Core.Events._ReflectionPublisher.UnitTests.Extensions;
 
 public class ReflectionPublisherExtensionsTests
 {

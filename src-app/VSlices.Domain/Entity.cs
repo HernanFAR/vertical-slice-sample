@@ -1,4 +1,5 @@
-﻿using VSlices.Domain.Interfaces;
+﻿using VSlices.Domain.Abstractions;
+using VSlices.Domain.Interfaces;
 
 namespace VSlices.Domain;
 
