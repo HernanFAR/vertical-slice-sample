@@ -171,6 +171,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeli
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pipeline", "pipeline", "{0DA14667-12C4-4019-A9CE-CF71901E82B6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests", "tests-app\VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests\VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests.csproj", "{785FF361-758B-4347-8AED-28FAC236F2D4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -405,6 +407,10 @@ Global
 		{2BB75BE8-4624-4A36-B389-F76948CFA983}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2BB75BE8-4624-4A36-B389-F76948CFA983}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2BB75BE8-4624-4A36-B389-F76948CFA983}.Release|Any CPU.Build.0 = Release|Any CPU
+		{785FF361-758B-4347-8AED-28FAC236F2D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{785FF361-758B-4347-8AED-28FAC236F2D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{785FF361-758B-4347-8AED-28FAC236F2D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{785FF361-758B-4347-8AED-28FAC236F2D4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -490,6 +496,7 @@ Global
 		{2D226E05-AE92-4C6A-961F-82B646B95D49} = {3D20519C-AB73-4034-B724-FA398B69EB20}
 		{2BB75BE8-4624-4A36-B389-F76948CFA983} = {0DA14667-12C4-4019-A9CE-CF71901E82B6}
 		{0DA14667-12C4-4019-A9CE-CF71901E82B6} = {8715B3FE-1492-4CDC-9958-E73B21C71BBD}
+		{785FF361-758B-4347-8AED-28FAC236F2D4} = {0DA14667-12C4-4019-A9CE-CF71901E82B6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {653AE7A1-A4C4-42F2-9804-FE7E032C3E8C}
