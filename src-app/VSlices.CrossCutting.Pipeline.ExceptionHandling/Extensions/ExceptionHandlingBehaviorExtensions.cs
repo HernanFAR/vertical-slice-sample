@@ -1,7 +1,7 @@
-﻿using VSlices.Core.Builder;
+﻿using Microsoft.Extensions.DependencyInjection;
 using VSlices.CrossCutting.Pipeline.ExceptionHandling;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace VSlices.Core.Builder;
 
 /// <summary>
 /// <see cref="FeatureBuilder"/> extensions for <see cref="AbstractExceptionHandlingBehavior{TRequest,TResult}"/>

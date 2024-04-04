@@ -17,7 +17,6 @@ public sealed class FluentValidationBehavior<TRequest, TResult> : AbstractPipeli
     /// <summary>
     /// Creates a new instance using the validator registered in the container
     /// </summary>
-    /// <remarks>Even if a <see cref="IEnumerable{T}"/> is used here, only the first validator will be used</remarks>
     /// <param name="requestValidator">Validators registered</param>
     public FluentValidationBehavior(IValidator<TRequest> requestValidator)
     {
