@@ -8,6 +8,6 @@ namespace VSlices.Domain;
 public abstract record Event : IEvent
 {
     /// <inheritdoc />
-    public Guid Id { get; } = Guid.NewGuid();
+    public Guid EventId { get; } = Guid.NewGuid();
 
 }

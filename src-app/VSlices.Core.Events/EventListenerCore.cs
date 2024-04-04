@@ -54,7 +54,7 @@ public sealed class EventListenerCore : IEventListenerCore
                 {
                     await publisher.PublishAsync(workItem, cancellationToken);
 
-                    _retries.Remove(workItem.Id);
+                    _retries.Remove(workItem.EventId);
                 }
                 catch (Exception ex)
                 {
@@ -69,21 +69,21 @@ public sealed class EventListenerCore : IEventListenerCore
 
     private async Task<bool> CheckRetry(IEvent workItem, CancellationToken stoppingToken)
     {
-        if (_retries.TryGetValue(workItem.Id, out var retries))
+        if (_retries.TryGetValue(workItem.EventId, out var retries))
         {
-            _retries[workItem.Id] = retries + 1;
+            _retries[workItem.EventId] = retries + 1;
         }
         else
         {
-            _retries.Add(workItem.Id, 1);
+            _retries.Add(workItem.EventId, 1);
         }
 
-        if (_retries[workItem.Id] > _config.MaxRetries)
+        if (_retries[workItem.EventId] > _config.MaxRetries)
         {
             _logger.LogError("Max retries {RetryLimit} reached for {WorkItem}.",
                 _config.MaxRetries, workItem);
 
-            _retries.Remove(workItem.Id);
+            _retries.Remove(workItem.EventId);
 
             return false;
         }

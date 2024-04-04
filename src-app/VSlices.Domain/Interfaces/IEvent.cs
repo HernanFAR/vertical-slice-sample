@@ -11,5 +11,5 @@ public interface IEvent : IFeature<Success>
     /// <summary>
     /// The unique identifier of this event
     /// </summary>
-    Guid Id { get; }
+    Guid EventId { get; }
 }
