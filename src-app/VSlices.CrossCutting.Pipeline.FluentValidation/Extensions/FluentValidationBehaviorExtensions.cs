@@ -9,16 +9,6 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// </summary>
 public static class FluentValidationBehaviorExtensions
 {
-    /// <summary>
-    /// Adds an open generic pipeline behavior to the service collection
-    /// </summary>
-    /// <param name="services">Service Collection</param>
-    /// <returns>Service Collection</returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public static IServiceCollection AddOpenFluentValidationBehavior(this IServiceCollection services)
-    {
-        return services.AddOpenPipelineBehavior(typeof(FluentValidationBehavior<,>));
-    }
 
     /// <summary>
     /// Adds a concrete pipeline behavior to the service collection
