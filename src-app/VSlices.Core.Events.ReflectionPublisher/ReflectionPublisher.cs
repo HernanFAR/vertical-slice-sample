@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using VSlices.Base.Responses;
 using VSlices.Core.Events.Internals;
 using VSlices.Core.Events.Strategies;
@@ -9,6 +10,8 @@ namespace VSlices.Core.Events;
 /// <summary>
 /// Sends a request through the VSlices pipeline to be handled by a many handlers, using reflection
 /// </summary>
+/// 
+[RequiresDynamicCode("This class uses Type.MakeGenericType to create RequestHandlerWrapper instances")]
 public class ReflectionPublisher : IPublisher
 {
     internal static readonly ConcurrentDictionary<Type, AbstractHandlerWrapper> RequestHandlers = new();
