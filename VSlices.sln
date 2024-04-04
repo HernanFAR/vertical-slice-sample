@@ -85,6 +85,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests", "tests-app\VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests\VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests.csproj", "{49A6653B-031D-487A-98DC-167CDC67456E}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución", "Elementos de la solución", "{A9B22413-7FE8-4874-8A4F-E0AECFCC2F66}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		.readthedocs.yaml = .readthedocs.yaml
+		how to contribute.md = how to contribute.md
+		LICENSE = LICENSE
+		.github\workflows\master-deploy.yml = .github\workflows\master-deploy.yml
+		README.md = README.md
+		.github\workflows\test.yml = .github\workflows\test.yml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
