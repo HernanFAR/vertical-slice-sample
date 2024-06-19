@@ -1,28 +1,29 @@
 ﻿using VSlices.Core.Events;
 using VSlices.Core.Events.Configurations;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// <see cref="IServiceCollection"/> extensions for <see cref="IPublisher"/>, <see cref="IEventQueue"/> and
+/// <see cref="IServiceCollection"/> extensions for <see cref="IEventRunner"/>, <see cref="IEventQueue"/> and
 /// <see cref="IEventListenerCore"/>
 /// </summary>
 public static class EventExtensions
 {
     /// <summary>
-    /// Adds a <see cref="IPublisher"/> implementation to the <see cref="IServiceCollection"/>
+    /// Adds a <see cref="IEventRunner"/> implementation to the <see cref="IServiceCollection"/>
     /// </summary>
-    /// <typeparam name="T">Implementation of the <see cref="IPublisher"/></typeparam>
+    /// <typeparam name="T">Implementation of the <see cref="IEventRunner"/></typeparam>
     /// <param name="services">Service collection</param>
     /// <returns>Service collection</returns>
     public static IServiceCollection AddPublisher<T>(this IServiceCollection services)
-        where T : IPublisher
+        where T : IEventRunner
     {
         return services.AddPublisher(typeof(T));
     }
 
     /// <summary>
-    /// Add the specified type as <see cref="IPublisher"/> to the <see cref="IServiceCollection"/>
+    /// Add the specified type as <see cref="IEventRunner"/> to the <see cref="IServiceCollection"/>
     /// </summary>
     /// <param name="services">ServiceCollection</param>
     /// <param name="type">Implementation Type</param>
@@ -31,12 +32,12 @@ public static class EventExtensions
     public static IServiceCollection AddPublisher(this IServiceCollection services,
         Type type)
     {
-        if (!typeof(IPublisher).IsAssignableFrom(type))
+        if (!typeof(IEventRunner).IsAssignableFrom(type))
         {
-            throw new InvalidOperationException($"{type.FullName} does not implement {typeof(IPublisher).FullName}");
+            throw new InvalidOperationException($"{type.FullName} does not implement {typeof(IEventRunner).FullName}");
         }
 
-        return services.AddScoped(typeof(IPublisher), type);
+        return services.AddScoped(typeof(IEventRunner), type);
     }
 
     /// <summary>

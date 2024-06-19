@@ -1,6 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using LanguageExt;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using VSlices.Core.Events.Configurations;
 using VSlices.Domain.Interfaces;
 
@@ -14,11 +14,11 @@ namespace VSlices.Core.Events;
 /// </remarks>
 public sealed class EventListenerCore : IEventListenerCore
 {
-    private readonly ILogger<EventListenerCore> _logger;
-    private readonly IServiceProvider _serviceProvider;
-    private readonly EventListenerConfiguration _config;
-    private readonly IEventQueue _eventQueue;
-    private readonly Dictionary<Guid, int> _retries = new();
+    readonly ILogger<EventListenerCore> _logger;
+    readonly IServiceProvider _serviceProvider;
+    readonly EventListenerConfiguration _config;
+    readonly IEventQueue _eventQueue;
+    readonly Dictionary<Guid, int> _retries = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EventListenerCore"/> class.
@@ -41,18 +41,20 @@ public sealed class EventListenerCore : IEventListenerCore
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            await using var scope = _serviceProvider.CreateAsyncScope();
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
 
-            var publisher = scope.ServiceProvider.GetRequiredService<IPublisher>();
+            var publisher = scope.ServiceProvider.GetRequiredService<IEventRunner>();
 
-            var workItem = await _eventQueue.DequeueAsync(cancellationToken);
+            IEvent workItem = await _eventQueue.DequeueAsync(cancellationToken);
             var retry = false;
 
             do
             {
                 try
                 {
-                    await publisher.PublishAsync(workItem, cancellationToken);
+                    Fin<Unit> result = await publisher.PublishAsync(workItem, cancellationToken);
+
+                    _ = result.IfFail(error => throw error);
 
                     _retries.Remove(workItem.EventId);
                 }
@@ -67,9 +69,9 @@ public sealed class EventListenerCore : IEventListenerCore
         }
     }
 
-    private async Task<bool> CheckRetry(IEvent workItem, CancellationToken stoppingToken)
+    async Task<bool> CheckRetry(IEvent workItem, CancellationToken stoppingToken)
     {
-        if (_retries.TryGetValue(workItem.EventId, out var retries))
+        if (_retries.TryGetValue(workItem.EventId, out int retries))
         {
             _retries[workItem.EventId] = retries + 1;
         }

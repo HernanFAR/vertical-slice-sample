@@ -1,12 +1,12 @@
-﻿using VSlices.Base;
-using VSlices.Base.Responses;
+﻿using LanguageExt;
+using VSlices.Base;
 
 namespace VSlices.Domain.Interfaces;
 
 /// <summary>
 /// Represents the start point of a side effect of domain rule
 /// </summary>
-public interface IEvent : IFeature<Success>
+public interface IEvent : IFeature<Unit>
 {
     /// <summary>
     /// The unique identifier of this event

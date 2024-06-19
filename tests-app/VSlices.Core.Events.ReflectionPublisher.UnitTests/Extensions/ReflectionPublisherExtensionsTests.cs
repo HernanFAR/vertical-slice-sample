@@ -17,10 +17,10 @@ public class ReflectionPublisherExtensionsTests
 
         // Assert
         var provider = services.BuildServiceProvider();
-        var publisher = provider.GetRequiredService<IPublisher>();
+        var publisher = provider.GetRequiredService<IEventRunner>();
         var strategy = provider.GetRequiredService<IPublishingStrategy>();
 
-        publisher.Should().BeOfType<ReflectionPublisher>();
+        publisher.Should().BeOfType<ReflectionEventRunner>();
         strategy.Should().BeOfType<AwaitInParallelStrategy>();
     }
 
@@ -35,10 +35,10 @@ public class ReflectionPublisherExtensionsTests
 
         // Assert
         var provider = services.BuildServiceProvider();
-        var publisher = provider.GetRequiredService<IPublisher>();
+        var publisher = provider.GetRequiredService<IEventRunner>();
         var strategy = provider.GetRequiredService<IPublishingStrategy>();
 
-        publisher.Should().BeOfType<ReflectionPublisher>();
+        publisher.Should().BeOfType<ReflectionEventRunner>();
         strategy.Should().BeOfType<AwaitForEachStrategy>();
     }
 }

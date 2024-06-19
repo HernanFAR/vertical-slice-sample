@@ -51,7 +51,7 @@ public class EndpointDefinitionExtensionsTests
         featureBuilder.AddEndpoint<Endpoint>();
 
         featureBuilder.Services
-            .Where(e => e.ServiceType == typeof(ISimpleEndpoint))
+            .Where(e => e.ServiceType == typeof(IEndpoint))
             .Where(e => e.ImplementationType == typeof(Endpoint))
             .Any(e => e.Lifetime == ServiceLifetime.Scoped)
             .Should().BeTrue();

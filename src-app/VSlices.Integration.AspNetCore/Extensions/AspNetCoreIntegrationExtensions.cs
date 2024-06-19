@@ -1,11 +1,12 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using VSlices.Core.Presentation;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.AspNetCore.Routing;
 
 /// <summary>
 /// <see cref="IEndpointRouteBuilder"/> extensions to expose <see cref="IEndpoint" /> and
-/// <see cref="ISimpleEndpoint"/> in the <see cref="IServiceProvider"/>
+/// <see cref="IEndpoint"/> in the <see cref="IServiceProvider"/>
 /// </summary>
 public static class AspNetCoreIntegrationExtensions
 {
@@ -15,11 +16,11 @@ public static class AspNetCoreIntegrationExtensions
     /// <param name="app">Endpoint route builder</param>
     public static void UseEndpointDefinitions(this IEndpointRouteBuilder app)
     {
-        using var services = app.ServiceProvider.CreateScope();
+        using IServiceScope services = app.ServiceProvider.CreateScope();
 
-        var endpoints = services.ServiceProvider.GetServices<ISimpleEndpoint>();
+        IEnumerable<IEndpoint> endpoints = services.ServiceProvider.GetServices<IEndpoint>();
 
-        foreach (var endpoint in endpoints)
+        foreach (IEndpoint endpoint in endpoints)
         {
             endpoint.DefineEndpoint(app);
         }

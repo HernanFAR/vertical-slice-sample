@@ -1,60 +1,44 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace VSlices.Base.Responses;
+// ReSharper disable once CheckNamespace
+namespace VSlices.Base.Failures;
 
 /// <summary>
-/// <see cref="Failure"/> extensions to convert into <see cref="ProblemDetails"/>
+/// <see cref="ExtensibleExpectedError"/> extensions to convert into <see cref="ProblemDetails"/>
 /// </summary>
 public static class BusinessFailureExtensions
 {
     /// <summary>
-    /// Converts the <see cref="Failure"/> instance into a <see cref="ProblemDetails"/>
+    /// Converts an <see cref="ExtensibleExpectedError"/> instance into a <see cref="ProblemDetails"/>
     /// </summary>
     /// <param name="failure">Failure</param>
     /// <returns>ProblemDetails instance</returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public static ProblemDetails ToProblemDetails(this Failure failure)
+    public static ProblemDetails ToProblemDetails(this ExtensibleExpectedError failure)
     {
-        var statusCode = failure.Kind switch
-        {
-            FailureKind.Unspecified => StatusCodes.Status400BadRequest,
-            FailureKind.UserNotAuthenticated => StatusCodes.Status401Unauthorized,
-            FailureKind.UserNotAllowed => StatusCodes.Status403Forbidden,
-            FailureKind.ResourceNotFound => StatusCodes.Status404NotFound,
-            FailureKind.ConcurrencyError => StatusCodes.Status409Conflict,
-            FailureKind.ValidationError => StatusCodes.Status422UnprocessableEntity,
-            FailureKind.UnhandledException => StatusCodes.Status500InternalServerError,
-            _ => throw new ArgumentOutOfRangeException(nameof(failure))
-        };
-
         var problemDetails = new ProblemDetails
         {
-            Status = statusCode,
-            Detail = failure.Detail,
-            Title = failure.Title
+            Status = failure.Code,
+            Detail = failure.Message
         };
 
-        if (failure.CustomExtensions is not null)
+        foreach ((string key, object? value) in failure.Extensions)
         {
-            // Pass Failure.Extensions to ProblemDetails.Extensions 
-            foreach (var (key, value) in failure.CustomExtensions)
-            {
-                problemDetails.Extensions[key] = value;
-            }
+            problemDetails.Extensions[key] = value;
         }
 
-        if (failure.Errors is null)
+        if (failure is not Unprocessable unprocessable)
         {
             return problemDetails;
         }
 
-        problemDetails.Extensions["Errors"] = failure.Errors
+        problemDetails.Extensions["Errors"] = unprocessable.Errors
             .Select(x => x.Name)
             .Distinct()
             .ToDictionary(
                 propertyName => propertyName,
-                propertyName => failure.Errors
+                propertyName => unprocessable.Errors
                     .Where(x => x.Name == propertyName)
                     .Select(e => e.Detail)
                     .ToArray());

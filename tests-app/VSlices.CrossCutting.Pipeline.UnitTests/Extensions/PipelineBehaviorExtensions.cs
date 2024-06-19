@@ -1,23 +1,23 @@
 ﻿using FluentAssertions;
+using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
 using VSlices.Base;
-using VSlices.Base.Responses;
 using VSlices.Core.Builder;
 
 namespace VSlices.CrossCutting.Pipeline.UnitTests.Extensions;
 
 public class FeatureBuilderExtensionsTests
 {
-    public record RequestResult;
-    public record Request : IFeature<RequestResult>;
+    public record Result;
+
+    public record Request : IFeature<Result>;
+
     public class TestPipeline<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        public ValueTask<Result<TResult>> HandleAsync(TRequest request,
-            RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
+        public Aff<TResult> Define(TRequest request, Aff<TResult> next, CancellationToken cancellationToken)
         {
-            throw new UnreachableException();
+            return next;
         }
     }
 
@@ -26,11 +26,11 @@ public class FeatureBuilderExtensionsTests
     {
         FeatureBuilder builder = new(new ServiceCollection());
 
-        builder.AddPipeline<TestPipeline<Request, RequestResult>>();
+        builder.AddPipeline<TestPipeline<Request, Result>>();
 
         builder.Services
-            .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, RequestResult>))
-            .Any(e => e.ImplementationType == typeof(TestPipeline<Request, RequestResult>))
+            .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Result>))
+            .Any(e => e.ImplementationType == typeof(TestPipeline<Request, Result>))
             .Should().BeTrue();
 
     }

@@ -11,5 +11,4 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\VSlices.CrossCutting.Pipeline\VSlices.CrossCutting.Pipeline.csproj" />
 	</ItemGroup>
-
 </Project>

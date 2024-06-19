@@ -1,46 +1,47 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using LanguageExt;
+using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
-using VSlices.Base.Responses;
 using VSlices.CrossCutting.Pipeline;
 
 namespace VSlices.Core.UseCases.Internals;
 
-internal abstract class AbstractHandlerWrapper
+internal abstract class AbstractRequestRunnerWrapper
 {
-    public abstract ValueTask<Result<object?>> HandleAsync(
+    public abstract ValueTask<Fin<object?>> HandleAsync(
         object request,
         IServiceProvider serviceProvider,
         CancellationToken cancellationToken);
 }
 
-internal abstract class AbstractHandlerWrapper<TResponse> : AbstractHandlerWrapper
+internal abstract class AbstractRequestRunnerWrapper<TResponse> : AbstractRequestRunnerWrapper
 {
-    public abstract ValueTask<Result<TResponse>> HandleAsync(
+    public abstract ValueTask<Fin<TResponse>> HandleAsync(
         IFeature<TResponse> request,
         IServiceProvider serviceProvider,
         CancellationToken cancellationToken);
 }
 
-internal class RequestHandlerWrapper<TRequest, TResponse> : AbstractHandlerWrapper<TResponse>
+internal class RequestRunnerWrapper<TRequest, TResponse> : AbstractRequestRunnerWrapper<TResponse>
     where TRequest : IFeature<TResponse>
 {
-    public override async ValueTask<Result<object?>> HandleAsync(
-        object request, IServiceProvider serviceProvider, CancellationToken cancellationToken) =>
-        await HandleAsync((IFeature<TResponse>)request, serviceProvider, cancellationToken);
-
-    public override ValueTask<Result<TResponse>> HandleAsync(
-        IFeature<TResponse> request, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+    public override async ValueTask<Fin<object?>> HandleAsync(object request, IServiceProvider serviceProvider, CancellationToken cancellationToken)
     {
-        return serviceProvider
-            .GetServices<IPipelineBehavior<TRequest, TResponse>>()
-            .Reverse()
-            .Aggregate((RequestHandlerDelegate<TResponse>)Handler,
-                (next, pipeline) => () => pipeline.HandleAsync((TRequest)request, next, cancellationToken))();
+        return await HandleAsync((IFeature<TResponse>)request, serviceProvider, cancellationToken);
+    }
 
-        ValueTask<Result<TResponse>> Handler()
-        {
-            return serviceProvider.GetRequiredService<IHandler<TRequest, TResponse>>()
-                .HandleAsync((TRequest)request, cancellationToken);
-        }
+    public override ValueTask<Fin<TResponse>> HandleAsync(IFeature<TResponse> request, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+    {
+        var handler = serviceProvider.GetRequiredService<IHandler<TRequest, TResponse>>();
+
+        Aff<TResponse> handlerEffect = handler.Define((TRequest)request, cancellationToken);
+
+        IEnumerable<IPipelineBehavior<TRequest, TResponse>> pipelines = serviceProvider
+            .GetServices<IPipelineBehavior<TRequest, TResponse>>()
+            .Reverse();
+
+        Aff<TResponse> effectChain = pipelines.Aggregate(handlerEffect, 
+                (current, behavior) => behavior.Define((TRequest)request, current, cancellationToken));
+
+        return effectChain.Run();
     }
 }

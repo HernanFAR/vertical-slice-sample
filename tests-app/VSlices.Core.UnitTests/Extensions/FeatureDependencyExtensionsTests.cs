@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
-using VSlices.Base.Responses;
 using VSlices.Core.Builder;
 
 namespace VSlices.Core.UnitTests.Extensions;
@@ -62,10 +61,10 @@ public class FeatureDependencyExtensionsTests
     {
         var services = new ServiceCollection();
 
-        var act = () => services.AddFeatureDependency(typeof(Success));
+        Func<IServiceCollection> act = () => services.AddFeatureDependency(typeof(object));
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage($"{typeof(Success).FullName} does not implement {nameof(IFeatureDependencies)}");
+            .WithMessage($"{typeof(object).FullName} does not implement {nameof(IFeatureDependencies)}");
 
     }
 

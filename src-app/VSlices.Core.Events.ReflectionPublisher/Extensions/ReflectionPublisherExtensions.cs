@@ -1,15 +1,16 @@
 ﻿using VSlices.Core.Events;
 using VSlices.Core.Events.Strategies;
 
+// ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
-/// <see cref="IServiceCollection"/> extensions for <see cref="ReflectionPublisher"/>.
+/// <see cref="IServiceCollection"/> extensions for <see cref="ReflectionEventRunner"/>.
 /// </summary>
 public static class ReflectionPublisherExtensions
 {
     /// <summary>
-    /// Add <see cref="ReflectionPublisher"/> to the <see cref="IServiceCollection"/>.
+    /// Add <see cref="ReflectionEventRunner"/> to the <see cref="IServiceCollection"/>.
     /// </summary>
     /// <remarks>Default publishing strategy is <see cref="AwaitInParallelStrategy"/></remarks>
     /// <param name="services">Service Collection</param>
@@ -20,7 +21,7 @@ public static class ReflectionPublisherExtensions
     {
         strategy ??= new AwaitInParallelStrategy();
 
-        services.AddPublisher<ReflectionPublisher>();
+        services.AddPublisher<ReflectionEventRunner>();
         services.AddSingleton(strategy);
 
         return services;

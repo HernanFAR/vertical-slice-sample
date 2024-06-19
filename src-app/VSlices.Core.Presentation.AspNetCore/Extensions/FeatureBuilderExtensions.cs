@@ -11,20 +11,20 @@ namespace VSlices.Core.Builder;
 public static class FeatureBuilderExtensions
 {
     /// <summary>
-    /// Adds <typeparamref name="T"/> as <see cref="ISimpleEndpoint"/> to the service collection.
+    /// Adds <typeparamref name="T"/> as <see cref="IEndpoint"/> to the service collection.
     /// </summary>
     /// <remarks>This does not add dependencies if the class implements <see cref="IEndpoint" /> or <see cref="IFeatureDependencies"/></remarks>
     /// <typeparam name="T">The endpoint definition to be added</typeparam>
     /// <param name="services">Feature builder</param>
     /// <returns>Feature builder</returns>
     public static FeatureBuilder AddEndpoint<T>(this FeatureBuilder services)
-        where T : ISimpleEndpoint
+        where T : IEndpoint
     {
         return services.AddEndpoint(typeof(T));
     }
 
     /// <summary>
-    /// Adds the specified type as <see cref="ISimpleEndpoint"/> to the service collection.
+    /// Adds the specified type as <see cref="IEndpoint"/> to the service collection.
     /// </summary>
     /// <remarks>This does not add dependencies if the class implements <see cref="IEndpoint" /> or <see cref="IFeatureDependencies"/></remarks>
     /// <param name="featureBuilder">Feature builder</param>
@@ -33,7 +33,7 @@ public static class FeatureBuilderExtensions
     public static FeatureBuilder AddEndpoint(this FeatureBuilder featureBuilder,
         Type type)
     {
-        featureBuilder.Services.AddScoped(typeof(ISimpleEndpoint), type);
+        featureBuilder.Services.AddScoped(typeof(IEndpoint), type);
 
         return featureBuilder;
     }

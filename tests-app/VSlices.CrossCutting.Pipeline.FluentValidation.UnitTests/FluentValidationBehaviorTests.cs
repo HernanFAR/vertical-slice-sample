@@ -1,16 +1,17 @@
 using FluentAssertions;
 using FluentValidation;
-using Moq;
 using System.Diagnostics;
+using LanguageExt;
+using static LanguageExt.Prelude;
 using VSlices.Base;
-using VSlices.Base.Responses;
+using VSlices.Base.Failures;
 
 namespace VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests;
 
 public class AbstractExceptionHandlingBehaviorTests
 {
     public record RequestResult;
-    
+
     public record Request(string Value) : IFeature<RequestResult>;
 
     public class Validator : AbstractValidator<Request>
@@ -27,18 +28,28 @@ public class AbstractExceptionHandlingBehaviorTests
     public async Task BeforeHandleAsync_ShouldInterrumptExecution()
     {
         const int expErrorCount = 1;
-        var pipeline = new FluentValidationBehavior<Request, RequestResult>(new Validator());
-        var request = new Request(null!);
+        FluentValidationBehavior<Request, RequestResult> pipeline = new(new Validator());
+        Request request = new(null!);
 
-        RequestHandlerDelegate<RequestResult> next = () => throw new UnreachableException();
+        Aff<RequestResult> next = Aff<RequestResult>(() => throw new UnreachableException());
 
-        var result = await pipeline.HandleAsync(request, next, default);
+        Aff<RequestResult> pipelineEffect = pipeline.Define(request, next, default);
 
-        result.Failure.Errors.Should().HaveCount(expErrorCount);
-        result.Failure.Errors[0].Name.Should().Be(nameof(Request.Value));
-        result.Failure.Errors[0].Detail.Should().Be(Validator.ValueEmptyMessage);
-        result.Failure.Kind.Should().Be(FailureKind.ValidationError);
+        Fin<RequestResult> pipelineResult = await pipelineEffect.Run();
 
+        _ = pipelineResult
+            .Match(
+                _ => throw new UnreachableException(),
+                failure =>
+                {
+                    var unprocessable = (Unprocessable)failure;
+
+                    unprocessable.Errors.Should().HaveCount(expErrorCount);
+                    unprocessable.Errors[0].Name.Should().Be(nameof(Request.Value));
+                    unprocessable.Errors[0].Detail.Should().Be(Validator.ValueEmptyMessage);
+
+                    return unit;
+                }
+            );
     }
-
 }

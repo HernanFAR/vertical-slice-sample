@@ -1,54 +1,61 @@
 using FluentAssertions;
+using LanguageExt;
+using LanguageExt.Common;
+using static LanguageExt.Prelude;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using VSlices.Base.Responses;
 using VSlices.Domain;
+using Xunit;
 
 namespace VSlices.Core.Events.Hosted.InMemory.Reflection.IntegTests;
 
 public class EventFlowTests
 {
-    public record AlwaysSuccessEvent() : Event;
+    public record AlwaysUnitEvent : Event;
 
-    public class AlwaysSuccessHandler : IHandler<AlwaysSuccessEvent>
+    public class AlwaysUnitHandler : IHandler<AlwaysUnitEvent>
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
-        public ValueTask<Result<Success>> HandleAsync(AlwaysSuccessEvent request, CancellationToken cancellationToken = default)
-        {
-            HandledEvent.Set();
+        public Aff<Unit> Define(AlwaysUnitEvent request, CancellationToken cancellationToken = default) =>
+            from _ in Eff(() =>
+            {
+                HandledEvent.Set();
 
-            return ValueTask.FromResult<Result<Success>>(Success.Value);
-        }
+                return unit;
+            })
+            select unit;
     }
 
-    public record FirstFailureThenSuccessEvent() : Event;
+    public record FirstFailureThenUnitEvent : Event;
 
-    public class FirstFailureThenSuccessHandler : IHandler<FirstFailureThenSuccessEvent>
+    public class FirstFailureThenUnitHandler : IHandler<FirstFailureThenUnitEvent>
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
         public bool First { get; set; } = true;
 
-        public ValueTask<Result<Success>> HandleAsync(FirstFailureThenSuccessEvent request, CancellationToken cancellationToken = default)
-        {
-            if (First)
+        public Aff<Unit> Define(FirstFailureThenUnitEvent request, CancellationToken cancellationToken = default) =>
+            from _1 in guardnot(First, () =>
             {
                 First = false;
                 throw new Exception("First failure");
-            }
+            })
+            from _2 in Eff(() =>
+            {
+                HandledEvent.Set();
 
-            HandledEvent.Set();
-
-            return ValueTask.FromResult<Result<Success>>(Success.Value);
-        }
+                return unit;
+            })
+            select unit;
+        
     }
 
-    public record FirstAndSecondFailureThenSuccessEvent() : Event;
+    public record FirstAndSecondFailureThenUnitEvent : Event;
 
-    public class FirstAndSecondFailureThenSuccessHandler : IHandler<FirstAndSecondFailureThenSuccessEvent>
+    public class FirstAndSecondFailureThenUnitHandler : IHandler<FirstAndSecondFailureThenUnitEvent>
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
@@ -56,111 +63,114 @@ public class EventFlowTests
 
         public bool Second { get; set; } = true;
 
-        public ValueTask<Result<Success>> HandleAsync(FirstAndSecondFailureThenSuccessEvent request, CancellationToken cancellationToken = default)
-        {
-            if (First)
+        public Aff<Unit> Define(FirstAndSecondFailureThenUnitEvent request, CancellationToken cancellationToken = default) =>
+            from _1 in Eff(() =>
             {
+                if (!First) return unit;
+
                 First = false;
-
                 throw new Exception("First failure");
-            }
-
-            if (Second)
+            })
+            from _2 in Eff(() =>
             {
+                if (!Second) return unit;
+
                 Second = false;
                 throw new Exception("Second failure");
-            }
+            })
+            from _3 in Eff(() =>
+            {
+                HandledEvent.Set();
 
-            HandledEvent.Set();
-
-            return ValueTask.FromResult<Result<Success>>(Success.Value);
-        }
+                return unit;
+            })
+            select unit;
     }
 
-    public record AlwaysFailureEvent() : Event;
+    public record AlwaysFailureEvent : Event;
 
     public class AlwaysFailureHandler : IHandler<AlwaysFailureEvent>
     {
-        public ValueTask<Result<Success>> HandleAsync(AlwaysFailureEvent request, CancellationToken cancellationToken = default)
+        public Aff<Unit> Define(AlwaysFailureEvent request, CancellationToken cancellationToken = default)
         {
             throw new Exception("Always failure");
         }
     }
 
     [Fact]
-    public async Task InMemoryEventFlow_AddedEventBeforeListeningStart_AlwaysSuccessHandler()
+    public async Task InMemoryEventFlow_AddedEventBeforeListeningStart_AlwaysUnitHandler()
     {
-        var provider = new ServiceCollection()
+        ServiceProvider provider = new ServiceCollection()
             .AddDefaultHostedEventListener()
             .AddInMemoryEventQueue()
             .AddReflectionPublisher()
             .AddLogging()
-            .AddSingleton<AlwaysSuccessHandler>()
-            .AddScoped<IHandler<AlwaysSuccessEvent, Success>>(s => s.GetRequiredService<AlwaysSuccessHandler>())
+            .AddSingleton<AlwaysUnitHandler>()
+            .AddScoped<IHandler<AlwaysUnitEvent, Unit>>(s => s.GetRequiredService<AlwaysUnitHandler>())
             .BuildServiceProvider();
 
         var backgroundEventListener = (HostedEventListener)provider.GetRequiredService<IHostedService>();
         var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
 
-        var event1 = new AlwaysSuccessEvent();
+        var event1 = new AlwaysUnitEvent();
 
         await eventQueue.EnqueueAsync(event1, default);
 
         _ = backgroundEventListener.StartAsync(default);
 
-        var handler = provider.GetRequiredService<AlwaysSuccessHandler>();
+        var handler = provider.GetRequiredService<AlwaysUnitHandler>();
         handler.HandledEvent.WaitOne(5000).Should().BeTrue();
     }
 
     [Fact]
     public async Task InMemoryEventFlow_AddedEventAfterListeningStart()
     {
-        var provider = new ServiceCollection()
+        ServiceProvider provider = new ServiceCollection()
             .AddDefaultHostedEventListener()
             .AddInMemoryEventQueue()
             .AddReflectionPublisher()
             .AddLogging()
-            .AddSingleton<AlwaysSuccessHandler>()
-            .AddScoped<IHandler<AlwaysSuccessEvent, Success>>(s => s.GetRequiredService<AlwaysSuccessHandler>())
+            .AddSingleton<AlwaysUnitHandler>()
+            .AddScoped<IHandler<AlwaysUnitEvent, Unit>>(s => s.GetRequiredService<AlwaysUnitHandler>())
             .BuildServiceProvider();
 
         var backgroundEventListener = (HostedEventListener)provider.GetRequiredService<IHostedService>();
         var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
 
-        var event2 = new AlwaysSuccessEvent();
+        var event2 = new AlwaysUnitEvent();
 
         _ = backgroundEventListener.StartAsync(default);
         await Task.Delay(1000);
 
         await eventQueue.EnqueueAsync(event2, default);
 
-        var handler = provider.GetRequiredService<AlwaysSuccessHandler>();
+        var handler = provider.GetRequiredService<AlwaysUnitHandler>();
         handler.HandledEvent.WaitOne(5000).Should().BeTrue();
     }
 
     [Fact]
     public async Task InMemoryEventFlow_FirstRetry()
     {
-        var provider = new ServiceCollection()
+        ServiceProvider provider = new ServiceCollection()
             .AddDefaultHostedEventListener()
             .AddInMemoryEventQueue()
             .AddReflectionPublisher()
             .AddLogging()
-            .AddSingleton<FirstFailureThenSuccessHandler>()
-            .AddScoped<IHandler<FirstFailureThenSuccessEvent, Success>>(s => s.GetRequiredService<FirstFailureThenSuccessHandler>())
+            .AddSingleton<FirstFailureThenUnitHandler>()
+            .AddScoped<IHandler<FirstFailureThenUnitEvent, Unit>>(s => s.GetRequiredService<FirstFailureThenUnitHandler>())
             .BuildServiceProvider();
 
         var backgroundEventListener = (HostedEventListener)provider.GetRequiredService<IHostedService>();
         var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
 
-        var event2 = new FirstFailureThenSuccessEvent();
+        var event2 = new FirstFailureThenUnitEvent();
 
         _ = backgroundEventListener.StartAsync(default);
         await Task.Delay(1000);
 
         await eventQueue.EnqueueAsync(event2, default);
 
-        var handler = provider.GetRequiredService<FirstFailureThenSuccessHandler>();
+        var handler = provider.GetRequiredService<FirstFailureThenUnitHandler>();
 
         handler.HandledEvent.WaitOne(5000).Should().BeTrue();
     }
@@ -168,26 +178,26 @@ public class EventFlowTests
     [Fact]
     public async Task InMemoryEventFlow_SecondRetry()
     {
-        var provider = new ServiceCollection()
+        ServiceProvider provider = new ServiceCollection()
             .AddDefaultHostedEventListener()
             .AddInMemoryEventQueue()
             .AddReflectionPublisher()
             .AddLogging()
-            .AddSingleton<FirstAndSecondFailureThenSuccessHandler>()
-            .AddScoped<IHandler<FirstAndSecondFailureThenSuccessEvent, Success>>(s => s.GetRequiredService<FirstAndSecondFailureThenSuccessHandler>())
+            .AddSingleton<FirstAndSecondFailureThenUnitHandler>()
+            .AddScoped<IHandler<FirstAndSecondFailureThenUnitEvent, Unit>>(s => s.GetRequiredService<FirstAndSecondFailureThenUnitHandler>())
             .BuildServiceProvider();
 
         var backgroundEventListener = (HostedEventListener)provider.GetRequiredService<IHostedService>();
         var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
 
-        var event2 = new FirstAndSecondFailureThenSuccessEvent();
+        var event2 = new FirstAndSecondFailureThenUnitEvent();
 
         _ = backgroundEventListener.StartAsync(default);
         await Task.Delay(1000);
 
         await eventQueue.EnqueueAsync(event2, default);
 
-        var handler = provider.GetRequiredService<FirstAndSecondFailureThenSuccessHandler>();
+        var handler = provider.GetRequiredService<FirstAndSecondFailureThenUnitHandler>();
 
         handler.HandledEvent.WaitOne(5000).Should().BeTrue();
     }
@@ -196,15 +206,15 @@ public class EventFlowTests
     public async Task InMemoryEventFlow_ThirdTry()
     {
         var logger = Mock.Of<ILogger<EventListenerCore>>();
-        var loggerMock = Mock.Get(logger);
+        Mock<ILogger<EventListenerCore>>? loggerMock = Mock.Get(logger);
 
-        var provider = new ServiceCollection()
+        ServiceProvider provider = new ServiceCollection()
             .AddDefaultHostedEventListener()
             .AddInMemoryEventQueue()
             .AddReflectionPublisher()
             .AddScoped(_ => logger)
             .AddSingleton<AlwaysFailureHandler>()
-            .AddScoped<IHandler<AlwaysFailureEvent, Success>>(s => s.GetRequiredService<AlwaysFailureHandler>())
+            .AddScoped<IHandler<AlwaysFailureEvent, Unit>>(s => s.GetRequiredService<AlwaysFailureHandler>())
             .BuildServiceProvider();
 
         var backgroundEventListener = (HostedEventListener)provider.GetRequiredService<IHostedService>();

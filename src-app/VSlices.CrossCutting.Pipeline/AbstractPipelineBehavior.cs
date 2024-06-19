@@ -1,5 +1,9 @@
-﻿using VSlices.Base;
-using VSlices.Base.Responses;
+﻿using LanguageExt;
+using LanguageExt.Common;
+using VSlices.Base;
+using VSlices.Base.Failures;
+using VSlices.Core;
+using static LanguageExt.Prelude;
 
 namespace VSlices.CrossCutting.Pipeline;
 
@@ -12,78 +16,69 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     where TRequest : IFeature<TResult>
 {
     /// <summary>
-    /// A method that intercepts the pipeline
-    /// </summary>
-    /// <param name="request">The intercepted request</param>
-    /// <param name="next">The next action in the pipeline</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>
-    /// A <see cref="ValueTask{T}"/> that represents an asynchronous operation which returns a
-    /// <see cref="Result{TRequest}"/> of <typeparamref name="TResult"/> that represents the result of the operation
-    /// </returns>
-    public virtual async ValueTask<Result<TResult>> HandleAsync(TRequest request, RequestHandlerDelegate<TResult> next, 
-        CancellationToken cancellationToken)
-    {
-        var beforeResult = await BeforeHandleAsync(request, cancellationToken);
-
-        if (beforeResult.IsFailure) return beforeResult.Failure;
-
-        var inHandlerResult = await InHandleAsync(request, next, cancellationToken);
-
-        await AfterHandleAsync(request, inHandlerResult, cancellationToken);
-
-        return inHandlerResult;
-    }
-
-    /// <summary>
     /// A method that executes before the execution of the next action in the pipeline
     /// </summary>
     /// <remarks>
     /// <para>
-    /// If this methods returns an instance of <see cref="Success" /> the next step is execute 
-    /// <see cref="InHandleAsync(TRequest, RequestHandlerDelegate{TResult}, CancellationToken)" />
+    /// If this methods returns <see cref="Unit" /> the next step is execute 
+    /// <see cref="InHandleAsync" />
     /// </para>
     /// <para>
-    /// If this methods returns an instance of <see cref="Failure" /> the pipeline execution is
+    /// If this methods returns an instance of <see cref="ExtensibleExpectedError" /> the pipeline execution is
     /// terminated with that response
     /// </para>
     /// </remarks>
     /// <param name="request">The intercepted request</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>
-    /// A <see cref="ValueTask{T}"/> that represents an asynchronous operation which returns a
-    /// <see cref="Result{TRequest}"/> of <see cref="Success"/> that represents the result of the operation
+    /// A <see cref="LanguageExt.Aff{T}"/> that represents the operation in lazy evaluation, which returns a <see cref="Unit" />
     /// </returns>
-    protected internal virtual ValueTask<Result<Success>> BeforeHandleAsync(TRequest request,
-        CancellationToken cancellationToken) => new(Success.Value);
+    protected internal virtual Aff<Unit> BeforeHandleAsync(TRequest request, CancellationToken cancellationToken) => unitAff;
 
     /// <summary>
     /// A method that executes the next action in the pipeline
     /// </summary>
     /// <remarks>
-    /// Regardless of the response, the method <see cref="AfterHandleAsync(TRequest, Result{TResult}, CancellationToken)" />
+    /// If success, the next step is execute <see cref="AfterSuccessHandlingAsync" />, if failure, <see cref="AfterFailureHandlingAsync" />
     /// </remarks>
     /// <param name="request">The intercepted request</param>
     /// <param name="next">The next action in the pipeline</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>
-    /// A <see cref="ValueTask{T}"/> that represents an asynchronous operation which returns a
-    /// <see cref="Result{TRequest}"/> of <typeparamref name="TResult"/> that represents the result of the operation
+    /// A <see cref="LanguageExt.Aff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
-    protected internal virtual async ValueTask<Result<TResult>> InHandleAsync(TRequest request, RequestHandlerDelegate<TResult> next,
-        CancellationToken cancellationToken) => await next();
+    protected internal virtual Aff<TResult> InHandleAsync(TRequest request, Aff<TResult> next, CancellationToken cancellationToken) => next;
 
     /// <summary>
-    /// A method that executes after the execution of the next action in the pipeline
+    /// A method that executes after a success execution of the decorated <see cref="IHandler{TRequest, TResult}"/>
     /// </summary>
     /// <param name="request">The intercepted request</param>
     /// <param name="result">The result of the handler of the request</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>
-    /// A <see cref="ValueTask{T}"/> that represents an asynchronous operation which returns a
-    /// <see cref="Result{TRequest}"/> of <see cref="Success"/> that represents the result of the operation
+    /// A <see cref="LanguageExt.Aff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
-    protected internal virtual ValueTask AfterHandleAsync(TRequest request, Result<TResult> result,
-        CancellationToken cancellationToken) => ValueTask.CompletedTask;
+    protected internal virtual Aff<TResult> AfterSuccessHandlingAsync(TRequest request, TResult result, CancellationToken cancellationToken) => SuccessAff(result);
 
+    /// <summary>
+    /// A method that executes after a fail execution of the decorated <see cref="IHandler{TRequest, TResult}"/>
+    /// </summary>
+    /// <param name="request">The intercepted request</param>
+    /// <param name="result">The result of the handler of the request</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>
+    /// A <see cref="LanguageExt.Aff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
+    /// </returns>
+    protected internal virtual Aff<TResult> AfterFailureHandlingAsync(TRequest request, Error result, CancellationToken cancellationToken) => FailAff<TResult>(result); 
+
+    /// <inheritdoc />
+    public Aff<TResult> Define(TRequest request, Aff<TResult> next, CancellationToken cancellationToken) =>
+        from handleResult in BeforeHandleAsync(request, cancellationToken)
+            .BiBind(
+                Succ: _ => InHandleAsync(request, next, cancellationToken)
+                    .BiBind(
+                        Succ: result => AfterSuccessHandlingAsync(request, result, cancellationToken),
+                        Fail: error  => AfterFailureHandlingAsync(request, error, cancellationToken)),
+                Fail: FailAff<TResult>)
+        select handleResult;
 }

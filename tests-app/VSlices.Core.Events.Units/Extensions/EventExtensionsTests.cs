@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Core.Events.Configurations;
 using VSlices.Domain.Interfaces;
@@ -7,9 +8,9 @@ namespace VSlices.Core.Events.Units.Extensions;
 
 public class EventExtensionsTests
 {
-    public class Publisher : IPublisher
+    public class EventRunner : IEventRunner
     {
-        public ValueTask PublishAsync(IEvent @event, CancellationToken cancellationToken)
+        public ValueTask<Fin<Unit>> PublishAsync(IEvent @event, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -42,11 +43,11 @@ public class EventExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.AddPublisher<Publisher>();
+        services.AddPublisher<EventRunner>();
 
         services
-            .Where(e => e.ServiceType == typeof(IPublisher))
-            .Where(e => e.ImplementationType == typeof(Publisher))
+            .Where(e => e.ServiceType == typeof(IEventRunner))
+            .Where(e => e.ImplementationType == typeof(EventRunner))
             .Any(e => e.Lifetime == ServiceLifetime.Scoped)
             .Should().BeTrue();
 
@@ -55,7 +56,7 @@ public class EventExtensionsTests
     [Fact]
     public void AddPublisher_ShouldThrowException()
     {
-        var expMessage = $"{typeof(object).FullName} does not implement {typeof(IPublisher).FullName}";
+        var expMessage = $"{typeof(object).FullName} does not implement {typeof(IEventRunner).FullName}";
         var services = new ServiceCollection();
 
         var act = () => services.AddPublisher(typeof(object));

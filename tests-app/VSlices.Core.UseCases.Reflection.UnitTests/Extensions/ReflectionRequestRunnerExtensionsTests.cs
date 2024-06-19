@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace VSlices.Core.UseCases.Reflection.UnitTests.Extensions;
 
-public class ReflectionSenderExtensionsTests
+public class ReflectionRequestRunnerExtensionsTests
 {
     [Fact]
     public void AddReflectionPublisher_ShouldAddReflectionPublisher()
@@ -12,11 +12,11 @@ public class ReflectionSenderExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        var result = services.AddReflectionSender();
+        var result = services.AddReflectionRequestRunner();
 
         // Assert
         var provider = services.BuildServiceProvider();
-        var sender = provider.GetRequiredService<ISender>();
+        var sender = provider.GetRequiredService<IRequestRunner>();
 
         sender.Should().NotBeNull();
     }
