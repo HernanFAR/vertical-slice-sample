@@ -1,5 +1,5 @@
-﻿using VSlices.Base;
-using VSlices.Base.Responses;
+﻿using LanguageExt;
+using VSlices.Base;
 
 namespace VSlices.Core.UseCases;
 
@@ -12,4 +12,4 @@ public interface IRequest<TResponse> : IFeature<TResponse> { }
 /// <summary>
 /// Represents the start point of a use case, with a success response
 /// </summary>
-public interface IRequest : IRequest<Success> { }
+public interface IRequest : IRequest<Unit> { }

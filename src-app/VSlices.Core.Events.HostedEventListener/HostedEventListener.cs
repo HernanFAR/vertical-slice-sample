@@ -12,6 +12,10 @@ public sealed class HostedEventListener : BackgroundService
 {
     private readonly IEventListenerCore _eventListener;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HostedEventListener"/> class.
+    /// </summary>
+    /// <param name="eventListener">Event listener core</param>
     public HostedEventListener(IEventListenerCore eventListener)
     {
         _eventListener = eventListener;

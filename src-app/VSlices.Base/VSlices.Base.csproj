@@ -7,4 +7,8 @@
 		<Description>Base package</Description>
 		<PackageTags>functional;request;result</PackageTags>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="LanguageExt.Core" Version="4.4.8" />
+	</ItemGroup>
 </Project>

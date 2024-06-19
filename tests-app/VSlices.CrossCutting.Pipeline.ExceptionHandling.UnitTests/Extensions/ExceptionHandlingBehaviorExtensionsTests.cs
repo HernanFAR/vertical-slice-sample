@@ -1,30 +1,33 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
+using LanguageExt;
 using VSlices.Base;
-using VSlices.Base.Responses;
 using VSlices.Core.Builder;
 
 namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests.Extensions;
 
 public class ExceptionHandlingBehaviorExtensionsTests
 {
-    public record RequestResult;
-    public record Request : IFeature<RequestResult>;
+    public record Result;
+
+    public record Request : IFeature<Result>;
+    
     public class TestPipeline1<TRequest, TResult> : AbstractExceptionHandlingBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        protected internal override ValueTask ProcessExceptionAsync(Exception ex, TRequest request)
+        protected internal override Aff<TResult> ProcessExceptionAsync(Exception ex, TRequest request, CancellationToken cancellationToken = default)
         {
             throw new UnreachableException();
         }
     }
+    
     public class TestPipeline2<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        public ValueTask<Result<TResult>> HandleAsync(TRequest request, RequestHandlerDelegate<TResult> next, CancellationToken cancellationToken)
+        public Aff<TResult> Define(TRequest request, Aff<TResult> next, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            throw new UnreachableException();
         }
     }
 
@@ -33,11 +36,11 @@ public class ExceptionHandlingBehaviorExtensionsTests
     {
         FeatureBuilder builder = new(new ServiceCollection());
 
-        builder.AddExceptionHandlingPipeline<TestPipeline1<Request, RequestResult>>();
+        builder.AddExceptionHandlingPipeline<TestPipeline1<Request, Result>>();
 
         builder.Services
-            .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, RequestResult>))
-            .Any(e => e.ImplementationType == typeof(TestPipeline1<Request, RequestResult>))
+            .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Result>))
+            .Any(e => e.ImplementationType == typeof(TestPipeline1<Request, Result>))
             .Should().BeTrue();
 
     }
@@ -49,7 +52,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
         
         FeatureBuilder builder = new(new ServiceCollection());
 
-        var act = builder.AddExceptionHandlingPipeline<object>;
+        Func<FeatureBuilder> act = () => builder.AddExceptionHandlingPipeline<object>();
 
         act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 
@@ -58,11 +61,11 @@ public class ExceptionHandlingBehaviorExtensionsTests
     [Fact]
     public void AddExceptionHandlingPipeline_ShouldThrowInvalidOperation_DetailDoesNotImplementExceptionHandlingBehavior()
     {
-        var expMessage = $"Type {typeof(TestPipeline2<Request, RequestResult>).FullName} must inherit from {typeof(AbstractExceptionHandlingBehavior<,>).FullName}";
+        var expMessage = $"Type {typeof(TestPipeline2<Request, Result>).FullName} must inherit from {typeof(AbstractExceptionHandlingBehavior<,>).FullName}";
 
         FeatureBuilder builder = new(new ServiceCollection());
 
-        var act = builder.AddExceptionHandlingPipeline<TestPipeline2<Request, RequestResult>>;
+        Func<FeatureBuilder> act = () => builder.AddExceptionHandlingPipeline<TestPipeline2<Request, Result>>();
 
         act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 

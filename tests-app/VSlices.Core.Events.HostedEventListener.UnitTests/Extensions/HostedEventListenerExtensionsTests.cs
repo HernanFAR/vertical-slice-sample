@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using VSlices.Core.Events.Configurations;
 
+// ReSharper disable once CheckNamespace
 namespace VSlices.Core.Events._HostedEventListener.UnitTests.Extensions;
 
 public class HostedEventListenerExtensionsTests
@@ -24,7 +25,7 @@ public class HostedEventListenerExtensionsTests
             .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
 
-        var descriptor = services
+        ServiceDescriptor descriptor = services
             .Where(e => e.ServiceType == typeof(EventListenerConfiguration))
             .Single(e => e.Lifetime == ServiceLifetime.Singleton);
 
@@ -57,7 +58,7 @@ public class HostedEventListenerExtensionsTests
             .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
 
-        var descriptor = services
+        ServiceDescriptor descriptor = services
             .Where(e => e.ServiceType == typeof(EventListenerConfiguration))
             .Single(e => e.Lifetime == ServiceLifetime.Singleton);
 

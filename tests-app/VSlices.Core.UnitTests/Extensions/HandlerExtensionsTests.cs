@@ -1,19 +1,20 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
+using LanguageExt;
+using LanguageExt.Common;
 using VSlices.Base;
-using VSlices.Base.Responses;
 using VSlices.Core.Builder;
 
 namespace VSlices.Core.UnitTests.Extensions;
 
 public class HandlerExtensionsTests
 {
-    public record Feature1 : IFeature<Success>
+    public record Feature1 : IFeature<Unit>
     { }
     public class Handler1 : IHandler<Feature1>
     {
-        public ValueTask<Result<Success>> HandleAsync(Feature1 request, CancellationToken cancellationToken = default)
+        public Aff<Unit> Define(Feature1 request, CancellationToken cancellationToken = default)
         {
             throw new UnreachableException();
         }
@@ -23,7 +24,7 @@ public class HandlerExtensionsTests
     public record Feature2 : IFeature<Response2> { }
     public class Handler2 : IHandler<Feature2, Response2>
     {
-        public ValueTask<Result<Response2>> HandleAsync(Feature2 request, CancellationToken cancellationToken = default)
+        public Aff<Response2> Define(Feature2 request, CancellationToken cancellationToken = default)
         {
             throw new UnreachableException();
         }
@@ -43,7 +44,7 @@ public class HandlerExtensionsTests
         // Assert
         featureBuilder.Services
             .Where(e => e.ImplementationType == typeof(Handler1))
-            .Any(e => e.ServiceType == typeof(IHandler<Feature1, Success>))
+            .Any(e => e.ServiceType == typeof(IHandler<Feature1, Unit>))
             .Should().BeTrue();
 
         featureBuilder.Services

@@ -1,4 +1,6 @@
-﻿namespace VSlices.Base;
+﻿using LanguageExt.Effects.Traits;
+
+namespace VSlices.Base;
 
 /// <summary>
 /// Represents the start point of any feature

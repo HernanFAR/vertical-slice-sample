@@ -1,6 +1,10 @@
 ﻿using FluentValidation;
+using FluentValidation.Results;
+using LanguageExt;
+using LanguageExt.Common;
+using static LanguageExt.Prelude;
 using VSlices.Base;
-using VSlices.Base.Responses;
+using VSlices.Base.Failures;
 
 namespace VSlices.CrossCutting.Pipeline.FluentValidation;
 
@@ -24,17 +28,9 @@ public sealed class FluentValidationBehavior<TRequest, TResult> : AbstractPipeli
     }
 
     /// <inheritdoc />
-    protected override async ValueTask<Result<Success>> BeforeHandleAsync(TRequest request, CancellationToken cancellationToken)
-    {
-        var validationResult = await _requestValidator.ValidateAsync(request, cancellationToken);
+    protected override Aff<Unit> BeforeHandleAsync(TRequest request, CancellationToken cancellationToken) =>
+        from validationResult in Aff(async () => await _requestValidator.ValidateAsync(request, cancellationToken))
+        from f in guard(validationResult.IsValid, validationResult.ToUnprocessable() as Error)
+        select unit;
 
-        if (validationResult.IsValid) return Success.Value;
-
-        var errors = validationResult.Errors
-            .Select(e => new ValidationError(e.PropertyName, e.ErrorMessage))
-            .ToArray();
-
-        return new Failure(FailureKind.ValidationError,
-            Errors: errors);
-    }
 }

@@ -1,103 +1,93 @@
+using System.Diagnostics;
 using FluentAssertions;
 using Moq;
-using System.Diagnostics;
 using VSlices.Base;
-using VSlices.Base.Responses;
+using LanguageExt;
+using LanguageExt.Common;
+using VSlices.Base.Failures;
+using static LanguageExt.Prelude;
 
 namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests;
 
 public class AbstractExceptionHandlingBehaviorTests
 {
-    public record RequestResult;
-    public record Request : IFeature<RequestResult>;
+    public record Result;
+    public record Request : IFeature<Result>;
 
     [Fact]
     public async Task InHandle_ShouldReturnSuccess()
     {
-        var pipeline = Mock.Of<AbstractPipelineBehavior<Request, RequestResult>>();
-        var pipelineMock = Mock.Get(pipeline);
-        var request = new Request();
-        var result = new RequestResult();
-        var failure = new Failure(FailureKind.ValidationError);
+        Request request = new();
+        Result result = new();
 
-        var successResult = new Result<Success>(Success.Value);
-        var expResult = new Result<RequestResult>(result);
-
-        RequestHandlerDelegate<RequestResult> next = () => new ValueTask<Result<RequestResult>>(expResult);
-
-        pipelineMock.Setup(e => e.HandleAsync(request, next, default))
-            .CallBase()
-            .Verifiable();
+        var pipeline = Mock.Of<AbstractPipelineBehavior<Request, Result>>();
+        Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
+        pipelineMock.CallBase = true;
+        
+        Aff<Result> next = SuccessAff(result);
 
         pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
-            .CallBase()
             .Verifiable();
 
         pipelineMock.Setup(e => e.InHandleAsync(request, next, default))
-            .CallBase()
             .Verifiable();
 
-        pipelineMock.Setup(e => e.AfterHandleAsync(
-                request,
-                It.Is<Result<RequestResult>>(e => e.Data == result),
-                default
-            ))
-            .CallBase()
+        pipelineMock.Setup(e => e.AfterSuccessHandlingAsync(
+                request, It.Is<Result>(e => e == result), default))
             .Verifiable();
 
-        var handlerResult = await pipeline.HandleAsync(request, next, default);
+        Aff<Result> pipelineEffect = pipeline.Define(request, next, default);
+        Fin<Result> pipelineResult = await pipelineEffect.Run();
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
 
-        handlerResult.Should().Be(expResult);
+        _ = pipelineResult.Match(
+            r => r.Should().Be(r),
+            _ => throw new UnreachableException());
 
     }
-
 
     [Fact]
     public async Task InHandle_ShouldReturnFailure()
     {
-        var pipeline = Mock.Of<AbstractExceptionHandlingBehavior<Request, RequestResult>>();
-        var pipelineMock = Mock.Get(pipeline);
-        var request = new Request();
-        var failure = new Failure(FailureKind.UnhandledException);
-        var ex = new Exception();
+        Request request = new();
+        Exception expEx = new();
+        
+        var pipeline = Mock.Of<AbstractExceptionHandlingBehavior<Request, Result>>();
+        Mock<AbstractExceptionHandlingBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
+        pipelineMock.CallBase = true;
 
-        var successResult = new Result<Success>(Success.Value);
-        var expResult = new Result<RequestResult>(failure);
-
-        RequestHandlerDelegate<RequestResult> next = () => throw ex;
-
-        pipelineMock.Setup(e => e.HandleAsync(request, next, default))
-            .CallBase()
-            .Verifiable();
+        Aff<Result> next = Aff<Result>(() => throw expEx);
 
         pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
-            .CallBase()
             .Verifiable();
 
-        pipelineMock.Setup(e => e.ProcessExceptionAsync(ex, request))
+        pipelineMock.Setup(e => e.ProcessExceptionAsync(expEx, request, default))
             .Verifiable();
 
         pipelineMock.Setup(e => e.InHandleAsync(request, next, default))
-            .CallBase()
             .Verifiable();
 
-        pipelineMock.Setup(e => e.AfterHandleAsync(
-                request,
-                It.Is<Result<RequestResult>>(e => e.Failure == failure),
-                default
-            ))
-            .CallBase()
+        pipelineMock.Setup(e => e.AfterFailureHandlingAsync(
+                request, It.Is<ServerError>(e => e.Message == "Internal server error"), default))
             .Verifiable();
 
-        var handlerResult = await pipeline.HandleAsync(request, next, default);
+        Aff<Result> pipelineEffect = pipeline.Define(request, next, default);
+        Fin<Result> pipelineResult = await pipelineEffect.Run();
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
 
-        handlerResult.Should().Be(expResult);
+        _ = pipelineResult.Match(
+            _ => throw new UnreachableException(),
+            error =>
+            {
+                error.Should().BeOfType<ServerError>();
+                error.Message.Should().Be("Internal server error");
+
+                return unit;
+            });
 
     }
 }

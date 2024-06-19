@@ -1,33 +1,33 @@
-﻿using VSlices.Base;
-using VSlices.Base.Responses;
+﻿using LanguageExt;
+using VSlices.Base;
 
 namespace VSlices.Core;
 
 /// <summary>
-/// Defines a handler for a <see cref="IFeature{TResult}"/>
+/// Defines a asyncronous effect for a specific <see cref="IFeature{TResult}"/>
 /// </summary>
 /// <remarks>If idempotency is necessary, the handler itself must ensure it</remarks>
 /// <typeparam name="TRequest">The request to be handled</typeparam>
-/// <typeparam name="TResult">The expected response of the handler</typeparam>
+/// <typeparam name="TResult">The expected result of the handler</typeparam>
 public interface IHandler<in TRequest, TResult>
     where TRequest : IFeature<TResult>
 {
     /// <summary>
-    /// Handles the request
+    /// Defines the asyncronous effect for a <see cref="IFeature{TResult}"/>
     /// </summary>
     /// <param name="request">The request to be handled</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>
-    /// A <see cref="ValueTask{T}"/> that represents an asynchronous operation which returns a <see cref="Result{T}"/>
-    /// of <see cref="Success"/> that represents the result of the operation
+    /// An <see cref="Aff{T}"/> that represents the operation in lazy evaluation, which when runned
+    /// returns a <typeparamref name="TResult"/>
     /// </returns>
-    ValueTask<Result<TResult>> HandleAsync(TRequest request, CancellationToken cancellationToken = default);
+    Aff<TResult> Define(TRequest request, CancellationToken cancellationToken = default);
 }
 
 /// <summary>
 /// Defines a handler for a <see cref="IFeature{TResult}"/>
 /// </summary>
 /// <typeparam name="TRequest">The request to be handled</typeparam>
-public interface IHandler<in TRequest> : IHandler<TRequest, Success>
-    where TRequest : IFeature<Success>
+public interface IHandler<in TRequest> : IHandler<TRequest, Unit>
+    where TRequest : IFeature<Unit>
 { }

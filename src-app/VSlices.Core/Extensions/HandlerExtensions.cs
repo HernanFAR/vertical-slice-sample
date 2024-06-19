@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
 
+// ReSharper disable once CheckNamespace
 namespace VSlices.Core.Builder;
 
 /// <summary>
