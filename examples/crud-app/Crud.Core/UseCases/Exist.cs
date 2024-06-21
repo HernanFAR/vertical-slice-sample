@@ -8,14 +8,14 @@ public sealed class ExistsQuestionDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
-        featureBuilder.AddEndpoint<Endpoint>()
+        featureBuilder.AddEndpoint<EndpointDefinition>()
             .AddHandler<Handler>();
     }
 }
 
 internal sealed record Query(QuestionId Id) : IRequest;
 
-internal sealed class Endpoint : IEndpoint
+internal sealed class EndpointDefinition : IEndpointDefinition
 {
     public const string Path = "api/questions/{id:Guid}";
 
