@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src-app\VSlices.Core.Presentation.AspNetCore\VSlices.Core.Presentation.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\src-app\VSlices.Core.UseCases.Reflection\VSlices.Core.UseCases.Reflection.csproj" />
+    <ProjectReference Include="..\Crud.CrossCutting\Crud.CrossCutting.csproj" />
+    <ProjectReference Include="..\Crud.Domain\Crud.Domain.csproj" />
+  </ItemGroup>
+
+</Project>

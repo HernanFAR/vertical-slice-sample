@@ -1,0 +1,6 @@
+@CrudApp.Integration.AspNetCore_HostAddress = http://localhost:5107
+
+GET {{CrudApp.Integration.AspNetCore_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
