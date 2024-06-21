@@ -8,7 +8,7 @@ public sealed class UpdateQuestionDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
-        featureBuilder.AddEndpoint<Endpoint>()
+        featureBuilder.AddEndpoint<EndpointDefinition>()
             .AddHandler<Handler>();
     }
 }
@@ -17,7 +17,7 @@ public sealed record UpdateQuestionContract(string Text);
 
 internal sealed record Command(QuestionId Id, string Text) : IRequest<Unit>;
 
-internal sealed class Endpoint : IEndpoint
+internal sealed class EndpointDefinition : IEndpointDefinition
 {
     public const string Path = "api/questions/{id:Guid}";
 

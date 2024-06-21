@@ -29,7 +29,7 @@ public class WebApplicationExtensionsTests
         public ICollection<EndpointDataSource> DataSources { get; }
     }
 
-    public class Endpoint : IEndpoint
+    public class EndpointDefinition : IEndpointDefinition
     {
         public const string ApiRoute = "api/test";
 
@@ -51,7 +51,7 @@ public class WebApplicationExtensionsTests
     {
         var featureBuilder = new FeatureBuilder(new ServiceCollection());
 
-        featureBuilder.AddEndpoint<Endpoint>();
+        featureBuilder.AddEndpoint<EndpointDefinition>();
 
         var provider = featureBuilder.Services.BuildServiceProvider();
 
@@ -65,7 +65,7 @@ public class WebApplicationExtensionsTests
 
         if (addedEndpoint.RequestDelegate is null) throw new ArgumentNullException(nameof(addedEndpoint.RequestDelegate));
 
-        addedEndpoint.RequestDelegate.Method.Should().BeSameAs(typeof(Endpoint).GetMethod(nameof(Endpoint.Test)));
-        addedEndpoint.RoutePattern.RawText.Should().Be(Endpoint.ApiRoute);
+        addedEndpoint.RequestDelegate.Method.Should().BeSameAs(typeof(EndpointDefinition).GetMethod(nameof(EndpointDefinition.Test)));
+        addedEndpoint.RoutePattern.RawText.Should().Be(EndpointDefinition.ApiRoute);
     }
 }

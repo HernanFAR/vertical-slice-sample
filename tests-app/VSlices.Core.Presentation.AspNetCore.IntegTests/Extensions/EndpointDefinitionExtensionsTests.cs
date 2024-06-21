@@ -13,7 +13,7 @@ public class EndpointDefinitionExtensionsTests
     public class Dependency { }
     public class Dependency2 { }
 
-    public class Endpoint : IEndpoint
+    public class EndpointDefinition : IEndpointDefinition
     {
         public void DefineEndpoint(IEndpointRouteBuilder builder)
         {
@@ -28,7 +28,7 @@ public class EndpointDefinitionExtensionsTests
         }
     }
 
-    public class Endpoint2 : IEndpoint
+    public class Endpoint2 : IEndpointDefinition
     {
         public void DefineEndpoint(IEndpointRouteBuilder builder)
         {
@@ -48,11 +48,11 @@ public class EndpointDefinitionExtensionsTests
     {
         var featureBuilder = new FeatureBuilder(new ServiceCollection());
 
-        featureBuilder.AddEndpoint<Endpoint>();
+        featureBuilder.AddEndpoint<EndpointDefinition>();
 
         featureBuilder.Services
-            .Where(e => e.ServiceType == typeof(IEndpoint))
-            .Where(e => e.ImplementationType == typeof(Endpoint))
+            .Where(e => e.ServiceType == typeof(IEndpointDefinition))
+            .Where(e => e.ImplementationType == typeof(EndpointDefinition))
             .Any(e => e.Lifetime == ServiceLifetime.Scoped)
             .Should().BeTrue();
 

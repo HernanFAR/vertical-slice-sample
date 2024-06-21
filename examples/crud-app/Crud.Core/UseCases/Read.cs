@@ -8,7 +8,7 @@ public sealed class ReadQuestionDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
-        featureBuilder.AddEndpoint<Endpoint>()
+        featureBuilder.AddEndpoint<EndpointDefinition>()
             .AddHandler<Handler>();
     }
 }
@@ -22,7 +22,7 @@ internal sealed record Query : IRequest<ReadQuestionDto>
     public static Query Instance { get; } = new();
 }
 
-internal sealed class Endpoint : IEndpoint
+internal sealed class EndpointDefinition : IEndpointDefinition
 {
     public const string Path = "api/questions";
 

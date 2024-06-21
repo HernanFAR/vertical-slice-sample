@@ -6,7 +6,7 @@ namespace VSlices.Core.Presentation;
 /// Defines an endpoint of a use case without dependencies
 /// </summary>
 /// <remarks>If you need to specify dependencies, use <see cref="IFeatureDependencies"/></remarks>
-public interface IEndpoint
+public interface IEndpointDefinition
 {
     /// <summary>
     /// Defines the endpoint of the use case.
