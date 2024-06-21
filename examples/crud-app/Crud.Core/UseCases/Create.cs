@@ -21,7 +21,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 {
     public const string Path = "api/questions";
 
-    public void DefineEndpoint(IEndpointRouteBuilder builder)
+    public void Define(IEndpointRouteBuilder builder)
     {
         builder.MapPost(Path, HandlerAsync)
             .Produces(StatusCodes.Status201Created)

@@ -12,5 +12,5 @@ public interface IEndpointDefinition
     /// Defines the endpoint of the use case.
     /// </summary>
     /// <param name="builder">Endpoint route builder</param>
-    void DefineEndpoint(IEndpointRouteBuilder builder);
+    void Define(IEndpointRouteBuilder builder);
 }

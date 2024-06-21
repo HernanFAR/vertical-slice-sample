@@ -15,7 +15,7 @@ public class EndpointDefinitionExtensionsTests
 
     public class EndpointDefinition : IEndpointDefinition
     {
-        public void DefineEndpoint(IEndpointRouteBuilder builder)
+        public void Define(IEndpointRouteBuilder builder)
         {
             builder.MapGet("api/test", Test);
         }
@@ -30,7 +30,7 @@ public class EndpointDefinitionExtensionsTests
 
     public class Endpoint2 : IEndpointDefinition
     {
-        public void DefineEndpoint(IEndpointRouteBuilder builder)
+        public void Define(IEndpointRouteBuilder builder)
         {
             builder.MapGet("api/test2", Test);
         }

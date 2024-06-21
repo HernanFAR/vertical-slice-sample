@@ -22,7 +22,7 @@ public static class AspNetCoreIntegrationExtensions
 
         foreach (IEndpointDefinition endpoint in endpoints)
         {
-            endpoint.DefineEndpoint(app);
+            endpoint.Define(app);
         }
     }
 }
