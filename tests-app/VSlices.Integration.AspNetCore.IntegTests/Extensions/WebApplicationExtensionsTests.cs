@@ -33,7 +33,7 @@ public class WebApplicationExtensionsTests
     {
         public const string ApiRoute = "api/test";
 
-        public void DefineEndpoint(IEndpointRouteBuilder builder)
+        public void Define(IEndpointRouteBuilder builder)
         {
             builder.MapGet(ApiRoute, Test);
         }

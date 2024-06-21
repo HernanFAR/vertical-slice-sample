@@ -19,7 +19,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 {
     public const string Path = "api/questions/{id:Guid}";
 
-    public void DefineEndpoint(IEndpointRouteBuilder builder)
+    public void Define(IEndpointRouteBuilder builder)
     {
         builder.MapDelete(Path, HandlerAsync)
             .Produces(StatusCodes.Status200OK)
