@@ -1,5 +1,6 @@
 ﻿using Crud.Domain;
 using Crud.Domain.Repositories;
+using Crud.Domain.Services;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Update;
@@ -23,7 +24,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
     public void Define(IEndpointRouteBuilder builder)
     {
-        builder.MapPut(Path,  HandlerAsync)
+        builder.MapPut(Path, HandlerAsync)
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
@@ -46,17 +47,22 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class Handler(IQuestionRepository repository) : IHandler<Command>
+internal sealed class Handler(
+    IQuestionRepository repository,
+    QuestionManager manager)
+    : IHandler<Command>
 {
-    private readonly IQuestionRepository _repository = repository;
+    readonly IQuestionRepository _repository = repository;
+    readonly QuestionManager _manager = manager;
 
     public Aff<Unit> Define(Command request, CancellationToken cancellationToken = default) =>
         from exists in _repository.ExistsAsync(request.Id, cancellationToken)
-        from question in exists
-            ? _repository.ReadAsync(request.Id, cancellationToken)
-            : SuccessAff(new Question(request.Id, string.Empty))
-        from _1 in Eff(() => question.UpdateState(request.Text))   
-        from _2 in _repository.UpdateAsync(question, cancellationToken)
+        from _ in exists
+            ? _repository
+                .ReadAsync(request.Id, cancellationToken)
+                .Bind(question => _manager.UpdateAsync(question, cancellationToken))
+            : _manager
+                .CreateAsync(request.Text, cancellationToken)
         select unit;
 
 }

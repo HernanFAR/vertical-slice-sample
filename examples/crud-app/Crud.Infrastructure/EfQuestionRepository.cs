@@ -49,7 +49,7 @@ public sealed class EfQuestionRepository(AppDbContext context) : IQuestionReposi
     public Aff<bool> ExistsAsync(QuestionId id, CancellationToken cancellationToken) =>
         from exist in Aff(async () => await _context
             .Questions
-            .AnyAsync(x => x.Id == id.Value, cancellationToken)
+            .AnyAsync(x => x.Id == id.Value, cancellationToken))
         select exist;
 
     public Aff<Unit> DeleteAsync(Question question, CancellationToken cancellationToken) =>

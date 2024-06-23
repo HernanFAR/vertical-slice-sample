@@ -5,11 +5,17 @@ public readonly record struct QuestionId(Guid Value)
     public static QuestionId New() => new(Guid.NewGuid());
 }
 
-public sealed class Question(QuestionId id, string text)
+public sealed class Question
 {
-    public QuestionId Id { get; } = id;
+    internal Question(QuestionId id, string text)
+    {
+        Id = id;
+        Text = text;
+    }
+
+    public QuestionId Id { get; }
     
-    public string Text { get; private set; } = text;
+    public string Text { get; private set; }
 
     public Unit UpdateState(string text)
     {
@@ -18,7 +24,7 @@ public sealed class Question(QuestionId id, string text)
         return unit;
     }
 
-    public static Question Create(string text) 
+    internal static Question Create(string text) 
     {
         return new Question(QuestionId.New(), text);
     }
