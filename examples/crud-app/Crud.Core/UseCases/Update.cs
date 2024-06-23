@@ -51,12 +51,12 @@ internal sealed class Handler(IQuestionRepository repository) : IHandler<Command
     private readonly IQuestionRepository _repository = repository;
 
     public Aff<Unit> Define(Command request, CancellationToken cancellationToken = default) =>
-        from exists in AffMaybe(async () => await _repository.ExistsAsync(request.Id, cancellationToken))
+        from exists in _repository.ExistsAsync(request.Id, cancellationToken)
         from question in exists
-            ? AffMaybe(async () => await _repository.ReadAsync(request.Id, cancellationToken))
+            ? _repository.ReadAsync(request.Id, cancellationToken)
             : SuccessAff(new Question(request.Id, string.Empty))
-        from _1 in Eff(() => question.UpdateState(request.Text))    
-        from _2 in AffMaybe(async () => await _repository.UpdateAsync(question, cancellationToken))
+        from _1 in Eff(() => question.UpdateState(request.Text))   
+        from _2 in _repository.UpdateAsync(question, cancellationToken)
         select unit;
 
 }
