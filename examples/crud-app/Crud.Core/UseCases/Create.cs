@@ -1,5 +1,6 @@
 ﻿using Crud.Domain;
 using Crud.Domain.Repositories;
+using Crud.Domain.Services;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Create;
@@ -43,12 +44,11 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class Handler(IQuestionRepository repository) : IHandler<Command, Unit>
+internal sealed class Handler(QuestionManager manager) : IHandler<Command, Unit>
 {
-    private readonly IQuestionRepository _repository = repository;
+    private readonly QuestionManager _manager = manager;
 
     public Aff<Unit> Define(Command request, CancellationToken cancellationToken = default) =>
-        from question in SuccessEff(Question.Create(request.Text))
-        from _ in _repository.CreateAsync(question, cancellationToken)
+        from _ in _manager.CreateAsync(request.Text, cancellationToken)
         select unit;
 }

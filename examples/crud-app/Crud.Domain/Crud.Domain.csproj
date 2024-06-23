@@ -10,4 +10,9 @@
     <PackageReference Include="LanguageExt.Core" Version="4.4.8" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src-app\VSlices.Core.Events\VSlices.Core.Events.csproj" />
+    <ProjectReference Include="..\..\..\src-app\VSlices.Domain\VSlices.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
