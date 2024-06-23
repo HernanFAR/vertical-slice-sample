@@ -49,6 +49,6 @@ internal sealed class Handler(IQuestionRepository repository) : IHandler<Command
 
     public Aff<Unit> Define(Command request, CancellationToken cancellationToken = default) =>
         from question in SuccessEff(Question.Create(request.Text))
-        from _ in Aff(async () => await _repository.CreateAsync(question, cancellationToken))
+        from _ in _repository.CreateAsync(question, cancellationToken)
         select unit;
 }

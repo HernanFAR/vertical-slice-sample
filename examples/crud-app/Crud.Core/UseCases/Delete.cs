@@ -46,8 +46,8 @@ internal sealed class Handler(IQuestionRepository repository) : IHandler<Command
     private readonly IQuestionRepository _repository = repository;
 
     public Aff<Unit> Define(Command request, CancellationToken cancellationToken) =>
-        from question in AffMaybe(async () => await _repository.ReadAsync(request.Id, cancellationToken))
-        from _ in AffMaybe(async () => await _repository.DeleteAsync(question, cancellationToken))
+        from question in _repository.ReadAsync(request.Id, cancellationToken)
+        from _ in _repository.DeleteAsync(question, cancellationToken)
         select unit;
 
 }

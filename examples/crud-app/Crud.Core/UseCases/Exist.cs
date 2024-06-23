@@ -46,7 +46,7 @@ internal sealed class Handler(IQuestionRepository repository) : IHandler<Query>
     private readonly IQuestionRepository _repository = repository;
 
     public Aff<Unit> Define(Query request, CancellationToken cancellationToken = default) =>
-        from exists in AffMaybe(async () => await _repository.ExistsAsync(request.Id, cancellationToken))
+        from exists in _repository.ExistsAsync(request.Id, cancellationToken)
         from _ in guard(exists, new NotFound("No se ha encontrado la pregunta").AsError)
         select unit;
 
