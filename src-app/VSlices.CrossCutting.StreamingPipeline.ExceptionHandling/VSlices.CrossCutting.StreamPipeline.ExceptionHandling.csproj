@@ -5,10 +5,10 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Description>Extension package for exception handling behavior implementations in CrossCutting projects</Description>
-		<PackageTags>functional;request;result;pipeline;cross-cutting;exception-handling</PackageTags>
+		<PackageTags>functional;request;result;pipeline;stream;cross-cutting;exception-handling</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\VSlices.CrossCutting.Pipeline\VSlices.CrossCutting.Pipeline.csproj" />
+	  <ProjectReference Include="..\VSlices.CrossCutting.StreamingPipeline\VSlices.CrossCutting.StreamPipeline.csproj" />
 	</ItemGroup>
 </Project>

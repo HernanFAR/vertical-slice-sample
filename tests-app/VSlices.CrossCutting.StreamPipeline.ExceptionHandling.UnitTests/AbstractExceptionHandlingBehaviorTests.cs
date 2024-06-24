@@ -5,26 +5,28 @@ using VSlices.Base;
 using LanguageExt;
 using LanguageExt.Common;
 using VSlices.Base.Failures;
+using VSlices.Core.Stream;
 using static LanguageExt.Prelude;
 
-namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests;
+namespace VSlices.CrossCutting.StreamPipeline.ExceptionHandling.UnitTests;
 
-public class AbstractExceptionHandlingBehaviorTests
+public class AbstractExceptionHandlingStreamBehaviorTests
 {
     public record Result;
-    public record Request : IFeature<Result>;
+    public record Request : IStream<Result>;
 
+    
     [Fact]
     public async Task InHandle_ShouldReturnFailure()
     {
         Request request = new();
         Exception expEx = new();
         
-        var pipeline = Mock.Of<AbstractExceptionHandlingBehavior<Request, Result>>();
-        Mock<AbstractExceptionHandlingBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
+        var pipeline = Mock.Of<AbstractExceptionHandlingStreamBehavior<Request, Result>>();
+        Mock<AbstractExceptionHandlingStreamBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Aff<Result> next = Aff<Result>(() => throw expEx);
+        Aff<IAsyncEnumerable<Result>> next = Aff<IAsyncEnumerable<Result>>(() => throw expEx);
 
         pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
             .Verifiable();
@@ -39,8 +41,8 @@ public class AbstractExceptionHandlingBehaviorTests
                 request, It.Is<ServerError>(e => e.Message == "Internal server error"), default))
             .Verifiable();
 
-        Aff<Result> pipelineEffect = pipeline.Define(request, next, default);
-        Fin<Result> pipelineResult = await pipelineEffect.Run();
+        Aff<IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next, default);
+        Fin<IAsyncEnumerable<Result>> pipelineResult = await pipelineEffect.Run();
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -56,4 +58,5 @@ public class AbstractExceptionHandlingBehaviorTests
             });
 
     }
+
 }
