@@ -2,6 +2,7 @@ using FluentAssertions;
 using FluentValidation;
 using System.Diagnostics;
 using LanguageExt;
+using LanguageExt.SysX.Live;
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Base.Failures;
@@ -32,11 +33,11 @@ public class AbstractExceptionHandlingBehaviorTests
         FluentValidationStreamBehavior<Request, Result> pipeline = new(new Validator());
         Request request = new(null!);
 
-        Aff<IAsyncEnumerable<Result>> next = Aff<IAsyncEnumerable<Result>>(() => throw new UnreachableException());
+        Aff<Runtime, IAsyncEnumerable<Result>> next = Aff<IAsyncEnumerable<Result>>(() => throw new UnreachableException());
 
-        Aff<IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next, default);
+        Aff<Runtime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
 
-        Fin<IAsyncEnumerable<Result>> pipelineResult = await pipelineEffect.Run();
+        Fin<IAsyncEnumerable<Result>> pipelineResult = await pipelineEffect.Run(Runtime.New());
 
         _ = pipelineResult
             .Match(
@@ -67,11 +68,11 @@ public class AbstractExceptionHandlingBehaviorTests
             yield return new Result(expResultMessage);
         }
 
-        Aff<IAsyncEnumerable<Result>> next = Eff(Yield);
+        Aff<Runtime, IAsyncEnumerable<Result>> next = Eff(Yield);
 
-        Aff<IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next, default);
+        Aff<Runtime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
 
-        Fin<IAsyncEnumerable<Result>> pipelineResult = await pipelineEffect.Run();
+        Fin<IAsyncEnumerable<Result>> pipelineResult = await pipelineEffect.Run(Runtime.New());
 
         await pipelineResult
             .Match(

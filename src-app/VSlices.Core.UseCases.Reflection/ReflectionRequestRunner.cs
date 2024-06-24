@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using VSlices.Core.UseCases.Internals;
 
 namespace VSlices.Core.UseCases;
@@ -26,7 +27,7 @@ public class ReflectionRequestRunner : IRequestRunner
     }
 
     /// <inheritdoc />
-    public async ValueTask<Fin<TResponse>> RunAsync<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken = default)
+    public async ValueTask<Fin<TResponse>> RunAsync<TResponse>(IRequest<TResponse> request, Runtime runtime)
     {
         var handler = (AbstractRequestRunnerWrapper<TResponse>)RequestHandlers
             .GetOrAdd(request.GetType(), 
@@ -39,6 +40,17 @@ public class ReflectionRequestRunner : IRequestRunner
                     return (AbstractRequestRunnerWrapper)wrapper;
                 });
 
-        return await handler.HandleAsync(request, _serviceProvider, cancellationToken);
+        return await handler.HandleAsync(request, runtime, _serviceProvider);
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<Fin<TResult>> RunAsync<TResult>(IRequest<TResult> request, CancellationToken cancellationToken)
+    {
+        using var source = new CancellationTokenSource();
+
+        await using (cancellationToken.Register(source.Cancel))
+        {
+            return await RunAsync(request, Runtime.New(ActivityEnv.Default, source));
+        }
     }
 }

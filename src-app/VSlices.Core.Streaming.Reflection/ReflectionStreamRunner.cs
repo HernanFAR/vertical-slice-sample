@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using LanguageExt;
+using LanguageExt.SysX.Live;
 using VSlices.Core.Stream.Internals;
 
 namespace VSlices.Core.Stream;
@@ -25,7 +26,7 @@ public class ReflectionStreamRunner : IStreamRunner
     }
 
     /// <inheritdoc />
-    public async ValueTask<Fin<IAsyncEnumerable<TResult>>> RunAsync<TResult>(IStream<TResult> request, CancellationToken cancellationToken = default)
+    public async ValueTask<Fin<IAsyncEnumerable<TResult>>> RunAsync<TResult>(IStream<TResult> request, Runtime runtime)
     {
         var handler = (AbstractStreamRunnerWrapper<TResult>)RequestHandlers
             .GetOrAdd(request.GetType(), 
@@ -38,6 +39,19 @@ public class ReflectionStreamRunner : IStreamRunner
                     return (AbstractStreamRunnerWrapper)wrapper;
                 });
 
-        return await handler.HandleAsync(request, _serviceProvider, cancellationToken);
+        return await handler.HandleAsync(request, runtime, _serviceProvider);
+    }
+
+    /// <inheritdoc />
+    public async ValueTask<Fin<IAsyncEnumerable<TResult>>> RunAsync<TResult>(
+        IStream<TResult> request, 
+        CancellationToken cancellationToken)
+    {
+        using CancellationTokenSource source = new();
+
+        await using (cancellationToken.Register(source.Cancel))
+        {
+            return await RunAsync(request, Runtime.New(ActivityEnv.Default, source));
+        }
     }
 }

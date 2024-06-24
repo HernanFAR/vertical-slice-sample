@@ -4,6 +4,7 @@ using LanguageExt.Common;
 using Moq;
 using System.Diagnostics;
 using LanguageExt.Pipes;
+using LanguageExt.SysX.Live;
 using VSlices.Base.Failures;
 using VSlices.Core.Stream;
 using static LanguageExt.Prelude;
@@ -27,12 +28,12 @@ public class AbstractStreamPipelineBehaviorTests
 
         Eff<IAsyncEnumerable<Result>> next = Eff<IAsyncEnumerable<Result>>(() => throw new UnreachableException());
 
-        pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
+        pipelineMock.Setup(e => e.BeforeHandle(request))
             .Returns(FailAff<Unit>(failure))
             .Verifiable();
 
-        Aff<IAsyncEnumerable<Result>> resultEffect = pipeline.Define(request, next, default);
-        Fin<IAsyncEnumerable<Result>> result = await resultEffect.Run();
+        Aff<Runtime, IAsyncEnumerable<Result>> resultEffect = pipeline.Define(request, next);
+        Fin<IAsyncEnumerable<Result>> result = await resultEffect.Run(Runtime.New());
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -58,21 +59,21 @@ public class AbstractStreamPipelineBehaviorTests
         Mock<AbstractStreamPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Aff<IAsyncEnumerable<Result>> next = Eff(Yield);
+        Aff<Runtime, IAsyncEnumerable<Result>> next = Eff(Yield);
 
-        pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
+        pipelineMock.Setup(e => e.BeforeHandle(request))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.InHandleAsync(request, next, default))
+        pipelineMock.Setup(e => e.InHandle(request, next))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.AfterSuccessHandlingAsync(
-                request, It.IsAny<IAsyncEnumerable<Result>>(), default)
+        pipelineMock.Setup(e => e.AfterSuccessHandling(
+                request, It.IsAny<IAsyncEnumerable<Result>>())
             )
             .Verifiable();
 
-        Aff<IAsyncEnumerable<Result>> effect = pipeline.Define(request, next, default);
-        Fin<IAsyncEnumerable<Result>> effectResult = await effect.Run();
+        Aff<Runtime, IAsyncEnumerable<Result>> effect = pipeline.Define(request, next);
+        Fin<IAsyncEnumerable<Result>> effectResult = await effect.Run(Runtime.New());
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -106,21 +107,21 @@ public class AbstractStreamPipelineBehaviorTests
         Mock<AbstractStreamPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Aff<IAsyncEnumerable<Result>> next = FailAff<IAsyncEnumerable<Result>>(failure);
+        Aff<Runtime, IAsyncEnumerable<Result>> next = FailAff<Runtime, IAsyncEnumerable<Result>>(failure);
 
-        pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
+        pipelineMock.Setup(e => e.BeforeHandle(request))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.InHandleAsync(request, next, default))
+        pipelineMock.Setup(e => e.InHandle(request, next))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.AfterFailureHandlingAsync(
-                request, It.Is<Error>(e => e == failure), default)
+        pipelineMock.Setup(e => e.AfterFailureHandling(
+                request, It.Is<Error>(e => e == failure))
             )
             .Verifiable();
 
-        Aff<IAsyncEnumerable<Result>> effect = pipeline.Define(request, next, default);
-        Fin<IAsyncEnumerable<Result>> effectResult = await effect.Run();
+        Aff<Runtime, IAsyncEnumerable<Result>> effect = pipeline.Define(request, next);
+        Fin<IAsyncEnumerable<Result>> effectResult = await effect.Run(Runtime.New());
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();

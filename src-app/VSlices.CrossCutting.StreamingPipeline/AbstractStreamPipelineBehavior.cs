@@ -1,5 +1,6 @@
 ﻿using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using VSlices.Base;
 using VSlices.Base.Failures;
 using VSlices.Core;
@@ -22,7 +23,7 @@ public abstract class AbstractStreamPipelineBehavior<TRequest, TResult> : IStrea
     /// <remarks>
     /// <para>
     /// If this methods returns <see cref="Unit" /> the next step is execute 
-    /// <see cref="InHandleAsync" />
+    /// <see cref="InHandle" />
     /// </para>
     /// <para>
     /// If this methods returns an instance of <see cref="ExtensibleExpectedError" /> the pipeline execution is
@@ -30,65 +31,60 @@ public abstract class AbstractStreamPipelineBehavior<TRequest, TResult> : IStrea
     /// </para>
     /// </remarks>
     /// <param name="request">The intercepted request</param>
-    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>
     /// A <see cref="LanguageExt.Aff{T}"/> that represents the operation in lazy evaluation, which returns a <see cref="Unit" />
     /// </returns>
-    protected internal virtual Aff<Unit> BeforeHandleAsync(TRequest request, CancellationToken cancellationToken) => unitAff;
+    protected internal virtual Aff<Runtime, Unit> BeforeHandle(TRequest request) => unitAff;
 
     /// <summary>
     /// A method that executes the next action in the pipeline
     /// </summary>
     /// <remarks>
-    /// If success, the next step is execute <see cref="AfterSuccessHandlingAsync" />, if failure, <see cref="AfterFailureHandlingAsync" />
+    /// If success, the next step is execute <see cref="AfterSuccessHandling" />, if failure, <see cref="AfterFailureHandling" />
     /// </remarks>
     /// <param name="request">The intercepted request</param>
     /// <param name="next">The next action in the pipeline</param>
-    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>
     /// A <see cref="LanguageExt.Aff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
-    protected internal virtual Aff<IAsyncEnumerable<TResult>> InHandleAsync(
+    protected internal virtual Aff<Runtime, IAsyncEnumerable<TResult>> InHandle(
         TRequest request, 
-        Aff<IAsyncEnumerable<TResult>> next, 
-        CancellationToken cancellationToken) => next;
+        Aff<Runtime, IAsyncEnumerable<TResult>> next) => next;
 
     /// <summary>
     /// A method that executes after a success execution of the decorated <see cref="IHandler{TRequest, TResult}"/>
     /// </summary>
     /// <param name="request">The intercepted request</param>
     /// <param name="result">The result of the handler of the request</param>
-    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>
     /// A <see cref="LanguageExt.Aff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
-    protected internal virtual Aff<IAsyncEnumerable<TResult>> AfterSuccessHandlingAsync(
+    protected internal virtual Aff<Runtime, IAsyncEnumerable<TResult>> AfterSuccessHandling(
         TRequest request, 
-        IAsyncEnumerable<TResult> result, 
-        CancellationToken cancellationToken) => SuccessAff(result);
+        IAsyncEnumerable<TResult> result) => SuccessAff(result);
 
     /// <summary>
     /// A method that executes after a fail execution of the decorated <see cref="IHandler{TRequest, TResult}"/>
     /// </summary>
     /// <param name="request">The intercepted request</param>
     /// <param name="result">The result of the handler of the request</param>
-    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>
     /// A <see cref="LanguageExt.Aff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
-    protected internal virtual Aff<IAsyncEnumerable<TResult>> AfterFailureHandlingAsync(
+    protected internal virtual Aff<Runtime, IAsyncEnumerable<TResult>> AfterFailureHandling(
         TRequest request, 
-        Error result, 
-        CancellationToken cancellationToken) => FailAff<IAsyncEnumerable<TResult>>(result); 
+        Error result) 
+        => FailAff<IAsyncEnumerable<TResult>>(result); 
 
     /// <inheritdoc />
-    public Aff<IAsyncEnumerable<TResult>> Define(TRequest request, Aff<IAsyncEnumerable<TResult>> next, CancellationToken cancellationToken) =>
-        from handleResult in BeforeHandleAsync(request, cancellationToken)
+    public Aff<Runtime, IAsyncEnumerable<TResult>> Define(TRequest request, Aff<Runtime, IAsyncEnumerable<TResult>> next) =>
+        from cancelToken in cancelToken<Runtime>()
+        from handleResult in BeforeHandle(request)
             .BiBind(
-                Succ: _ => InHandleAsync(request, next, cancellationToken)
+                Succ: _ => InHandle(request, next)
                     .BiBind(
-                        Succ: result => AfterSuccessHandlingAsync(request, result, cancellationToken),
-                        Fail: error  => AfterFailureHandlingAsync(request, error, cancellationToken)),
-                Fail: FailAff<IAsyncEnumerable<TResult>>)
+                        Succ: result => AfterSuccessHandling(request, result),
+                        Fail: error  => AfterFailureHandling(request, error)),
+                Fail: FailAff<Runtime, IAsyncEnumerable<TResult>>)
         select handleResult;
 }

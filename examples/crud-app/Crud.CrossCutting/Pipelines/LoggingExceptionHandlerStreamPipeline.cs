@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using LanguageExt.SysX.Live;
+using Microsoft.Extensions.Logging;
 using VSlices.Base.Failures;
 using VSlices.Core.Stream;
 using VSlices.CrossCutting.StreamPipeline.ExceptionHandling;
@@ -11,8 +12,7 @@ public sealed class LoggingExceptionHandlerStreamPipeline<TRequest, TResult>(ILo
 {
     readonly ILogger<TResult> _logger = logger;
 
-    protected override Aff<IAsyncEnumerable<TResult>> ProcessExceptionAsync(Exception ex, TRequest request,
-        CancellationToken cancellationToken = default) =>
+    protected override Aff<Runtime, IAsyncEnumerable<TResult>> Process(Exception ex, TRequest request) =>
         from result in EffMaybe<IAsyncEnumerable<TResult>>(() =>
         {
             _logger.LogError(ex, "Hubo una excepción al momento de manejar {Request}.", request);

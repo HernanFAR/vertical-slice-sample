@@ -85,18 +85,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests", "tests-app\VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests\VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests.csproj", "{49A6653B-031D-487A-98DC-167CDC67456E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución", "Elementos de la solución", "{A9B22413-7FE8-4874-8A4F-E0AECFCC2F66}"
-	ProjectSection(SolutionItems) = preProject
-		.gitattributes = .gitattributes
-		.gitignore = .gitignore
-		.readthedocs.yaml = .readthedocs.yaml
-		how to contribute.md = how to contribute.md
-		LICENSE = LICENSE
-		.github\workflows\master-deploy.yml = .github\workflows\master-deploy.yml
-		README.md = README.md
-		.github\workflows\test.yml = .github\workflows\test.yml
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{9DF2CF95-A558-40CD-9596-E3B575A6E28C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "crud", "crud", "{BA39B38C-5C3A-4534-9524-E42D9A501FC7}"
@@ -138,6 +126,16 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.StreamPipeline.ExceptionHandling", "src-app\VSlices.CrossCutting.StreamingPipeline.ExceptionHandling\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.csproj", "{02C7DF35-967E-4F4D-9345-81A7B9C97332}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.StreamPipeline.ExceptionHandling.UnitTests", "tests-app\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.UnitTests\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.UnitTests.csproj", "{836BD109-6336-4260-9884-526194668658}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución", "Elementos de la solución", "{D61CEABD-510C-4FE0-B119-AC52183E01E4}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		.readthedocs.yaml = .readthedocs.yaml
+		how to contribute.md = how to contribute.md
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

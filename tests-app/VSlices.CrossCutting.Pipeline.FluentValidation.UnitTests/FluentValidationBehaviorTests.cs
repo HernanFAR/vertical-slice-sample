@@ -2,6 +2,7 @@ using FluentAssertions;
 using FluentValidation;
 using System.Diagnostics;
 using LanguageExt;
+using LanguageExt.SysX.Live;
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Base.Failures;
@@ -31,11 +32,11 @@ public class AbstractExceptionHandlingBehaviorTests
         FluentValidationBehavior<Request, RequestResult> pipeline = new(new Validator());
         Request request = new(null!);
 
-        Aff<RequestResult> next = Aff<RequestResult>(() => throw new UnreachableException());
+        Aff<Runtime, RequestResult> next = Aff<Runtime, RequestResult>(_ => throw new UnreachableException());
 
-        Aff<RequestResult> pipelineEffect = pipeline.Define(request, next, default);
+        Aff<Runtime, RequestResult> pipelineEffect = pipeline.Define(request, next);
 
-        Fin<RequestResult> pipelineResult = await pipelineEffect.Run();
+        Fin<RequestResult> pipelineResult = await pipelineEffect.Run(Runtime.New());
 
         _ = pipelineResult
             .Match(

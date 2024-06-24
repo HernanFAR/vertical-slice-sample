@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using VSlices.Core.Events.Configurations;
@@ -39,33 +40,40 @@ public sealed class EventListenerCore : IEventListenerCore
     /// <inheritdoc />
     public async Task ProcessEvents(CancellationToken cancellationToken)
     {
-        while (!cancellationToken.IsCancellationRequested)
+        using var source = new CancellationTokenSource();
+        var runtime = Runtime.New(ActivityEnv.Default, source);
+
+        await using (cancellationToken.Register(source.Cancel))
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-
-            var publisher = scope.ServiceProvider.GetRequiredService<IEventRunner>();
-
-            IEvent workItem = await _eventQueue.DequeueAsync(cancellationToken);
-            var retry = false;
-
-            do
+            while (!cancellationToken.IsCancellationRequested)
             {
-                try
+                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+
+                var publisher = scope.ServiceProvider.GetRequiredService<IEventRunner>();
+
+                IEvent workItem = await _eventQueue.DequeueAsync(cancellationToken);
+                var retry = false;
+
+                do
                 {
-                    Fin<Unit> result = await publisher.PublishAsync(workItem, cancellationToken);
+                    try
+                    {
+                        Fin<Unit> result = await publisher.PublishAsync(workItem, runtime);
 
-                    _ = result.IfFail(error => throw error);
+                        _ = result.IfFail(error => throw error);
 
-                    _retries.Remove(workItem.EventId);
+                        _retries.Remove(workItem.EventId);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Error occurred executing {WorkItem}.",
+                            workItem.GetType().FullName);
+
+                        retry = await CheckRetry(workItem, cancellationToken);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Error occurred executing {WorkItem}.", workItem.GetType().FullName);
-
-                    retry = await CheckRetry(workItem, cancellationToken);
-                }
+                while (retry);
             }
-            while (retry);
         }
     }
 

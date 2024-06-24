@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using LanguageExt;
+using LanguageExt.SysX.Live;
 using VSlices.Core.Events.Internals;
 using VSlices.Core.Events.Strategies;
 using VSlices.Domain.Interfaces;
@@ -31,7 +32,7 @@ public class ReflectionEventRunner : IEventRunner
     }
 
     /// <inheritdoc />
-    public async ValueTask<Fin<Unit>> PublishAsync(IEvent request, CancellationToken cancellationToken = default)
+    public async ValueTask<Fin<Unit>> PublishAsync(IEvent request, Runtime runtime)
     {
         AbstractHandlerWrapper handler = RequestHandlers.GetOrAdd(
             request.GetType(),
@@ -43,6 +44,6 @@ public class ReflectionEventRunner : IEventRunner
                 return (AbstractHandlerWrapper)wrapper;
             });
 
-        return await handler.HandleAsync(request, _serviceProvider, cancellationToken);
+        return await handler.HandleAsync(request, runtime, _serviceProvider);
     }
 }

@@ -4,6 +4,7 @@ using Moq;
 using VSlices.Base;
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using VSlices.Base.Failures;
 using VSlices.Core.Stream;
 using static LanguageExt.Prelude;
@@ -26,23 +27,24 @@ public class AbstractExceptionHandlingStreamBehaviorTests
         Mock<AbstractExceptionHandlingStreamBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Aff<IAsyncEnumerable<Result>> next = Aff<IAsyncEnumerable<Result>>(() => throw expEx);
+        Aff<Runtime, IAsyncEnumerable<Result>> next = Aff<Runtime, IAsyncEnumerable<Result>>((env) => throw expEx);
 
-        pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
+        pipelineMock.Setup(e => e.BeforeHandle(request))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.ProcessExceptionAsync(expEx, request, default))
+        pipelineMock.Setup(e => e.Process(expEx, request))
+            .Returns(AffMaybe<Runtime, IAsyncEnumerable<Result>>(_ => ValueTask.FromResult<Fin<IAsyncEnumerable<Result>>>(new ServerError("Internal server error").AsError())))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.InHandleAsync(request, next, default))
+        pipelineMock.Setup(e => e.InHandle(request, next))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.AfterFailureHandlingAsync(
-                request, It.Is<ServerError>(e => e.Message == "Internal server error"), default))
+        pipelineMock.Setup(e => e.AfterFailureHandling(
+                request, It.Is<ServerError>(e => e.Message == "Internal server error")))
             .Verifiable();
 
-        Aff<IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next, default);
-        Fin<IAsyncEnumerable<Result>> pipelineResult = await pipelineEffect.Run();
+        Aff<Runtime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
+        Fin<IAsyncEnumerable<Result>> pipelineResult = await pipelineEffect.Run(Runtime.New());
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();

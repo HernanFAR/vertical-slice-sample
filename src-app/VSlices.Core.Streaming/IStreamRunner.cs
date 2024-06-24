@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using LanguageExt.SysX.Live;
 
 namespace VSlices.Core.Stream;
 
@@ -8,15 +9,29 @@ namespace VSlices.Core.Stream;
 public interface IStreamRunner
 {
     /// <summary>
-    /// Asynchronously runs the <see cref="IHandler{TRequest,TResult}"/> effect associated to <see cref="IStream{TResponse}" />
+    /// Asynchronously runs the <see cref="IHandler{TRequest,TResult}"/> effect associated to
+    /// <see cref="IStream{TResponse}" />, using a specified runtime
     /// </summary>
     /// <typeparam name="TResult">Expected response type</typeparam>
     /// <param name="request">Request to be handled</param>
-    /// <param name="cancellationToken">Cancellation Token</param>
+    /// <param name="runtime">Execution runtime</param>
     /// <returns>
     /// A <see cref="Aff{T}"/> that represents an asynchronous lazy operation which returns a
     /// <typeparamref name="TResult"/>.
     /// </returns>
-    ValueTask<Fin<IAsyncEnumerable<TResult>>> RunAsync<TResult>(IStream<TResult> request, CancellationToken cancellationToken = default);
+    ValueTask<Fin<IAsyncEnumerable<TResult>>> RunAsync<TResult>(IStream<TResult> request, Runtime runtime);
+
+    /// <summary>
+    /// Asynchronously runs the <see cref="IHandler{TRequest,TResult}"/> effect associated to
+    /// <see cref="IStream{T}" />, using generated runtime with the specified cancellation token
+    /// </summary>
+    /// <typeparam name="TResult">Expected response type</typeparam>
+    /// <param name="request">Request to be handled</param>
+    /// <param name="cancellationToken">Cancellation token to create a runtime of the handler</param>
+    /// <returns>
+    /// A <see cref="Aff{T}"/> that represents an asynchronous lazy operation which returns a
+    /// <typeparamref name="TResult"/>.
+    /// </returns>
+    ValueTask<Fin<IAsyncEnumerable<TResult>>> RunAsync<TResult>(IStream<TResult> request, CancellationToken cancellationToken);
 
 }

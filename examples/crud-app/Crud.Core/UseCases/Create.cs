@@ -1,6 +1,7 @@
 ﻿using Crud.CrossCutting.Pipelines;
 using Crud.Domain.Services;
 using FluentValidation;
+using LanguageExt.SysX.Live;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Create;
@@ -51,11 +52,10 @@ internal sealed class Handler(QuestionManager manager) : IHandler<Command, Unit>
 {
     private readonly QuestionManager _manager = manager;
 
-    public Aff<Unit> Define(Command request, CancellationToken cancellationToken = default)
-    {
-        return from _ in _manager.CreateAsync(request.Text, cancellationToken)
-               select unit;
-    }
+    public Aff<Runtime, Unit> Define(Command request) =>
+        from cancelToken in cancelToken<Runtime>()
+        from _ in _manager.CreateAsync(request.Text, cancelToken)
+        select unit;
 }
 
 internal sealed class Validator : AbstractValidator<Command>

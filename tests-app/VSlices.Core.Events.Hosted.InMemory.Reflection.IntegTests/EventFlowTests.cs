@@ -1,6 +1,7 @@
 using FluentAssertions;
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using static LanguageExt.Prelude;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -19,7 +20,7 @@ public class EventFlowTests
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
-        public Aff<Unit> Define(AlwaysUnitEvent request, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, Unit> Define(AlwaysUnitEvent request) =>
             from _ in Eff(() =>
             {
                 HandledEvent.Set();
@@ -37,7 +38,7 @@ public class EventFlowTests
 
         public bool First { get; set; } = true;
 
-        public Aff<Unit> Define(FirstFailureThenUnitEvent request, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, Unit> Define(FirstFailureThenUnitEvent request) =>
             from _1 in guardnot(First, () =>
             {
                 First = false;
@@ -63,7 +64,7 @@ public class EventFlowTests
 
         public bool Second { get; set; } = true;
 
-        public Aff<Unit> Define(FirstAndSecondFailureThenUnitEvent request, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, Unit> Define(FirstAndSecondFailureThenUnitEvent request) =>
             from _1 in Eff(() =>
             {
                 if (!First) return unit;
@@ -91,7 +92,7 @@ public class EventFlowTests
 
     public class AlwaysFailureHandler : IHandler<AlwaysFailureEvent>
     {
-        public Aff<Unit> Define(AlwaysFailureEvent request, CancellationToken cancellationToken = default)
+        public Aff<Runtime, Unit> Define(AlwaysFailureEvent request)
         {
             throw new Exception("Always failure");
         }
