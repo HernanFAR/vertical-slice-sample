@@ -3,13 +3,18 @@ using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
 using VSlices.Core.Builder;
+using VSlices.Core.Stream;
+using VSlices.CrossCutting.StreamPipeline;
+using VSlices.CrossCutting.StreamPipeline.FluentValidation;
 
 namespace VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests.Extensions;
 
 public class FluentValidationBehaviorExtensionsTests
 {
-    public record RequestResult;
-    public record Request : IFeature<RequestResult>;
+    public record Result;
+    
+    public record Request : IStream<Result>;
+
     public class Validator : AbstractValidator<Request> { }
 
     [Fact]
@@ -17,11 +22,11 @@ public class FluentValidationBehaviorExtensionsTests
     {
         FeatureBuilder builder = new(new ServiceCollection());
 
-        builder.AddFluentValidationBehavior<Validator>();
+        builder.AddFluentValidationStreamBehavior<Validator>();
 
         builder.Services
-            .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, RequestResult>))
-            .Any(e => e.ImplementationType == typeof(FluentValidationBehavior<Request, RequestResult>))
+            .Where(e => e.ServiceType == typeof(IStreamPipelineBehavior<Request, Result>))
+            .Any(e => e.ImplementationType == typeof(FluentValidationStreamBehavior<Request, Result>))
             .Should().BeTrue();
 
         builder.Services
