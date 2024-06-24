@@ -2,19 +2,20 @@
 using FluentValidation.Results;
 using LanguageExt;
 using LanguageExt.Common;
-using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Base.Failures;
+using VSlices.Core.Stream;
+using static LanguageExt.Prelude;
 
-namespace VSlices.CrossCutting.Pipeline.FluentValidation;
+namespace VSlices.CrossCutting.StreamPipeline.FluentValidation;
 
 /// <summary>
 /// A validation behavior that uses FluentValidation
 /// </summary>
 /// <typeparam name="TRequest">The intercepted request to validate</typeparam>
 /// <typeparam name="TResult">The expected successful response</typeparam>
-public sealed class FluentValidationBehavior<TRequest, TResult> : AbstractPipelineBehavior<TRequest, TResult>
-    where TRequest : IFeature<TResult>
+public sealed class FluentValidationStreamBehavior<TRequest, TResult> : AbstractStreamPipelineBehavior<TRequest, TResult>
+    where TRequest : IStream<TResult>
 {
     private readonly IValidator<TRequest> _requestValidator;
 
@@ -22,7 +23,7 @@ public sealed class FluentValidationBehavior<TRequest, TResult> : AbstractPipeli
     /// Creates a new instance using the validator registered in the container
     /// </summary>
     /// <param name="requestValidator">Validators registered</param>
-    public FluentValidationBehavior(IValidator<TRequest> requestValidator)
+    public FluentValidationStreamBehavior(IValidator<TRequest> requestValidator)
     {
         _requestValidator = requestValidator;
     }
@@ -30,7 +31,6 @@ public sealed class FluentValidationBehavior<TRequest, TResult> : AbstractPipeli
     /// <inheritdoc />
     protected override Aff<Unit> BeforeHandleAsync(TRequest request, CancellationToken cancellationToken) =>
         from validationResult in Aff(async () => await _requestValidator.ValidateAsync(request, cancellationToken))
-        from f in guard(validationResult.IsValid, validationResult.ToUnprocessable() as Error)
+        from f in guard(validationResult.IsValid, validationResult.ToUnprocessable().AsError)
         select unit;
-
 }

@@ -5,14 +5,15 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Base.Failures;
+using VSlices.Core.Stream;
 
-namespace VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests;
+namespace VSlices.CrossCutting.StreamPipeline.FluentValidation.UnitTests;
 
 public class AbstractExceptionHandlingBehaviorTests
 {
-    public record RequestResult;
+    public record Result(string Value);
 
-    public record Request(string Value) : IFeature<RequestResult>;
+    public record Request(string Value) : IStream<Result>;
 
     public class Validator : AbstractValidator<Request>
     {
@@ -28,14 +29,14 @@ public class AbstractExceptionHandlingBehaviorTests
     public async Task BeforeHandleAsync_ShouldInterrumptExecution()
     {
         const int expErrorCount = 1;
-        FluentValidationBehavior<Request, RequestResult> pipeline = new(new Validator());
+        FluentValidationStreamBehavior<Request, Result> pipeline = new(new Validator());
         Request request = new(null!);
 
-        Aff<RequestResult> next = Aff<RequestResult>(() => throw new UnreachableException());
+        Aff<IAsyncEnumerable<Result>> next = Aff<IAsyncEnumerable<Result>>(() => throw new UnreachableException());
 
-        Aff<RequestResult> pipelineEffect = pipeline.Define(request, next, default);
+        Aff<IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next, default);
 
-        Fin<RequestResult> pipelineResult = await pipelineEffect.Run();
+        Fin<IAsyncEnumerable<Result>> pipelineResult = await pipelineEffect.Run();
 
         _ = pipelineResult
             .Match(
@@ -52,4 +53,37 @@ public class AbstractExceptionHandlingBehaviorTests
                 }
             );
     }
+
+
+    [Fact]
+    public async Task BeforeHandleAsync_ShouldProcess()
+    {
+        const string expResultMessage = "testing :D";
+        FluentValidationStreamBehavior<Request, Result> pipeline = new(new Validator());
+        Request request = new(expResultMessage);
+
+        async IAsyncEnumerable<Result> Yield()
+        {
+            yield return new Result(expResultMessage);
+        }
+
+        Aff<IAsyncEnumerable<Result>> next = Eff(Yield);
+
+        Aff<IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next, default);
+
+        Fin<IAsyncEnumerable<Result>> pipelineResult = await pipelineEffect.Run();
+
+        await pipelineResult
+            .Match(
+                async enumeration =>
+                {
+                    await foreach (Result val in enumeration)
+                    {
+                        val.Value.Should().Be(expResultMessage);
+                    }
+                }, 
+                _ => throw new UnreachableException()
+            );
+    }
+
 }

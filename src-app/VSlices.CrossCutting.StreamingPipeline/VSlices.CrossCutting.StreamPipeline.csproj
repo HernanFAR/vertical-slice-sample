@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Description>Base package for stream implementations in CrossCutting projects</Description>
-		<PackageTags>functional;request;result;pipeline;cross-cutting</PackageTags>
+		<PackageTags>functional;request;result;pipeline;stream;cross-cutting</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>

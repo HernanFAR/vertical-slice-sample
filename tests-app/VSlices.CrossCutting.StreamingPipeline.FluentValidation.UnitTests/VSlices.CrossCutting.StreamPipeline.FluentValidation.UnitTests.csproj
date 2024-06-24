@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src-app\VSlices.CrossCutting.Pipeline.FluentValidation\VSlices.CrossCutting.Pipeline.FluentValidation.csproj" />
+	  <ProjectReference Include="..\..\src-app\VSlices.CrossCutting.StreamingPipeline.FluentValidation\VSlices.CrossCutting.StreamPipeline.FluentValidation.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
