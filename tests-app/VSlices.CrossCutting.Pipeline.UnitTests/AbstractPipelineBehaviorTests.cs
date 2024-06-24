@@ -3,6 +3,7 @@ using System.Diagnostics;
 using FluentAssertions;
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Base.Failures;
@@ -26,12 +27,12 @@ public class AbstractPipelineBehaviorTests
 
         Eff<Result> next = Eff<Result>(() => throw new UnreachableException());
 
-        pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
+        pipelineMock.Setup(e => e.BeforeHandle(request))
             .Returns(FailAff<Unit>(failure))
             .Verifiable();
 
-        Aff<Result> resultEffect = pipeline.Define(request, next, default);
-        Fin<Result> result = await resultEffect.Run();
+        Aff<Runtime, Result> resultEffect = pipeline.Define(request, next);
+        Fin<Result> result = await resultEffect.Run(Runtime.New());
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -57,21 +58,21 @@ public class AbstractPipelineBehaviorTests
         Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Aff<Result> next = SuccessAff(expResult);
+        Aff<Runtime, Result> next = SuccessAff(expResult);
 
-        pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
+        pipelineMock.Setup(e => e.BeforeHandle(request))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.InHandleAsync(request, next, default))
+        pipelineMock.Setup(e => e.InHandle(request, next))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.AfterSuccessHandlingAsync(
-                request, It.Is<Result>(e => e == expResult), default)
+        pipelineMock.Setup(e => e.AfterSuccessHandling(
+                request, It.Is<Result>(e => e == expResult))
             )
             .Verifiable();
 
-        Aff<Result> effect = pipeline.Define(request, next, default);
-        Fin<Result> effectResult = await effect.Run();
+        Aff<Runtime, Result> effect = pipeline.Define(request, next);
+        Fin<Result> effectResult = await effect.Run(Runtime.New());
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -97,21 +98,21 @@ public class AbstractPipelineBehaviorTests
         Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Aff<Result> next = FailAff<Result>(failure);
+        Aff<Runtime, Result> next = FailAff<Runtime, Result>(failure);
 
-        pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
+        pipelineMock.Setup(e => e.BeforeHandle(request))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.InHandleAsync(request, next, default))
+        pipelineMock.Setup(e => e.InHandle(request, next))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.AfterFailureHandlingAsync(
-                request, It.Is<Error>(e => e == failure), default)
+        pipelineMock.Setup(e => e.AfterFailureHandling(
+                request, It.Is<Error>(e => e == failure))
             )
             .Verifiable();
 
-        Aff<Result> effect = pipeline.Define(request, next, default);
-        Fin<Result> effectResult = await effect.Run();
+        Aff<Runtime, Result> effect = pipeline.Define(request, next);
+        Fin<Result> effectResult = await effect.Run(Runtime.New());
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();

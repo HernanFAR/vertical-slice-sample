@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using LanguageExt.SysX.Live;
 using VSlices.Base;
 using VSlices.Core;
 
@@ -17,9 +18,8 @@ public interface IPipelineBehavior<in TRequest, TResult>
     /// </summary>
     /// <param name="request">The intercepted request</param>
     /// <param name="next">The next action in the pipeline</param>
-    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>
     /// A <see cref="Aff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult"/>
     /// </returns>
-    Aff<TResult> Define(TRequest request, Aff<TResult> next, CancellationToken cancellationToken);
+    Aff<Runtime, TResult> Define(TRequest request, Aff<Runtime, TResult> next);
 }

@@ -1,6 +1,7 @@
 ﻿using Crud.CrossCutting.Pipelines;
 using Crud.Domain;
 using Crud.Domain.Repositories;
+using LanguageExt.SysX.Live;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Exists;
@@ -48,8 +49,9 @@ internal sealed class Handler(IQuestionRepository repository) : IHandler<Query>
 {
     private readonly IQuestionRepository _repository = repository;
 
-    public Aff<Unit> Define(Query request, CancellationToken cancellationToken = default) =>
-        from exists in _repository.ExistsAsync(request.Id, cancellationToken)
+    public Aff<Runtime, Unit> Define(Query request) =>
+        from cancelToken in cancelToken<Runtime>()
+        from exists in _repository.ExistsAsync(request.Id, cancelToken)
         from _ in guard(exists, new NotFound("No se ha encontrado la pregunta").AsError)
         select unit;
 

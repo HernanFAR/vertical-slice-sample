@@ -3,6 +3,7 @@ using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using LanguageExt.SysX.Live;
 using VSlices.CrossCutting.StreamPipeline;
 using static LanguageExt.Prelude;
 
@@ -28,10 +29,9 @@ public class ReflectionStreamRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<IAsyncEnumerable<TResult>> Define(
-            TRequest request, 
-            Aff<IAsyncEnumerable<TResult>> next, 
-            CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, IAsyncEnumerable<TResult>> Define(
+            TRequest request,
+            Aff<Runtime, IAsyncEnumerable<TResult>> next) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -53,10 +53,9 @@ public class ReflectionStreamRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<IAsyncEnumerable<TResult>> Define(
-            TRequest request, 
-            Aff<IAsyncEnumerable<TResult>> next, 
-            CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, IAsyncEnumerable<TResult>> Define(
+            TRequest request,
+            Aff<Runtime, IAsyncEnumerable<TResult>> next) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -77,10 +76,9 @@ public class ReflectionStreamRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<IAsyncEnumerable<Response>> Define(
-            Request request, 
-            Aff<IAsyncEnumerable<Response>> next,
-            CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, IAsyncEnumerable<Response>> Define(
+            Request request,
+            Aff<Runtime, IAsyncEnumerable<Response>> next) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -104,20 +102,21 @@ public class ReflectionStreamRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<IAsyncEnumerable<Response>> Define(Request request, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, IAsyncEnumerable<Response>> Define(Request request) =>
+            from cancelToken in cancelToken<Runtime>()
             from _ in Eff(() =>
-            {
-                _accumulator.Count += 1;
-                _accumulator.Str += "HandlerOne_";
+                {
+                    _accumulator.Count += 1;
+                    _accumulator.Str += "HandlerOne_";
 
-                return unit;
-            })
-            from result in Eff(() => Yield(request, cancellationToken))
+                    return unit;
+                })
+            from result in Eff(() => Yield(request, cancelToken))
             select result;
 
         public async IAsyncEnumerable<Response> Yield(
-            Request request, 
-            [EnumeratorCancellation] 
+            Request request,
+            [EnumeratorCancellation]
             CancellationToken cancellationToken = default)
         {
             await Task.Delay(250, cancellationToken);
@@ -147,7 +146,7 @@ public class ReflectionStreamRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request());
+        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request(), Runtime.New());
 
         await result.Match(
             async enumeration =>
@@ -183,7 +182,7 @@ public class ReflectionStreamRunnerTests
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request());
+        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request(), Runtime.New());
 
         await result.Match(
             async enumeration =>
@@ -220,7 +219,7 @@ public class ReflectionStreamRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request());
+        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request(), Runtime.New());
 
         await result.Match(
             async enumeration =>
@@ -256,7 +255,7 @@ public class ReflectionStreamRunnerTests
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request());
+        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request(), Runtime.New());
 
         await result.Match(
             async enumeration =>
@@ -294,7 +293,7 @@ public class ReflectionStreamRunnerTests
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request());
+        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request(), Runtime.New());
 
         await result.Match(
             async enumeration =>

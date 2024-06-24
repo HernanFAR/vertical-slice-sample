@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using LanguageExt.SysX.Live;
 using VSlices.Domain.Interfaces;
 
 namespace VSlices.Core.Events;
@@ -12,8 +13,8 @@ public interface IEventRunner
     /// Asynchronously publishes an event to an event handler
     /// </summary>
     /// <param name="event">Event</param>
-    /// <param name="cancellationToken">CancellationToken</param> 
+    /// <param name="runtime">Execution runtime</param> 
     /// <returns><see cref="Task"/> representing the action</returns>
-    ValueTask<Fin<Unit>> PublishAsync(IEvent @event, CancellationToken cancellationToken);
+    ValueTask<Fin<Unit>> PublishAsync(IEvent @event, Runtime runtime);
 
 }

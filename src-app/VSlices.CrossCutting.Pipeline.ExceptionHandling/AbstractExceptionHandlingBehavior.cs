@@ -1,5 +1,6 @@
 ﻿using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Base.Failures;
@@ -15,10 +16,10 @@ public abstract class AbstractExceptionHandlingBehavior<TRequest, TResult> : Abs
     where TRequest : IFeature<TResult>
 {
     /// <inheritdoc />
-    protected override Aff<TResult> InHandleAsync(TRequest request, Aff<TResult> next, CancellationToken cancellationToken) =>
+    protected override Aff<Runtime, TResult> InHandle(TRequest request, Aff<Runtime, TResult> next) =>
         from result in next
                        | @catch(ex => ex.IsExceptional
-                           ? ProcessExceptionAsync(ex, request)
+                           ? Process(ex, request)
                            : FailAff<TResult>(ex))
         select result;
 
@@ -29,7 +30,6 @@ public abstract class AbstractExceptionHandlingBehavior<TRequest, TResult> : Abs
     /// <param name="ex">The throw exception</param>
     /// <param name="request">The related request information</param>
     /// <returns>A <see cref="ValueTask"/> representing the processing of the exception</returns>
-    protected internal virtual Aff<TResult> ProcessExceptionAsync(Exception ex, TRequest request, CancellationToken cancellationToken = default)
-        => FailAff<TResult>(new ServerError("Internal server error"));
+    protected internal abstract Aff<Runtime, TResult> Process(Exception ex, TRequest request);
 
 }

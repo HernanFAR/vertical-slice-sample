@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using LanguageExt;
+using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace VSlices.Core.Stream.UnitTests.Extensions;
@@ -8,7 +9,12 @@ public class StreamRunnerExtensionsTests
 {
     public class StreamRunner : IStreamRunner
     {
-        public ValueTask<Fin<IAsyncEnumerable<TResult>>> RunAsync<TResult>(IStream<TResult> request, CancellationToken cancellationToken = default)
+        public ValueTask<Fin<IAsyncEnumerable<TResult>>> RunAsync<TResult>(IStream<TResult> request, Runtime runtime)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ValueTask<Fin<IAsyncEnumerable<TResult>>> RunAsync<TResult>(IStream<TResult> request, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

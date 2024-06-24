@@ -2,6 +2,7 @@
 using FluentValidation.Results;
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using VSlices.Base;
 using VSlices.Base.Failures;
 using VSlices.Core.Stream;
@@ -29,8 +30,9 @@ public sealed class FluentValidationStreamBehavior<TRequest, TResult> : Abstract
     }
 
     /// <inheritdoc />
-    protected override Aff<Unit> BeforeHandleAsync(TRequest request, CancellationToken cancellationToken) =>
-        from validationResult in Aff(async () => await _requestValidator.ValidateAsync(request, cancellationToken))
+    protected override Aff<Runtime, Unit> BeforeHandle(TRequest request) =>
+        from cancelToken in cancelToken<Runtime>()
+        from validationResult in Aff(async () => await _requestValidator.ValidateAsync(request, cancelToken))
         from f in guard(validationResult.IsValid, validationResult.ToUnprocessable().AsError)
         select unit;
 }

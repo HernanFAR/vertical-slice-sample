@@ -2,6 +2,7 @@ using FluentAssertions;
 using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
+using LanguageExt.SysX.Live;
 using VSlices.CrossCutting.Pipeline;
 using static LanguageExt.Prelude;
 
@@ -27,7 +28,7 @@ public class ReflectionRequestRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<TResponse> Define(TRequest request, Aff<TResponse> next, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, TResponse> Define(TRequest request, Aff<Runtime, TResponse> next) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -49,7 +50,7 @@ public class ReflectionRequestRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<TResponse> Define(TRequest request, Aff<TResponse> next, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, TResponse> Define(TRequest request, Aff<Runtime, TResponse> next) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -70,7 +71,7 @@ public class ReflectionRequestRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<Unit> Define(RequestOne request, Aff<Unit> next, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, Unit> Define(RequestOne request, Aff<Runtime, Unit> next) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -93,7 +94,7 @@ public class ReflectionRequestRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<Unit> Define(RequestOne requestOne, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, Unit> Define(RequestOne requestOne) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -115,7 +116,7 @@ public class ReflectionRequestRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<Unit> Define(RequestTwo request, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, Unit> Define(RequestTwo request) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -141,7 +142,7 @@ public class ReflectionRequestRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne());
+        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne(), default(CancellationToken));
 
         _ = effectResult.Match(
             _ => unit,
@@ -168,7 +169,7 @@ public class ReflectionRequestRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne());
+        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne(), default(CancellationToken));
 
         _ = effectResult.Match(
             _ => unit,
@@ -196,7 +197,7 @@ public class ReflectionRequestRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne());
+        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne(), default(CancellationToken));
 
         _ = effectResult.Match(
             _ => unit,
@@ -223,7 +224,7 @@ public class ReflectionRequestRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne());
+        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne(), default(CancellationToken));
 
         _ = effectResult.Match(
             _ => unit,
@@ -252,7 +253,7 @@ public class ReflectionRequestRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne());
+        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne(), default(CancellationToken));
 
         _ = effectResult.Match(
             _ => unit,
@@ -282,7 +283,7 @@ public class ReflectionRequestRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = await sender.RunAsync(new RequestTwo());
+        Fin<Unit> effectResult = await sender.RunAsync(new RequestTwo(), default(CancellationToken));
 
         _ = effectResult.Match(
             _ => unit,

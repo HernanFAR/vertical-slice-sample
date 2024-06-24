@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Core.Events.Strategies;
@@ -33,7 +34,7 @@ public class ReflectionEventRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<TResponse> Define(TRequest request, Aff<TResponse> next, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, TResponse> Define(TRequest request, Aff<Runtime, TResponse> next) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -55,7 +56,7 @@ public class ReflectionEventRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<TResponse> Define(TRequest request, Aff<TResponse> next, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, TResponse> Define(TRequest request, Aff<Runtime, TResponse> next) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -76,7 +77,7 @@ public class ReflectionEventRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<Unit> Define(RequestOne request, Aff<Unit> next, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, Unit> Define(RequestOne request, Aff<Runtime, Unit> next) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -99,7 +100,7 @@ public class ReflectionEventRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<Unit> Define(RequestOne requestOne, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, Unit> Define(RequestOne requestOne) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -121,7 +122,7 @@ public class ReflectionEventRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<Unit> Define(RequestTwo request, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, Unit> Define(RequestTwo request) =>
             from _ in Eff(() =>
             {
                 _accumulator.Count += 1;
@@ -144,7 +145,7 @@ public class ReflectionEventRunnerTests
 
         public AutoResetEvent EventHandled { get; } = new(false);
 
-        public Aff<Unit> Define(RequestThree request, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, Unit> Define(RequestThree request) =>
             from _ in Aff(async () =>
             {
                 await Task.Delay(1000, default);
@@ -157,16 +158,9 @@ public class ReflectionEventRunnerTests
 
     public sealed class RequestThreeHandlerB : IHandler<RequestThree>
     {
-        readonly Accumulator _accumulator;
-
-        public RequestThreeHandlerB(Accumulator accumulator)
-        {
-            _accumulator = accumulator;
-        }
-
         public AutoResetEvent EventHandled { get; } = new(false);
 
-        public Aff<Unit> Define(RequestThree request, CancellationToken cancellationToken = default) =>
+        public Aff<Runtime, Unit> Define(RequestThree request) =>
             from _ in Aff(async () =>
             {
                 await Task.Delay(2000, default);

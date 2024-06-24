@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using LanguageExt.SysX.Live;
 using VSlices.Base;
 
 namespace VSlices.Core;
@@ -16,12 +17,11 @@ public interface IHandler<in TRequest, TResult>
     /// Defines the asyncronous effect for a <see cref="IFeature{TResult}"/>
     /// </summary>
     /// <param name="request">The request to be handled</param>
-    /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>
-    /// An <see cref="Aff{T}"/> that represents the operation in lazy evaluation, which when runned
+    /// An <see cref="Aff{TRuntime, TResult}"/> that represents the operation in lazy evaluation, which when runned
     /// returns a <typeparamref name="TResult"/>
     /// </returns>
-    Aff<TResult> Define(TRequest request, CancellationToken cancellationToken = default);
+    Aff<Runtime, TResult> Define(TRequest request);
 }
 
 /// <summary>

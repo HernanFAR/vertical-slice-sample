@@ -1,5 +1,6 @@
 ﻿using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using static LanguageExt.Prelude;
 
 namespace VSlices.Core.Events.Strategies;
@@ -13,14 +14,15 @@ public sealed class AwaitForEachStrategy : IPublishingStrategy
     /// Handles the given handlers in parallel using for each.
     /// </summary>
     /// <param name="handlerDelegates">Request Handlers</param>
+    /// <param name="runtime">Execution runtime</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async ValueTask<Fin<Unit>> HandleAsync(Aff<Unit>[] handlerDelegates)
+    public async ValueTask<Fin<Unit>> HandleAsync(Aff<Runtime, Unit>[] handlerDelegates, Runtime runtime)
     {
         List<Error> errors = new(handlerDelegates.Length);
 
-        foreach (Aff<Unit> handlerDelegate in handlerDelegates)
+        foreach (Aff<Runtime, Unit> handlerDelegate in handlerDelegates)
         {
-            Fin<Unit> result = await handlerDelegate.Run();
+            Fin<Unit> result = await handlerDelegate.Run(runtime);
 
             result.IfFail(errors.Add);
         }

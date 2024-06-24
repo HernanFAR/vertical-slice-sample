@@ -1,5 +1,6 @@
 ﻿using Crud.CrossCutting;
 using Crud.CrossCutting.Pipelines;
+using LanguageExt.SysX.Live;
 using Microsoft.EntityFrameworkCore;
 
 // ReSharper disable once CheckNamespace
@@ -50,10 +51,11 @@ internal sealed class Handler(AppDbContext context) : IHandler<Query, ReadQuesti
 {
     readonly AppDbContext _context = context;
 
-    public Aff<ReadQuestionDto> Define(Query request, CancellationToken cancellationToken = default) =>
+    public Aff<Runtime, ReadQuestionDto> Define(Query request) =>
+        from cancelToken in cancelToken<Runtime>()
         from questions in Aff(async () => await _context.Questions
             .Select(x => new QuestionDto(x.Id, x.Text))
-            .ToArrayAsync(cancellationToken))
+            .ToArrayAsync(cancelToken))
         select new ReadQuestionDto(questions);
 
 }

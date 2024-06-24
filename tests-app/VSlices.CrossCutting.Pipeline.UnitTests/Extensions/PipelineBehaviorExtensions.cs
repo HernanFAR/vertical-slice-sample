@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using LanguageExt;
+using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
 using VSlices.Core.Builder;
@@ -15,7 +16,7 @@ public class FeatureBuilderExtensionsTests
     public class TestPipeline<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        public Aff<TResult> Define(TRequest request, Aff<TResult> next, CancellationToken cancellationToken)
+        public Aff<Runtime, TResult> Define(TRequest request, Aff<Runtime, TResult> next)
         {
             return next;
         }

@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using LanguageExt;
+using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Core.Builder;
 using VSlices.Core.Stream;
@@ -16,7 +17,7 @@ public class FeatureBuilderExtensionsTests
     public class TestPipeline<TRequest, TResult> : IStreamPipelineBehavior<TRequest, TResult>
         where TRequest : IStream<TResult>
     {
-        public Aff<IAsyncEnumerable<TResult>> Define(TRequest request, Aff<IAsyncEnumerable<TResult>> next, CancellationToken cancellationToken)
+        public Aff<Runtime, IAsyncEnumerable<TResult>> Define(TRequest request, Aff<Runtime, IAsyncEnumerable<TResult>> next)
         {
             return next;
         }

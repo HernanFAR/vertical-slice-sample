@@ -1,5 +1,6 @@
 ﻿using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using static LanguageExt.Prelude;
 
 namespace VSlices.Core.Events.Strategies;
@@ -13,10 +14,12 @@ public class AwaitInParallelStrategy : IPublishingStrategy
     /// Handles the given handlers in parallel using <see cref="Task.WhenAll{TResult}(IEnumerable{Task{TResult}})"/>.
     /// </summary>
     /// <param name="handlerDelegates">Request Handlers</param>
+    /// <param name="runtime">Execution runtime</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async ValueTask<Fin<Unit>> HandleAsync(Aff<Unit>[] handlerDelegates)
+    public async ValueTask<Fin<Unit>> HandleAsync(Aff<Runtime, Unit>[] handlerDelegates, Runtime runtime)
     {
-        IEnumerable<Task<Fin<Unit>>> tasks = handlerDelegates.Select(async handlerDelegate => await handlerDelegate.Run());
+        IEnumerable<Task<Fin<Unit>>> tasks = handlerDelegates
+            .Select(async handlerDelegate => await handlerDelegate.Run(runtime));
 
         Fin<Unit>[] results = await Task.WhenAll(tasks);
 

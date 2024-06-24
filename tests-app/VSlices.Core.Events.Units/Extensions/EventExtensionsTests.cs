@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using LanguageExt;
+using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Core.Events.Configurations;
 using VSlices.Domain.Interfaces;
@@ -10,7 +11,7 @@ public class EventExtensionsTests
 {
     public class EventRunner : IEventRunner
     {
-        public ValueTask<Fin<Unit>> PublishAsync(IEvent @event, CancellationToken cancellationToken)
+        public ValueTask<Fin<Unit>> PublishAsync(IEvent @event, Runtime runtime)
         {
             throw new NotImplementedException();
         }

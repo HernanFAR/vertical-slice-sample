@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using LanguageExt;
+using LanguageExt.SysX.Live;
 using VSlices.Base;
 using VSlices.Core.Builder;
 
@@ -16,7 +17,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
     public class TestPipeline1<TRequest, TResult> : AbstractExceptionHandlingBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        protected internal override Aff<TResult> ProcessExceptionAsync(Exception ex, TRequest request, CancellationToken cancellationToken = default)
+        protected internal override Aff<Runtime, TResult> Process(Exception ex, TRequest request)
         {
             throw new UnreachableException();
         }
@@ -25,7 +26,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
     public class TestPipeline2<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        public Aff<TResult> Define(TRequest request, Aff<TResult> next, CancellationToken cancellationToken)
+        public Aff<Runtime, TResult> Define(TRequest request, Aff<Runtime, TResult> next)
         {
             throw new UnreachableException();
         }

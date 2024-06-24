@@ -2,6 +2,7 @@
 using Crud.Domain.Repositories;
 using Crud.Domain.Services;
 using FluentValidation;
+using LanguageExt.SysX.Live;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Update;
@@ -58,14 +59,15 @@ internal sealed class Handler(
     readonly IQuestionRepository _repository = repository;
     readonly QuestionManager _manager = manager;
 
-    public Aff<Unit> Define(Command request, CancellationToken cancellationToken = default) =>
-        from exists in _repository.ExistsAsync(request.Id, cancellationToken)
+    public Aff<Runtime, Unit> Define(Command request) =>
+        from cancelToken in cancelToken<Runtime>()
+        from exists in _repository.ExistsAsync(request.Id, cancelToken)
         from _ in exists
             ? _repository
-                .ReadAsync(request.Id, cancellationToken)
-                .Bind(question => _manager.UpdateAsync(question, cancellationToken))
+                .ReadAsync(request.Id, cancelToken)
+                .Bind(question => _manager.UpdateAsync(question, cancelToken))
             : _manager
-                .CreateAsync(request.Text, cancellationToken)
+                .CreateAsync(request.Text, cancelToken)
         select unit;
 
 }

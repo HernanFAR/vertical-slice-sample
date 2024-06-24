@@ -1,6 +1,5 @@
 ﻿global using LanguageExt;
 global using LanguageExt.Common;
-global using static LanguageExt.Prelude;
 global using VSlices.Base.Failures;
 global using VSlices.Core;
 global using VSlices.Core.Builder;
@@ -10,6 +9,8 @@ global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Routing;
+
+global using static LanguageExt.Prelude;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;

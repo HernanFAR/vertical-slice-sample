@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using LanguageExt.SysX.Live;
 using VSlices.Base.Failures;
 using VSlices.Core.Stream;
 using static LanguageExt.Prelude;
@@ -14,12 +15,12 @@ public abstract class AbstractExceptionHandlingStreamBehavior<TRequest, TResult>
     where TRequest : IStream<TResult>
 {
     /// <inheritdoc />
-    protected override Aff<IAsyncEnumerable<TResult>> InHandleAsync(TRequest request, Aff<IAsyncEnumerable<TResult>> next, CancellationToken cancellationToken)
+    protected override Aff<Runtime, IAsyncEnumerable<TResult>> InHandle(TRequest request, Aff<Runtime, IAsyncEnumerable<TResult>> next)
     {
         return from result in next
                        | @catch(ex => ex.IsExceptional
-                           ? ProcessExceptionAsync(ex, request)
-                           : FailAff<IAsyncEnumerable<TResult>>(ex))
+                           ? Process(ex, request)
+                           : FailAff<Runtime, IAsyncEnumerable<TResult>>(ex))
                select result;
     }
 
@@ -29,10 +30,6 @@ public abstract class AbstractExceptionHandlingStreamBehavior<TRequest, TResult>
     /// <remarks>You can add more specific logging, email sending, etc. here</remarks>
     /// <param name="ex">The throw exception</param>
     /// <param name="request">The related request information</param>
-    /// <param name="cancellationToken"></param>
     /// <returns>A <see cref="ValueTask"/> representing the processing of the exception</returns>
-    protected internal virtual Aff<IAsyncEnumerable<TResult>> ProcessExceptionAsync(Exception ex, TRequest request, CancellationToken cancellationToken = default)
-    {
-        return FailAff<IAsyncEnumerable<TResult>>(new ServerError("Internal server error"));
-    }
+    protected internal abstract Aff<Runtime, IAsyncEnumerable<TResult>> Process(Exception ex, TRequest request);
 }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using VSlices.Base;
 using VSlices.Core.Builder;
 
@@ -14,7 +15,7 @@ public class HandlerExtensionsTests
     { }
     public class Handler1 : IHandler<Feature1>
     {
-        public Aff<Unit> Define(Feature1 request, CancellationToken cancellationToken = default)
+        public Aff<Runtime, Unit> Define(Feature1 request)
         {
             throw new UnreachableException();
         }
@@ -24,7 +25,7 @@ public class HandlerExtensionsTests
     public record Feature2 : IFeature<Response2> { }
     public class Handler2 : IHandler<Feature2, Response2>
     {
-        public Aff<Response2> Define(Feature2 request, CancellationToken cancellationToken = default)
+        public Aff<Runtime, Response2> Define(Feature2 request)
         {
             throw new UnreachableException();
         }

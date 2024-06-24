@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Crud.CrossCutting;
 using Crud.CrossCutting.Pipelines;
+using LanguageExt.SysX.Live;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Core.Stream;
@@ -51,8 +52,9 @@ internal sealed class Handler(AppDbContext context) : IStreamHandler<Query, Ques
 {
     readonly AppDbContext _context = context;
 
-    public Aff<IAsyncEnumerable<QuestionDto>> Define(Query request, CancellationToken cancellationToken = default) =>
-        from questions in Eff(() => Yield(request, cancellationToken))
+    public Aff<Runtime, IAsyncEnumerable<QuestionDto>> Define(Query request) =>
+        from cancelToken in cancelToken<Runtime>()
+        from questions in Eff(() => Yield(request, cancelToken))
         select questions;
 
     public async IAsyncEnumerable<QuestionDto> Yield(

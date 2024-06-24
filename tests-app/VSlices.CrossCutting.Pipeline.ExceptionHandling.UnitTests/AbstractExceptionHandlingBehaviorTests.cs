@@ -4,6 +4,7 @@ using Moq;
 using VSlices.Base;
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using VSlices.Base.Failures;
 using static LanguageExt.Prelude;
 
@@ -24,23 +25,24 @@ public class AbstractExceptionHandlingBehaviorTests
         Mock<AbstractExceptionHandlingBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Aff<Result> next = Aff<Result>(() => throw expEx);
+        Aff<Runtime, Result> next = Aff<Runtime, Result>(_ => throw expEx);
 
-        pipelineMock.Setup(e => e.BeforeHandleAsync(request, default))
+        pipelineMock.Setup(e => e.BeforeHandle(request))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.ProcessExceptionAsync(expEx, request, default))
+        pipelineMock.Setup(e => e.Process(expEx, request))
+            .Returns(AffMaybe<Runtime, Result>(_ => ValueTask.FromResult<Fin<Result>>(new ServerError("Internal server error").AsError())))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.InHandleAsync(request, next, default))
+        pipelineMock.Setup(e => e.InHandle(request, next))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.AfterFailureHandlingAsync(
-                request, It.Is<ServerError>(e => e.Message == "Internal server error"), default))
+        pipelineMock.Setup(e => e.AfterFailureHandling(
+                request, It.Is<ServerError>(e => e.Message == "Internal server error")))
             .Verifiable();
 
-        Aff<Result> pipelineEffect = pipeline.Define(request, next, default);
-        Fin<Result> pipelineResult = await pipelineEffect.Run();
+        Aff<Runtime, Result> pipelineEffect = pipeline.Define(request, next);
+        Fin<Result> pipelineResult = await pipelineEffect.Run(Runtime.New());
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();

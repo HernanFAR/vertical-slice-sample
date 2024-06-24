@@ -1,5 +1,6 @@
 ﻿using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.SysX.Live;
 using static LanguageExt.Prelude;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
@@ -12,8 +13,8 @@ internal abstract class AbstractHandlerWrapper
 {
     public abstract ValueTask<Fin<Unit>> HandleAsync(
         IFeature<Unit> request,
-        IServiceProvider serviceProvider,
-        CancellationToken cancellationToken);
+        Runtime runtime,
+        IServiceProvider serviceProvider);
 }
 
 internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
@@ -27,25 +28,27 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
     }
 
     public override async ValueTask<Fin<Unit>> HandleAsync(
-        IFeature<Unit> request, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+        IFeature<Unit> request,
+        Runtime runtime, 
+        IServiceProvider serviceProvider)
     {
         IEnumerable<IHandler<TRequest, Unit>> handlers = serviceProvider
             .GetServices<IHandler<TRequest, Unit>>();
 
-        Aff<Unit>[] handlerDelegates = handlers.Select(handler =>
+        Aff<Runtime, Unit>[] handlerDelegates = handlers.Select(handler =>
             {
-                Aff<Unit> handlerEffect = handler.Define((TRequest)request, cancellationToken);
+                Aff<Runtime, Unit> handlerEffect = handler.Define((TRequest)request);
 
                 IEnumerable<IPipelineBehavior<TRequest, Unit>> pipelines = serviceProvider
                     .GetServices<IPipelineBehavior<TRequest, Unit>>()
                     .Reverse();
 
                 return pipelines.Aggregate(handlerEffect,
-                    (current, behavior) => behavior.Define((TRequest)request, current, cancellationToken));
+                    (current, behavior) => behavior.Define((TRequest)request, current));
 
             })
             .ToArray();
 
-        return await _strategy.HandleAsync(handlerDelegates);
+        return await _strategy.HandleAsync(handlerDelegates, runtime);
     }
 }

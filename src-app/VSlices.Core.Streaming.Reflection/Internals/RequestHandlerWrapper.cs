@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
 using VSlices.CrossCutting.StreamPipeline;
@@ -9,39 +10,40 @@ internal abstract class AbstractStreamRunnerWrapper
 {
     public abstract ValueTask<Fin<object?>> HandleAsync(
         object request,
-        IServiceProvider serviceProvider,
-        CancellationToken cancellationToken);
+        Runtime runtime,
+        IServiceProvider serviceProvider);
 }
 
 internal abstract class AbstractStreamRunnerWrapper<TResult> : AbstractStreamRunnerWrapper
 {
     public abstract ValueTask<Fin<IAsyncEnumerable<TResult>>> HandleAsync(
         IStream<TResult> request,
-        IServiceProvider serviceProvider,
-        CancellationToken cancellationToken);
+        Runtime runtime,
+        IServiceProvider serviceProvider);
 }
 
 internal class StreamRunnerWrapper<TRequest, TResult> : AbstractStreamRunnerWrapper<TResult>
     where TRequest : IStream<TResult>
 {
-    public override async ValueTask<Fin<object?>> HandleAsync(object request, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+    public override async ValueTask<Fin<object?>> HandleAsync(object request, Runtime runtime, IServiceProvider serviceProvider)
     {
-        return await HandleAsync((IStream<TResult>)request, serviceProvider, cancellationToken);
+        return await HandleAsync((IStream<TResult>)request, runtime, serviceProvider);
     }
 
-    public override ValueTask<Fin<IAsyncEnumerable<TResult>>> HandleAsync(IStream<TResult> request, IServiceProvider serviceProvider, CancellationToken cancellationToken)
+    public override ValueTask<Fin<IAsyncEnumerable<TResult>>> HandleAsync(IStream<TResult> request, Runtime runtime, 
+        IServiceProvider serviceProvider)
     {
         var handler = serviceProvider.GetRequiredService<IStreamHandler<TRequest, TResult>>();
 
-        Aff<IAsyncEnumerable<TResult>> handlerEffect = handler.Define((TRequest)request, cancellationToken);
+        Aff<Runtime, IAsyncEnumerable<TResult>> handlerEffect = handler.Define((TRequest)request);
 
         IEnumerable<IStreamPipelineBehavior<TRequest, TResult>> pipelines = serviceProvider
             .GetServices<IStreamPipelineBehavior<TRequest, TResult>>()
             .Reverse();
 
-        Aff<IAsyncEnumerable<TResult>> effectChain = pipelines.Aggregate(handlerEffect, 
-                (current, behavior) => behavior.Define((TRequest)request, current, cancellationToken));
+        Aff<Runtime, IAsyncEnumerable<TResult>> effectChain = pipelines.Aggregate(handlerEffect, 
+                (current, behavior) => behavior.Define((TRequest)request, current));
 
-        return effectChain.Run();
+        return effectChain.Run(runtime);
     }
 }
