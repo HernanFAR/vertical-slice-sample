@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Description>Implementation package for stream implementations in Core projects using reflection</Description>
+    <PackageTags>functional;request;result;vertical-slice;runner;stream-runner;reflection-runner</PackageTags>
+    <RootNamespace>VSlices.Core.Stream</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VSlices.Core.Streaming\VSlices.Core.Stream.csproj" />
+    <ProjectReference Include="..\VSlices.CrossCutting.StreamingPipeline\VSlices.CrossCutting.StreamPipeline.csproj" />
+  </ItemGroup>
+
+</Project>

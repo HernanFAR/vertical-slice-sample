@@ -16,7 +16,7 @@ public static class ReflectionPublisherExtensions
     /// <param name="services">Service Collection</param>
     /// <param name="strategy">Publishing strategy</param>
     /// <returns>Service Collection</returns>
-    public static IServiceCollection AddReflectionPublisher(this IServiceCollection services,
+    public static IServiceCollection AddReflectionEventRunner(this IServiceCollection services,
         IPublishingStrategy? strategy = null)
     {
         strategy ??= new AwaitInParallelStrategy();

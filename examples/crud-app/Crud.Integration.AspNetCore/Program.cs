@@ -3,7 +3,8 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services
     .AddInfrastructure()
     .AddCrossCutting()
-    .AddCore();
+    .AddCore()
+    .AddDomain();
 
 WebApplication app = builder.Build();
 

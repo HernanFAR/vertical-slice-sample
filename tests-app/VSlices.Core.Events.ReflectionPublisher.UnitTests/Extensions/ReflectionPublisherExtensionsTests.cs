@@ -13,7 +13,7 @@ public class ReflectionPublisherExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        var result = services.AddReflectionPublisher();
+        var result = services.AddReflectionEventRunner();
 
         // Assert
         var provider = services.BuildServiceProvider();
@@ -31,7 +31,7 @@ public class ReflectionPublisherExtensionsTests
         var services = new ServiceCollection();
 
         // Act
-        var result = services.AddReflectionPublisher(new AwaitForEachStrategy());
+        var result = services.AddReflectionEventRunner(new AwaitForEachStrategy());
 
         // Assert
         var provider = services.BuildServiceProvider();
