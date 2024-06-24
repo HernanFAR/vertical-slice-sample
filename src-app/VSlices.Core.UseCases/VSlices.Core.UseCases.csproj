@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<Description>Extension package for use case implementations in Core projects</Description>
-		<PackageTags>functional;request;result;vertical-slice;sender</PackageTags>
+		<PackageTags>functional;request;result;vertical-slice;runner;request-runner</PackageTags>
 	</PropertyGroup>
 
 	<ItemGroup>

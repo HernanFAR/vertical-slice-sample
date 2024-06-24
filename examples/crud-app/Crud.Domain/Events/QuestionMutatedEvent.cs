@@ -9,7 +9,7 @@ public enum EState
     Removed
 }
 
-public sealed class QuestionMutatedEvent : Event
+public sealed record QuestionMutatedEvent : Event
 {
     internal QuestionMutatedEvent(QuestionId id, EState currentState)
     {

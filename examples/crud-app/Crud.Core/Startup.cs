@@ -18,7 +18,15 @@ public static class Startup
 {
     public static IServiceCollection AddCore(this IServiceCollection services)
         => services.AddFeatureDependenciesFromAssemblyContaining<Anchor>()
-            .AddReflectionRequestRunner();
+            // Request
+            .AddReflectionRequestRunner()
+            // Events
+            .AddReflectionEventRunner()
+            .AddInMemoryEventQueue()
+            .AddDefaultEventListener()
+            .AddDefaultHostedEventListener()
+            // Streams
+            .AddReflectionStreamRunner();
 }
 
 internal sealed class Anchor;

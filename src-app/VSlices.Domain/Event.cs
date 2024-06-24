@@ -5,7 +5,7 @@ namespace VSlices.Domain;
 /// <summary>
 /// Abstract base class for all events
 /// </summary>
-public abstract class Event : IEvent
+public abstract record Event : IEvent
 {
     /// <inheritdoc />
     public Guid EventId { get; } = Guid.NewGuid();
