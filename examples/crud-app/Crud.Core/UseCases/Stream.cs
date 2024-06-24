@@ -1,5 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Crud.CrossCutting;
+using Crud.CrossCutting.Pipelines;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Core.Stream;
@@ -11,7 +12,9 @@ public sealed class StreamQuestionDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
-        featureBuilder.AddEndpoint<EndpointDefinition>()
+        featureBuilder
+            .AddEndpoint<EndpointDefinition>()
+            .AddExceptionHandlingStreamPipeline<LoggingExceptionHandlerStreamPipeline<Query, QuestionDto>>()
             .AddStreamHandler<Handler>();
     }
 }
@@ -57,9 +60,9 @@ internal sealed class Handler(AppDbContext context) : IStreamHandler<Query, Ques
         [EnumeratorCancellation] 
         CancellationToken cancellationToken)
     {
-        List<QuestionDto> allQuestions = await _context.Questions
+        QuestionDto[] allQuestions = await _context.Questions
             .Select(x => new QuestionDto(x.Id, x.Text))
-            .ToListAsync(cancellationToken: cancellationToken);
+            .ToArrayAsync(cancellationToken: cancellationToken);
 
         foreach (QuestionDto question in allQuestions)
         {

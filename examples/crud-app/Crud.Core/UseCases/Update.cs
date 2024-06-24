@@ -1,6 +1,7 @@
 ﻿using Crud.Domain;
 using Crud.Domain.Repositories;
 using Crud.Domain.Services;
+using FluentValidation;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Update;
@@ -9,7 +10,9 @@ public sealed class UpdateQuestionDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
-        featureBuilder.AddEndpoint<EndpointDefinition>()
+        featureBuilder
+            .AddEndpoint<EndpointDefinition>()
+            .AddFluentValidationBehavior<Validator>()
             .AddHandler<Handler>();
     }
 }
@@ -65,4 +68,14 @@ internal sealed class Handler(
                 .CreateAsync(request.Text, cancellationToken)
         select unit;
 
+}
+
+
+internal sealed class Validator : AbstractValidator<Command>
+{
+    public Validator()
+    {
+        RuleFor(x => x.Text)
+            .NotEmpty();
+    }
 }
