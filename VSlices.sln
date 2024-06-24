@@ -135,6 +135,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Stream
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.StreamPipeline.FluentValidation.UnitTests", "tests-app\VSlices.CrossCutting.StreamingPipeline.FluentValidation.UnitTests\VSlices.CrossCutting.StreamPipeline.FluentValidation.UnitTests.csproj", "{52B13F44-D7FA-4883-B2C3-C09067A73022}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.StreamPipeline.ExceptionHandling", "src-app\VSlices.CrossCutting.StreamingPipeline.ExceptionHandling\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.csproj", "{02C7DF35-967E-4F4D-9345-81A7B9C97332}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.StreamPipeline.ExceptionHandling.UnitTests", "tests-app\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.UnitTests\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.UnitTests.csproj", "{836BD109-6336-4260-9884-526194668658}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -309,6 +313,14 @@ Global
 		{52B13F44-D7FA-4883-B2C3-C09067A73022}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{52B13F44-D7FA-4883-B2C3-C09067A73022}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{52B13F44-D7FA-4883-B2C3-C09067A73022}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02C7DF35-967E-4F4D-9345-81A7B9C97332}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02C7DF35-967E-4F4D-9345-81A7B9C97332}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02C7DF35-967E-4F4D-9345-81A7B9C97332}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02C7DF35-967E-4F4D-9345-81A7B9C97332}.Release|Any CPU.Build.0 = Release|Any CPU
+		{836BD109-6336-4260-9884-526194668658}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{836BD109-6336-4260-9884-526194668658}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{836BD109-6336-4260-9884-526194668658}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{836BD109-6336-4260-9884-526194668658}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -371,6 +383,8 @@ Global
 		{3F549F1F-A6E3-4A4E-801E-33B2EDA225C5} = {3E55357F-D8D2-4134-9F1E-0875B6F722C3}
 		{18FDD727-DC80-4DA7-B574-B7D4B5D829CC} = {FB0BC2C7-9D3E-4E78-A59D-E4064C9DBCC2}
 		{52B13F44-D7FA-4883-B2C3-C09067A73022} = {3E55357F-D8D2-4134-9F1E-0875B6F722C3}
+		{02C7DF35-967E-4F4D-9345-81A7B9C97332} = {FB0BC2C7-9D3E-4E78-A59D-E4064C9DBCC2}
+		{836BD109-6336-4260-9884-526194668658} = {3E55357F-D8D2-4134-9F1E-0875B6F722C3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {653AE7A1-A4C4-42F2-9804-FE7E032C3E8C}

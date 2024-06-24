@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src-app\VSlices.CrossCutting.Pipeline.ExceptionHandling\VSlices.CrossCutting.Pipeline.ExceptionHandling.csproj" />
+	  <ProjectReference Include="..\..\src-app\VSlices.CrossCutting.StreamingPipeline.ExceptionHandling\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

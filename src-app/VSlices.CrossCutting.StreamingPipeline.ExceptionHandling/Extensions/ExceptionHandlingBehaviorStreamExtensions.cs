@@ -1,13 +1,14 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using VSlices.CrossCutting.Pipeline;
-using VSlices.CrossCutting.Pipeline.ExceptionHandling;
+using VSlices.CrossCutting.StreamPipeline;
+using VSlices.CrossCutting.StreamPipeline.ExceptionHandling;
 
+// ReSharper disable once CheckNamespace
 namespace VSlices.Core.Builder;
 
 /// <summary>
-/// <see cref="FeatureBuilder"/> extensions for <see cref="AbstractExceptionHandlingBehavior{TRequest,TResult}"/>
+/// <see cref="FeatureBuilder"/> extensions for <see cref="AbstractExceptionHandlingStreamBehavior{TRequest,TResult}"/>
 /// </summary>
-public static class ExceptionHandlingBehaviorExtensions
+public static class ExceptionHandlingBehaviorStreamExtensions
 {
     /// <summary>
     /// Adds an open generic pipeline behavior to the service collection
@@ -15,8 +16,8 @@ public static class ExceptionHandlingBehaviorExtensions
     /// <param name="featureBuilder">Service Collection</param>
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static FeatureBuilder AddExceptionHandlingPipeline<T>(this FeatureBuilder featureBuilder)
-        => featureBuilder.AddExceptionHandlingPipeline(typeof(T));
+    public static FeatureBuilder AddExceptionHandlingStreamPipeline<T>(this FeatureBuilder featureBuilder)
+        => featureBuilder.AddExceptionHandlingStreamPipeline(typeof(T));
 
     /// <summary>
     /// Adds an open generic pipeline behavior to the service collection
@@ -25,22 +26,22 @@ public static class ExceptionHandlingBehaviorExtensions
     /// <param name="exceptionHandlingBehavior">Behavior</param>
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static FeatureBuilder AddExceptionHandlingPipeline(this FeatureBuilder featureBuilder,
+    public static FeatureBuilder AddExceptionHandlingStreamPipeline(this FeatureBuilder featureBuilder,
         Type exceptionHandlingBehavior)
     {
         var pipelineInterface = exceptionHandlingBehavior.GetInterfaces()
             .Where(o => o.IsGenericType)
-            .SingleOrDefault(o => o.GetGenericTypeDefinition() == typeof(IPipelineBehavior<,>))
+            .SingleOrDefault(o => o.GetGenericTypeDefinition() == typeof(IStreamPipelineBehavior<,>))
             ?? throw new InvalidOperationException(
-                $"The type {exceptionHandlingBehavior.FullName} does not implement {typeof(IPipelineBehavior<,>).FullName}");
+                $"The type {exceptionHandlingBehavior.FullName} does not implement {typeof(IStreamPipelineBehavior<,>).FullName}");
 
-        var exceptionHandlingBehaviorBase = typeof(AbstractExceptionHandlingBehavior<,>)
+        var exceptionHandlingBehaviorBase = typeof(AbstractExceptionHandlingStreamBehavior<,>)
             .MakeGenericType(pipelineInterface.GetGenericArguments()[0], pipelineInterface.GetGenericArguments()[1]);
 
         if (!exceptionHandlingBehavior.IsAssignableTo(exceptionHandlingBehaviorBase))
         {
             throw new InvalidOperationException(
-                $"Type {exceptionHandlingBehavior.FullName} must inherit from {typeof(AbstractExceptionHandlingBehavior<,>).FullName}");
+                $"Type {exceptionHandlingBehavior.FullName} must inherit from {typeof(AbstractExceptionHandlingStreamBehavior<,>).FullName}");
         }
 
         featureBuilder.Services.AddTransient(pipelineInterface, exceptionHandlingBehavior);
