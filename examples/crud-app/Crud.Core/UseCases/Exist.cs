@@ -1,4 +1,5 @@
-﻿using Crud.Domain;
+﻿using Crud.CrossCutting.Pipelines;
+using Crud.Domain;
 using Crud.Domain.Repositories;
 
 // ReSharper disable once CheckNamespace
@@ -8,7 +9,9 @@ public sealed class ExistsQuestionDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
-        featureBuilder.AddEndpoint<EndpointDefinition>()
+        featureBuilder
+            .AddEndpoint<EndpointDefinition>()
+            .AddExceptionHandlingPipeline<LoggingExceptionHandlerPipeline<Query, Unit>>()
             .AddHandler<Handler>();
     }
 }

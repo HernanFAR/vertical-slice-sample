@@ -176,7 +176,7 @@ public class ResponseExtensionsTests
 
         result.Status.Should().Be(StatusCodes.Status422UnprocessableEntity);
         result.Detail.Should().Be(expTitle);
-        ((Dictionary<string, string[]>)result.Extensions["Errors"]
+        ((Dictionary<string, string[]>)result.Extensions["errors"]
                 .Should()
                 .BeOfType<Dictionary<string, string[]>>()
             .And.Subject)

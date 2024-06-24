@@ -18,4 +18,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.ExceptionHandling\VSlices.CrossCutting.Pipeline.ExceptionHandling.csproj" />
+    <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.FluentValidation\VSlices.CrossCutting.Pipeline.FluentValidation.csproj" />
+    <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.StreamingPipeline.ExceptionHandling\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.csproj" />
+    <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.StreamingPipeline.FluentValidation\VSlices.CrossCutting.StreamPipeline.FluentValidation.csproj" />
+  </ItemGroup>
+
 </Project>

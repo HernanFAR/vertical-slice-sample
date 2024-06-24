@@ -33,7 +33,7 @@ public static class BusinessFailureExtensions
             return problemDetails;
         }
 
-        problemDetails.Extensions["Errors"] = unprocessable.Errors
+        problemDetails.Extensions["errors"] = unprocessable.Errors
             .Select(x => x.Name)
             .Distinct()
             .ToDictionary(

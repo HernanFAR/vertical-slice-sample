@@ -1,4 +1,5 @@
-﻿using Crud.Domain;
+﻿using Crud.CrossCutting.Pipelines;
+using Crud.Domain;
 using Crud.Domain.Repositories;
 using Crud.Domain.Services;
 
@@ -9,7 +10,9 @@ public sealed class DeleteQuestionDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
-        featureBuilder.AddEndpoint<EndpointDefinition>()
+        featureBuilder
+            .AddEndpoint<EndpointDefinition>()
+            .AddExceptionHandlingPipeline<LoggingExceptionHandlerPipeline<Command, Unit>>()
             .AddHandler<Handler>();
     }
 }

@@ -1,6 +1,6 @@
-﻿using Crud.Domain;
-using Crud.Domain.Repositories;
+﻿using Crud.CrossCutting.Pipelines;
 using Crud.Domain.Services;
+using FluentValidation;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Create;
@@ -9,7 +9,10 @@ public sealed class CreateQuestionDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
-        featureBuilder.AddEndpoint<EndpointDefinition>()
+        featureBuilder
+            .AddEndpoint<EndpointDefinition>()
+            .AddFluentValidationBehavior<Validator>()
+            .AddExceptionHandlingPipeline<LoggingExceptionHandlerPipeline<Command, Unit>>()
             .AddHandler<Handler>();
     }
 }
@@ -48,7 +51,18 @@ internal sealed class Handler(QuestionManager manager) : IHandler<Command, Unit>
 {
     private readonly QuestionManager _manager = manager;
 
-    public Aff<Unit> Define(Command request, CancellationToken cancellationToken = default) =>
-        from _ in _manager.CreateAsync(request.Text, cancellationToken)
-        select unit;
+    public Aff<Unit> Define(Command request, CancellationToken cancellationToken = default)
+    {
+        return from _ in _manager.CreateAsync(request.Text, cancellationToken)
+               select unit;
+    }
+}
+
+internal sealed class Validator : AbstractValidator<Command>
+{
+    public Validator()
+    {
+        RuleFor(x => x.Text)
+            .NotEmpty();
+    }
 }

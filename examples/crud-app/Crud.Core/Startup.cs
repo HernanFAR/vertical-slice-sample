@@ -1,11 +1,11 @@
-﻿global using VSlices.Base.Failures;
+﻿global using LanguageExt;
+global using LanguageExt.Common;
+global using static LanguageExt.Prelude;
+global using VSlices.Base.Failures;
 global using VSlices.Core;
 global using VSlices.Core.Builder;
 global using VSlices.Core.Presentation;
 global using VSlices.Core.UseCases;
-global using LanguageExt;
-global using LanguageExt.Common;
-global using static LanguageExt.Prelude;
 global using Microsoft.AspNetCore.Builder;
 global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
@@ -20,13 +20,13 @@ public static class Startup
         => services.AddFeatureDependenciesFromAssemblyContaining<Anchor>()
             // Request
             .AddReflectionRequestRunner()
+            // Streams
+            .AddReflectionStreamRunner()
             // Events
             .AddReflectionEventRunner()
             .AddInMemoryEventQueue()
             .AddDefaultEventListener()
-            .AddDefaultHostedEventListener()
-            // Streams
-            .AddReflectionStreamRunner();
+            .AddDefaultHostedEventListener();
 }
 
 internal sealed class Anchor;

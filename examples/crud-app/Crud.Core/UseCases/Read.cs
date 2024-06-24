@@ -1,4 +1,5 @@
 ﻿using Crud.CrossCutting;
+using Crud.CrossCutting.Pipelines;
 using Microsoft.EntityFrameworkCore;
 
 // ReSharper disable once CheckNamespace
@@ -8,7 +9,9 @@ public sealed class ReadQuestionDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
-        featureBuilder.AddEndpoint<EndpointDefinition>()
+        featureBuilder
+            .AddEndpoint<EndpointDefinition>()
+            .AddExceptionHandlingPipeline<LoggingExceptionHandlerPipeline<Query, ReadQuestionDto>>()
             .AddHandler<Handler>();
     }
 }
