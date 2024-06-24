@@ -12,7 +12,7 @@ public sealed class LoggingExceptionHandlerPipeline<TRequest, TResult>(ILogger<T
 {
     readonly ILogger<TResult> _logger = logger;
 
-    protected override Aff<Runtime, TResult> ProcessExceptionAsync(Exception ex, TRequest request) =>
+    protected override Aff<Runtime, TResult> Process(Exception ex, TRequest request) =>
         from result in EffMaybe<TResult>(() =>
         {
             _logger.LogError(ex, "Hubo una excepción al momento de manejar {Request}.", request);
