@@ -6,11 +6,17 @@ using VSlices.Core;
 namespace VSlices.CrossCutting.Pipeline;
 
 /// <summary>
+/// Not intended to be used in development, use <see cref="IPipelineBehavior{TRequest,TResult}" />
+/// or <see cref="AbstractPipelineBehavior{TRequest,TResult}"/>
+/// </summary>
+public interface IPipelineBehavior;
+
+/// <summary>
 /// A middleware behavior for a <see cref="IHandler{TRequest}"/> <see cref="IFeature{TResult}" />
 /// </summary>
 /// <typeparam name="TRequest">The request to intercept</typeparam>
 /// <typeparam name="TResult">The expected result</typeparam>
-public interface IPipelineBehavior<in TRequest, TResult>
+public interface IPipelineBehavior<in TRequest, TResult> : IPipelineBehavior
     where TRequest : IFeature<TResult>
 {
     /// <summary>
