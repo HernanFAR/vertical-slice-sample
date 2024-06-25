@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
@@ -19,7 +18,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\src-app\VSlices.CrossCutting.StreamingPipeline.ExceptionHandling\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.csproj" />
+		<ProjectReference Include="..\..\src-app\VSlices.CrossCutting.StreamingPipeline.ExceptionHandling\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
