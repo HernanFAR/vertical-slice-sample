@@ -127,15 +127,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Stream
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.StreamPipeline.ExceptionHandling.UnitTests", "tests-app\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.UnitTests\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.UnitTests.csproj", "{836BD109-6336-4260-9884-526194668658}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Elementos de la solución", "Elementos de la solución", "{D61CEABD-510C-4FE0-B119-AC52183E01E4}"
-	ProjectSection(SolutionItems) = preProject
-		.gitattributes = .gitattributes
-		.gitignore = .gitignore
-		.readthedocs.yaml = .readthedocs.yaml
-		how to contribute.md = how to contribute.md
-		LICENSE = LICENSE
-		README.md = README.md
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.CrossCutting.Pipeline.Logging", "src-app\VSlices.CrossCutting.Pipeline.Logging\VSlices.CrossCutting.Pipeline.Logging.csproj", "{2CF0F232-15FF-445B-856E-A1C6D9E58ADA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -319,6 +311,10 @@ Global
 		{836BD109-6336-4260-9884-526194668658}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{836BD109-6336-4260-9884-526194668658}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{836BD109-6336-4260-9884-526194668658}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CF0F232-15FF-445B-856E-A1C6D9E58ADA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CF0F232-15FF-445B-856E-A1C6D9E58ADA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CF0F232-15FF-445B-856E-A1C6D9E58ADA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CF0F232-15FF-445B-856E-A1C6D9E58ADA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -383,6 +379,7 @@ Global
 		{52B13F44-D7FA-4883-B2C3-C09067A73022} = {3E55357F-D8D2-4134-9F1E-0875B6F722C3}
 		{02C7DF35-967E-4F4D-9345-81A7B9C97332} = {FB0BC2C7-9D3E-4E78-A59D-E4064C9DBCC2}
 		{836BD109-6336-4260-9884-526194668658} = {3E55357F-D8D2-4134-9F1E-0875B6F722C3}
+		{2CF0F232-15FF-445B-856E-A1C6D9E58ADA} = {2D226E05-AE92-4C6A-961F-82B646B95D49}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {653AE7A1-A4C4-42F2-9804-FE7E032C3E8C}
