@@ -2,6 +2,7 @@
 using Crud.Domain;
 using Crud.Domain.Repositories;
 using Crud.Domain.Services;
+using Crud.Domain.ValueObjects;
 using LanguageExt.SysX.Live;
 
 // ReSharper disable once CheckNamespace
@@ -13,7 +14,9 @@ public sealed class DeleteQuestionDependencies : IFeatureDependencies
     {
         featureBuilder
             .AddEndpoint<EndpointDefinition>()
-            .AddExceptionHandlingPipeline<LoggingExceptionHandlerPipeline<Command, Unit>>()
+            .AddLoggingBehaviorFor<Command>()
+                .UsingSpanishTemplate()
+            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
             .AddHandler<Handler>();
     }
 }
@@ -55,9 +58,8 @@ internal sealed class Handler(
     readonly QuestionManager _manage = manage;
 
     public Aff<Runtime, Unit> Define(Command request) =>
-        from cancelToken in cancelToken<Runtime>()
-        from question in _repository.ReadAsync(request.Id, cancelToken)
-        from _ in _manage.DeleteAsync(question, cancelToken)
+        from question in _repository.Read<Runtime>(request.Id)
+        from _ in _manage.Delete<Runtime>(question)
         select unit;
 
 }

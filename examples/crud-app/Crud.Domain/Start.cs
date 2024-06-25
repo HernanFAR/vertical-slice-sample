@@ -2,6 +2,7 @@
 global using LanguageExt.Common;
 global using static LanguageExt.Prelude;
 using Crud.Domain.Services;
+using LanguageExt.SysX.Live;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;

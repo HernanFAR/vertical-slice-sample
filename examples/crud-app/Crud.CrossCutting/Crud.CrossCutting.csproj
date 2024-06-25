@@ -10,17 +10,18 @@
     <PackageReference Include="LanguageExt.Core" Version="4.4.8" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.6" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.ExceptionHandling\VSlices.CrossCutting.Pipeline.ExceptionHandling.csproj" />
     <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.FluentValidation\VSlices.CrossCutting.Pipeline.FluentValidation.csproj" />
+    <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.Logging\VSlices.CrossCutting.Pipeline.Logging.csproj" />
     <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.StreamingPipeline.ExceptionHandling\VSlices.CrossCutting.StreamPipeline.ExceptionHandling.csproj" />
     <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.StreamingPipeline.FluentValidation\VSlices.CrossCutting.StreamPipeline.FluentValidation.csproj" />
   </ItemGroup>

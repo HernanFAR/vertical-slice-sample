@@ -1,6 +1,8 @@
-﻿using Crud.Domain;
+﻿using Crud.CrossCutting.Pipelines;
+using Crud.Domain;
 using Crud.Domain.Repositories;
 using Crud.Domain.Services;
+using Crud.Domain.ValueObjects;
 using FluentValidation;
 using LanguageExt.SysX.Live;
 
@@ -13,14 +15,17 @@ public sealed class UpdateQuestionDependencies : IFeatureDependencies
     {
         featureBuilder
             .AddEndpoint<EndpointDefinition>()
-            .AddFluentValidationBehavior<Validator>()
+            .AddLoggingBehaviorFor<Command>()
+                .UsingSpanishTemplate()
+            .AddFluentValidationBehaviorUsing<Validator>()
+            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
             .AddHandler<Handler>();
     }
 }
 
 public sealed record UpdateQuestionContract(string Text);
 
-internal sealed record Command(QuestionId Id, string Text) : IRequest<Unit>;
+internal sealed record Command(QuestionId Id, NonEmptyString Text) : IRequest<Unit>;
 
 internal sealed class EndpointDefinition : IEndpointDefinition
 {
@@ -43,7 +48,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
         IRequestRunner runner,
         CancellationToken cancellationToken)
     {
-        Command command = new(new QuestionId(id), contract.Text);
+        Command command = new(new QuestionId(id), new NonEmptyString(contract.Text));
 
         return await runner
             .RunAsync(command, cancellationToken)
@@ -56,22 +61,20 @@ internal sealed class Handler(
     QuestionManager manager)
     : IHandler<Command>
 {
-    readonly IQuestionRepository _repository = repository;
-    readonly QuestionManager _manager = manager;
+    private readonly IQuestionRepository _repository = repository;
+    private readonly QuestionManager _manager = manager;
 
     public Aff<Runtime, Unit> Define(Command request) =>
         from cancelToken in cancelToken<Runtime>()
-        from exists in _repository.ExistsAsync(request.Id, cancelToken)
+        from exists in _repository.Exists<Runtime>(request.Id)
         from _ in exists
-            ? _repository
-                .ReadAsync(request.Id, cancelToken)
-                .Bind(question => _manager.UpdateAsync(question, cancelToken))
-            : _manager
-                .CreateAsync(request.Text, cancelToken)
+            ? from question in _repository.Read<Runtime>(request.Id)
+            from _1 in Eff(() => question.UpdateState(request.Text))
+            from _2 in _manager.Update<Runtime>(question)
+            select unit
+            : _manager.Create<Runtime>(request.Id, request.Text)
         select unit;
-
 }
-
 
 internal sealed class Validator : AbstractValidator<Command>
 {

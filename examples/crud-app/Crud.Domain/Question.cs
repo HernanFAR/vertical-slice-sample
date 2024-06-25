@@ -1,13 +1,10 @@
-﻿namespace Crud.Domain;
+﻿using Crud.Domain.ValueObjects;
 
-public readonly record struct QuestionId(Guid Value)
-{
-    public static QuestionId New() => new(Guid.NewGuid());
-}
+namespace Crud.Domain;
 
 public sealed class Question
 {
-    internal Question(QuestionId id, string text)
+    internal Question(QuestionId id, NonEmptyString text)
     {
         Id = id;
         Text = text;
@@ -15,17 +12,17 @@ public sealed class Question
 
     public QuestionId Id { get; }
     
-    public string Text { get; private set; }
+    public NonEmptyString Text { get; private set; }
 
-    public Unit UpdateState(string text)
+    public Unit UpdateState(NonEmptyString text)
     {
         Text = text;
 
         return unit;
     }
 
-    internal static Question Create(string text) 
+    internal static Question Create(NonEmptyString text) 
     {
-        return new Question(QuestionId.New(), text);
+        return new Question(QuestionId.New(Guid.NewGuid()), text);
     }
 }

@@ -1,14 +1,25 @@
-﻿namespace Crud.Domain.Repositories;
+﻿using Crud.Domain.ValueObjects;
+using LanguageExt.Effects.Traits;
+
+namespace Crud.Domain.Repositories;
 
 public interface IQuestionRepository
 {
-    Aff<Unit> CreateAsync(Question question, CancellationToken cancellationToken);
+    Aff<TRuntime, Unit> Create<TRuntime>(Question question)
+        where TRuntime : struct, HasCancel<TRuntime>;
 
-    Aff<Question> ReadAsync(QuestionId requestId, CancellationToken cancellationToken);
+    Aff<TRuntime, Question> Read<TRuntime>(QuestionId requestId)
+        where TRuntime : struct, HasCancel<TRuntime>;
 
-    Aff<Unit> UpdateAsync(Question question, CancellationToken cancellationToken);
+    Aff<TRuntime, Unit> Update<TRuntime>(Question question)
+        where TRuntime : struct, HasCancel<TRuntime>;
 
-    Aff<bool> ExistsAsync(QuestionId id, CancellationToken cancellationToken);
+    Aff<TRuntime, bool> Exists<TRuntime>(QuestionId id)
+        where TRuntime : struct, HasCancel<TRuntime>;
 
-    Aff<Unit> DeleteAsync(Question question, CancellationToken cancellationToken);
+    Aff<TRuntime, bool> Exists<TRuntime>(NonEmptyString text)
+        where TRuntime : struct, HasCancel<TRuntime>;
+
+    Aff<TRuntime, Unit> Delete<TRuntime>(Question question)
+        where TRuntime : struct, HasCancel<TRuntime>;
 }

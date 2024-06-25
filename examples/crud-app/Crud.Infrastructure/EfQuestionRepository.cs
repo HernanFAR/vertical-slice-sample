@@ -1,7 +1,8 @@
 ﻿using Crud.CrossCutting;
 using Crud.Domain;
 using Crud.Domain.Repositories;
-using LanguageExt.SomeHelp;
+using Crud.Domain.ValueObjects;
+using LanguageExt.Effects.Traits;
 using Microsoft.EntityFrameworkCore;
 using VSlices.Base.Failures;
 
@@ -11,63 +12,84 @@ public sealed class EfQuestionRepository(AppDbContext context) : IQuestionReposi
 {
     readonly AppDbContext _context = context;
 
-    public Aff<Unit> CreateAsync(Question question, CancellationToken cancellationToken) =>
+    public Aff<TRuntime, Unit> Create<TRuntime>(Question question)
+        where TRuntime : struct, HasCancel<TRuntime> =>
+        from cancelToken in cancelToken<TRuntime>()
         from question_ in SuccessAff(new TQuestion
         {
             Id = question.Id.Value,
-            Text = question.Text
+            Text = question.Text.Value
         })
         from _ in Aff(async () =>
         {
-            question_.Text = question.Text;
+            question_.Text = question.Text.Value;
 
             _context.Questions.Add(question_);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync(cancelToken);
 
             return unit;
         })
         select unit;
 
 
-    public Aff<Question> ReadAsync(QuestionId requestId, CancellationToken cancellationToken) =>
-        from question_ in ReadModel(requestId.Value, cancellationToken)
-        select new Question(new QuestionId(question_.Id), question_.Text);
+    public Aff<TRuntime, Question> Read<TRuntime>(QuestionId questionId)
+        where TRuntime : struct, HasCancel<TRuntime> =>
+        from question_ in ReadModel<TRuntime>(questionId.Value)
+        select new Question(new QuestionId(question_.Id), new NonEmptyString(question_.Text));
 
-    public Aff<Unit> UpdateAsync(Question question, CancellationToken cancellationToken) =>
-        from question_ in ReadModel(question.Id.Value, cancellationToken)
+    public Aff<TRuntime, Unit> Update<TRuntime>(Question question)
+        where TRuntime : struct, HasCancel<TRuntime> =>
+        from cancelToken in cancelToken<TRuntime>()
+        from question_ in ReadModel<TRuntime>(question.Id.Value)
         from _ in Aff(async () =>
         {
-            question_.Text = question.Text;
+            question_.Text = question.Text.Value;
 
             _context.Questions.Update(question_);
-            await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync(cancelToken);
 
             return unit;
         })
         select unit;
 
-    public Aff<bool> ExistsAsync(QuestionId id, CancellationToken cancellationToken) =>
+    public Aff<TRuntime, bool> Exists<TRuntime>(QuestionId id)
+        where TRuntime : struct, HasCancel<TRuntime> =>
+        from cancelToken in cancelToken<TRuntime>()
         from exist in Aff(async () => await _context
             .Questions
-            .AnyAsync(x => x.Id == id.Value, cancellationToken))
+            .AnyAsync(x => x.Id == id.Value, cancelToken))
         select exist;
 
-    public Aff<Unit> DeleteAsync(Question question, CancellationToken cancellationToken) =>
-        from question_ in ReadModel(question.Id.Value, cancellationToken)
+    public Aff<TRuntime, bool> Exists<TRuntime>(NonEmptyString text)
+        where TRuntime : struct, HasCancel<TRuntime> =>
+        from cancelToken in cancelToken<TRuntime>()
+        from exist in Aff(async () => await _context
+            .Questions
+            .AnyAsync(x => x.Text == text.Value, cancelToken))
+        select exist;
+
+    public Aff<TRuntime, Unit> Delete<TRuntime>(Question question)
+        where TRuntime : struct, HasCancel<TRuntime> =>
+        from cancelToken in cancelToken<TRuntime>()
+        from question_ in ReadModel<TRuntime>(question.Id.Value)
         from _ in Aff(async () =>
         {
             _context.Questions.Remove(question_);
 
-            await _context.SaveChangesAsync(cancellationToken);
+            await _context.SaveChangesAsync(cancelToken);
 
             return unit;
         })
         select unit;
 
-    Aff<TQuestion> ReadModel(Guid id, CancellationToken cancellationToken) =>
+    Aff<TRuntime, TQuestion> ReadModel<TRuntime>(Guid id)
+        where TRuntime : struct, HasCancel<TRuntime> =>
+        from cancelToken in cancelToken<TRuntime>()
         from question in AffMaybe<TQuestion>(async () =>
         {
-            TQuestion? question = await _context.Questions.Where(x => x.Id == id).FirstOrDefaultAsync(cancellationToken);
+            TQuestion? question = await _context.Questions
+                .Where(x => x.Id == id)
+                .FirstOrDefaultAsync(cancelToken);
 
             return question is not null 
                 ? question

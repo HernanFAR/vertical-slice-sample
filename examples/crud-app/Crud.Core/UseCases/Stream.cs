@@ -54,11 +54,10 @@ internal sealed class Handler(AppDbContext context) : IStreamHandler<Query, Ques
 
     public Aff<Runtime, IAsyncEnumerable<QuestionDto>> Define(Query request) =>
         from cancelToken in cancelToken<Runtime>()
-        from questions in Eff(() => Yield(request, cancelToken))
+        from questions in Eff(() => Yield(cancelToken))
         select questions;
 
     public async IAsyncEnumerable<QuestionDto> Yield(
-        Query request, 
         [EnumeratorCancellation] 
         CancellationToken cancellationToken)
     {
