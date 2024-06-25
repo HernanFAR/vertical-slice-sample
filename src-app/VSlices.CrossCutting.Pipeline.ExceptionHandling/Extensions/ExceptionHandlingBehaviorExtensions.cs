@@ -2,6 +2,7 @@
 using VSlices.CrossCutting.Pipeline;
 using VSlices.CrossCutting.Pipeline.ExceptionHandling;
 
+// ReSharper disable once CheckNamespace
 namespace VSlices.Core.Builder;
 
 /// <summary>
@@ -15,8 +16,9 @@ public static class ExceptionHandlingBehaviorExtensions
     /// <param name="featureBuilder">Service Collection</param>
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static FeatureBuilder AddExceptionHandlingPipeline<T>(this FeatureBuilder featureBuilder)
-        => featureBuilder.AddExceptionHandlingPipeline(typeof(T));
+    public static FeatureBuilder AddExceptionHandlingBehavior<T>(this FeatureBuilder featureBuilder)
+        where T : IPipelineBehavior
+        => featureBuilder.AddExceptionHandlingBehavior(typeof(T));
 
     /// <summary>
     /// Adds an open generic pipeline behavior to the service collection
@@ -25,7 +27,7 @@ public static class ExceptionHandlingBehaviorExtensions
     /// <param name="exceptionHandlingBehavior">Behavior</param>
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static FeatureBuilder AddExceptionHandlingPipeline(this FeatureBuilder featureBuilder,
+    public static FeatureBuilder AddExceptionHandlingBehavior(this FeatureBuilder featureBuilder,
         Type exceptionHandlingBehavior)
     {
         var pipelineInterface = exceptionHandlingBehavior.GetInterfaces()

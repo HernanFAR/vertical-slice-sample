@@ -17,7 +17,7 @@ public class FluentValidationBehaviorExtensionsTests
     {
         FeatureBuilder builder = new(new ServiceCollection());
 
-        builder.AddFluentValidationBehavior<Validator>();
+        builder.AddFluentValidationBehaviorUsing<Validator>();
 
         builder.Services
             .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, RequestResult>))
