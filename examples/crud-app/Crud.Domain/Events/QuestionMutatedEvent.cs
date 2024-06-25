@@ -1,4 +1,5 @@
-﻿using VSlices.Domain;
+﻿using Crud.Domain.ValueObjects;
+using VSlices.Domain;
 
 namespace Crud.Domain.Events;
 
@@ -18,5 +19,7 @@ public sealed record QuestionMutatedEvent : Event
     }
 
     public QuestionId Id { get; }
+
     public EState CurrentState { get; }
+
 }

@@ -1,6 +1,7 @@
 ﻿using Crud.CrossCutting.Pipelines;
 using Crud.Domain;
 using Crud.Domain.Repositories;
+using Crud.Domain.ValueObjects;
 using LanguageExt.SysX.Live;
 
 // ReSharper disable once CheckNamespace
@@ -12,7 +13,9 @@ public sealed class ExistsQuestionDependencies : IFeatureDependencies
     {
         featureBuilder
             .AddEndpoint<EndpointDefinition>()
-            .AddExceptionHandlingPipeline<LoggingExceptionHandlerPipeline<Query, Unit>>()
+            .AddLoggingBehaviorFor<Query>()
+                .UsingSpanishTemplate()
+            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Query, Unit>>()
             .AddHandler<Handler>();
     }
 }
@@ -50,8 +53,7 @@ internal sealed class Handler(IQuestionRepository repository) : IHandler<Query>
     private readonly IQuestionRepository _repository = repository;
 
     public Aff<Runtime, Unit> Define(Query request) =>
-        from cancelToken in cancelToken<Runtime>()
-        from exists in _repository.ExistsAsync(request.Id, cancelToken)
+        from exists in _repository.Exists<Runtime>(request.Id)
         from _ in guard(exists, new NotFound("No se ha encontrado la pregunta").AsError)
         select unit;
 

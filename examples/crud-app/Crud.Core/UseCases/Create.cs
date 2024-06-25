@@ -1,5 +1,6 @@
 ﻿using Crud.CrossCutting.Pipelines;
 using Crud.Domain.Services;
+using Crud.Domain.ValueObjects;
 using FluentValidation;
 using LanguageExt.SysX.Live;
 
@@ -12,8 +13,10 @@ public sealed class CreateQuestionDependencies : IFeatureDependencies
     {
         featureBuilder
             .AddEndpoint<EndpointDefinition>()
-            .AddFluentValidationBehavior<Validator>()
-            .AddExceptionHandlingPipeline<LoggingExceptionHandlerPipeline<Command, Unit>>()
+            .AddLoggingBehaviorFor<Command>()
+                .UsingSpanishTemplate()
+            .AddFluentValidationBehaviorUsing<Validator>()
+            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
             .AddHandler<Handler>();
     }
 }
@@ -53,8 +56,7 @@ internal sealed class Handler(QuestionManager manager) : IHandler<Command, Unit>
     private readonly QuestionManager _manager = manager;
 
     public Aff<Runtime, Unit> Define(Command request) =>
-        from cancelToken in cancelToken<Runtime>()
-        from _ in _manager.CreateAsync(request.Text, cancelToken)
+        from _ in _manager.Create<Runtime>(new NonEmptyString(request.Text))
         select unit;
 }
 

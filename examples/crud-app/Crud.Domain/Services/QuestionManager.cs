@@ -1,44 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Crud.Domain.Events;
+﻿using Crud.Domain.Events;
 using Crud.Domain.Repositories;
+using Crud.Domain.ValueObjects;
+using LanguageExt.Effects.Traits;
 using VSlices.Core.Events;
 
 namespace Crud.Domain.Services;
 
-public sealed class QuestionManager(IQuestionRepository repository, IEventQueueWriter eventWriter)
+public sealed class QuestionManager(
+    IQuestionRepository repository, 
+    IEventQueueWriter eventWriter)
 {
     readonly IQuestionRepository _repository = repository;
     readonly IEventQueueWriter _eventWriter = eventWriter;
 
-    public Aff<Unit> CreateAsync(string text, CancellationToken cancellationToken) =>
+    public Aff<TRuntime, Unit> Create<TRuntime>(QuestionId id, NonEmptyString text)
+        where TRuntime : struct, HasCancel<TRuntime> =>
+        from question in Eff(() => new Question(id, text))
+        from _1 in _repository.Create<TRuntime>(question)
+        from _2 in PublishEventCore<TRuntime>(question.Id, EState.Created)
+        select unit;
+
+    public Aff<TRuntime, Unit> Create<TRuntime>(NonEmptyString text)
+        where TRuntime : struct, HasCancel<TRuntime> =>
         from question in Eff(() => Question.Create(text))
-        from _1 in _repository.CreateAsync(question, cancellationToken)
-        from _2 in PublishEventCore(question.Id, EState.Created, cancellationToken)
+        from _1 in _repository.Create<TRuntime>(question)
+        from _2 in PublishEventCore<TRuntime>(question.Id, EState.Created)
         select unit;
 
-    public Aff<Unit> UpdateAsync(Question question, CancellationToken cancellationToken) =>
-        from _1 in _repository.UpdateAsync(question, cancellationToken)
-        from _2 in PublishEventCore(question.Id, EState.Updated, cancellationToken)
+    public Aff<TRuntime, Unit> Update<TRuntime>(Question question)
+        where TRuntime : struct, HasCancel<TRuntime> =>
+        from _1 in _repository.Update<TRuntime>(question)
+        from _2 in PublishEventCore<TRuntime>(question.Id, EState.Updated)
         select unit;
 
-    public Aff<Unit> DeleteAsync(Question question, CancellationToken cancellationToken) =>
-        from _1 in _repository.DeleteAsync(question, cancellationToken)
-        from _2 in PublishEventCore(question.Id, EState.Removed, cancellationToken)
+    public Aff<TRuntime, Unit> Delete<TRuntime>(Question question)
+        where TRuntime : struct, HasCancel<TRuntime> =>
+        from _1 in _repository.Delete<TRuntime>(question)
+        from _2 in PublishEventCore<TRuntime>(question.Id, EState.Removed)
         select unit;
 
-    private Aff<Unit> PublishEventCore(QuestionId id, EState state, CancellationToken cancellationToken) =>
+    Aff<TRuntime, Unit> PublishEventCore<TRuntime>(QuestionId id, EState state)
+        where TRuntime : struct, HasCancel<TRuntime> =>
+        from cancelToken in cancelToken<TRuntime>()
         from _ in Aff(async () =>
         {
-            var @event = new QuestionMutatedEvent(id, state);
+            QuestionMutatedEvent @event = new(id, state);
 
-            await _eventWriter.EnqueueAsync(@event, cancellationToken);
+            await _eventWriter.EnqueueAsync(@event, cancelToken);
 
             return unit;
         })
         select unit;
-
 }

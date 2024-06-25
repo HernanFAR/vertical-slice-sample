@@ -12,7 +12,9 @@ public sealed class ReadQuestionDependencies : IFeatureDependencies
     {
         featureBuilder
             .AddEndpoint<EndpointDefinition>()
-            .AddExceptionHandlingPipeline<LoggingExceptionHandlerPipeline<Query, ReadQuestionDto>>()
+            .AddLoggingBehaviorFor<Query>()
+                .UsingSpanishTemplate()
+            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Query, ReadQuestionDto>>()
             .AddHandler<Handler>();
     }
 }
