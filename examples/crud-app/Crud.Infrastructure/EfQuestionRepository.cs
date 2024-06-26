@@ -3,6 +3,7 @@ using Crud.Domain;
 using Crud.Domain.Repositories;
 using Crud.Domain.ValueObjects;
 using LanguageExt.Effects.Traits;
+using LanguageExt.SysX.Live;
 using Microsoft.EntityFrameworkCore;
 using VSlices.Base.Failures;
 
@@ -12,9 +13,8 @@ public sealed class EfQuestionRepository(AppDbContext context) : IQuestionReposi
 {
     readonly AppDbContext _context = context;
 
-    public Aff<TRuntime, Unit> Create<TRuntime>(Question question)
-        where TRuntime : struct, HasCancel<TRuntime> =>
-        from cancelToken in cancelToken<TRuntime>()
+    public Aff<Runtime, Unit> Create(Question question) =>
+        from cancelToken in cancelToken<Runtime>()
         from question_ in SuccessAff(new TQuestion
         {
             Id = question.Id.Value,
@@ -32,15 +32,13 @@ public sealed class EfQuestionRepository(AppDbContext context) : IQuestionReposi
         select unit;
 
 
-    public Aff<TRuntime, Question> Read<TRuntime>(QuestionId questionId)
-        where TRuntime : struct, HasCancel<TRuntime> =>
-        from question_ in ReadModel<TRuntime>(questionId.Value)
+    public Aff<Runtime, Question> Read(QuestionId questionId) =>
+        from question_ in ReadModel(questionId.Value)
         select new Question(new QuestionId(question_.Id), new NonEmptyString(question_.Text));
 
-    public Aff<TRuntime, Unit> Update<TRuntime>(Question question)
-        where TRuntime : struct, HasCancel<TRuntime> =>
-        from cancelToken in cancelToken<TRuntime>()
-        from question_ in ReadModel<TRuntime>(question.Id.Value)
+    public Aff<Runtime, Unit> Update(Question question) =>
+        from cancelToken in cancelToken<Runtime>()
+        from question_ in ReadModel(question.Id.Value)
         from _ in Aff(async () =>
         {
             question_.Text = question.Text.Value;
@@ -52,26 +50,23 @@ public sealed class EfQuestionRepository(AppDbContext context) : IQuestionReposi
         })
         select unit;
 
-    public Aff<TRuntime, bool> Exists<TRuntime>(QuestionId id)
-        where TRuntime : struct, HasCancel<TRuntime> =>
-        from cancelToken in cancelToken<TRuntime>()
+    public Aff<Runtime, bool> Exists(QuestionId id) =>
+        from cancelToken in cancelToken<Runtime>()
         from exist in Aff(async () => await _context
             .Questions
             .AnyAsync(x => x.Id == id.Value, cancelToken))
         select exist;
 
-    public Aff<TRuntime, bool> Exists<TRuntime>(NonEmptyString text)
-        where TRuntime : struct, HasCancel<TRuntime> =>
-        from cancelToken in cancelToken<TRuntime>()
+    public Aff<Runtime, bool> Exists(NonEmptyString text) =>
+        from cancelToken in cancelToken<Runtime>()
         from exist in Aff(async () => await _context
             .Questions
             .AnyAsync(x => x.Text == text.Value, cancelToken))
         select exist;
 
-    public Aff<TRuntime, Unit> Delete<TRuntime>(Question question)
-        where TRuntime : struct, HasCancel<TRuntime> =>
-        from cancelToken in cancelToken<TRuntime>()
-        from question_ in ReadModel<TRuntime>(question.Id.Value)
+    public Aff<Runtime, Unit> Delete(Question question) =>
+        from cancelToken in cancelToken<Runtime>()
+        from question_ in ReadModel(question.Id.Value)
         from _ in Aff(async () =>
         {
             _context.Questions.Remove(question_);
@@ -82,16 +77,15 @@ public sealed class EfQuestionRepository(AppDbContext context) : IQuestionReposi
         })
         select unit;
 
-    Aff<TRuntime, TQuestion> ReadModel<TRuntime>(Guid id)
-        where TRuntime : struct, HasCancel<TRuntime> =>
-        from cancelToken in cancelToken<TRuntime>()
+    Aff<Runtime, TQuestion> ReadModel(Guid id) =>
+        from cancelToken in cancelToken<Runtime>()
         from question in AffMaybe<TQuestion>(async () =>
         {
             TQuestion? question = await _context.Questions
                 .Where(x => x.Id == id)
                 .FirstOrDefaultAsync(cancelToken);
 
-            return question is not null 
+            return question is not null
                 ? question
                 : new NotFound("La pregunta no se ha encontrado");
         })

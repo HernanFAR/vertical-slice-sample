@@ -25,7 +25,7 @@ internal sealed class Handler(IQuestionRepository repository, ILogger<Handler> l
     readonly ILogger<Handler> _logger = logger;
 
     public Aff<Runtime, Unit> Define(QuestionMutatedEvent request) =>
-        from question in _repository.Read<Runtime>(request.Id)
+        from question in _repository.Read(request.Id)
             .BiBind(
                 Succ: question => Eff(() =>
                 {

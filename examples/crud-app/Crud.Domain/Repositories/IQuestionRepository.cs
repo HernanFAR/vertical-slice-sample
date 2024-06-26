@@ -1,25 +1,20 @@
 ﻿using Crud.Domain.ValueObjects;
 using LanguageExt.Effects.Traits;
+using LanguageExt.SysX.Live;
 
 namespace Crud.Domain.Repositories;
 
 public interface IQuestionRepository
 {
-    Aff<TRuntime, Unit> Create<TRuntime>(Question question)
-        where TRuntime : struct, HasCancel<TRuntime>;
+    Aff<Runtime, Unit> Create(Question question);
 
-    Aff<TRuntime, Question> Read<TRuntime>(QuestionId requestId)
-        where TRuntime : struct, HasCancel<TRuntime>;
+    Aff<Runtime, Question> Read(QuestionId requestId);
 
-    Aff<TRuntime, Unit> Update<TRuntime>(Question question)
-        where TRuntime : struct, HasCancel<TRuntime>;
+    Aff<Runtime, Unit> Update(Question question);
 
-    Aff<TRuntime, bool> Exists<TRuntime>(QuestionId id)
-        where TRuntime : struct, HasCancel<TRuntime>;
+    Aff<Runtime, bool> Exists(QuestionId id);
 
-    Aff<TRuntime, bool> Exists<TRuntime>(NonEmptyString text)
-        where TRuntime : struct, HasCancel<TRuntime>;
+    Aff<Runtime, bool> Exists(NonEmptyString text);
 
-    Aff<TRuntime, Unit> Delete<TRuntime>(Question question)
-        where TRuntime : struct, HasCancel<TRuntime>;
+    Aff<Runtime, Unit> Delete(Question question);
 }

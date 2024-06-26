@@ -66,13 +66,13 @@ internal sealed class Handler(
 
     public Aff<Runtime, Unit> Define(Command request) =>
         from cancelToken in cancelToken<Runtime>()
-        from exists in _repository.Exists<Runtime>(request.Id)
+        from exists in _repository.Exists(request.Id)
         from _ in exists
-            ? from question in _repository.Read<Runtime>(request.Id)
+            ? from question in _repository.Read(request.Id)
             from _1 in Eff(() => question.UpdateState(request.Text))
-            from _2 in _manager.Update<Runtime>(question)
+            from _2 in _manager.Update(question)
             select unit
-            : _manager.Create<Runtime>(request.Id, request.Text)
+            : _manager.Create(request.Id, request.Text)
         select unit;
 }
 

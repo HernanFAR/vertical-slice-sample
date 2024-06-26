@@ -56,7 +56,7 @@ internal sealed class Handler(QuestionManager manager) : IHandler<Command, Unit>
     private readonly QuestionManager _manager = manager;
 
     public Aff<Runtime, Unit> Define(Command request) =>
-        from _ in _manager.Create<Runtime>(new NonEmptyString(request.Text))
+        from _ in _manager.Create(new NonEmptyString(request.Text))
         select unit;
 }
 
