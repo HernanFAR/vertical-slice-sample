@@ -20,7 +20,7 @@ public class EndpointDefinitionExtensionsTests
             builder.MapGet("api/test", Test);
         }
 
-        public static Task<IResult> Test(HttpContext context) => Task.FromResult<IResult>(EmptyHttpResult.Instance);
+        public static IResult Test() => EmptyHttpResult.Instance;
 
         public static void DefineDependencies(FeatureBuilder featureBuilder)
         {
@@ -35,7 +35,7 @@ public class EndpointDefinitionExtensionsTests
             builder.MapGet("api/test2", Test);
         }
 
-        public static Task<IResult> Test(HttpContext context) => Task.FromResult<IResult>(EmptyHttpResult.Instance);
+        public static IResult Test() => EmptyHttpResult.Instance;
 
         public static void DefineDependencies(FeatureBuilder featureBuilder)
         {

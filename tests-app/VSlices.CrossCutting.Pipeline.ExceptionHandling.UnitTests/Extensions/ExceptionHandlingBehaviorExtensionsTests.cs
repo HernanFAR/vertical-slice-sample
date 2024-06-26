@@ -10,6 +10,8 @@ namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests.Extensions;
 
 public class ExceptionHandlingBehaviorExtensionsTests
 {
+    public record FalsePipeline : IPipelineBehavior;
+
     public record Result;
 
     public record Request : IFeature<Result>;
@@ -53,7 +55,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
         
         FeatureBuilder builder = new(new ServiceCollection());
 
-        Func<FeatureBuilder> act = () => builder.AddExceptionHandlingBehavior<object>();
+        Func<FeatureBuilder> act = () => builder.AddExceptionHandlingBehavior<FalsePipeline>();
 
         act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 

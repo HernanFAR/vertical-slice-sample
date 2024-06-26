@@ -81,8 +81,8 @@ public static class EventExtensions
     /// <summary>
     /// Adds a hosted service that will listen for events in the background
     /// </summary>
-    /// <typeparam name="T">Implementation Type</typeparam>
     /// <param name="services">Service Collection</param>
+    /// <param name="configAction">Configuration action</param>
     /// <returns>Service Collection</returns>
     public static IServiceCollection AddDefaultEventListener(this IServiceCollection services,
         Action<EventListenerConfiguration>? configAction = null)
@@ -95,6 +95,7 @@ public static class EventExtensions
     /// </summary>
     /// <typeparam name="T">Implementation Type</typeparam>
     /// <param name="services">Service Collection</param>
+    /// <param name="configAction">Configuration action</param>
     /// <returns>Service Collection</returns>
     public static IServiceCollection AddEventListener<T>(this IServiceCollection services,
         Action<EventListenerConfiguration>? configAction = null)
