@@ -12,10 +12,8 @@ public class InMemoryEventQueueExtensionsTests
         // Arrange
         var services = new ServiceCollection();
 
-
         // Act
         services.AddInMemoryEventQueue();
-
 
         // Assert
         services
@@ -31,7 +29,6 @@ public class InMemoryEventQueueExtensionsTests
 
         config!.Capacity.Should().Be(50);
 
-
     }
 
     [Fact]
@@ -41,27 +38,25 @@ public class InMemoryEventQueueExtensionsTests
         const int capacity = 10;
         var services = new ServiceCollection();
 
-
         // Act
         services.AddInMemoryEventQueue(config =>
         {
             config.Capacity = capacity;
         });
 
-
         // Assert
-        services.Where(e => e.ServiceType == typeof(IEventQueue))
-            .Where(e => e.ImplementationType == typeof(InMemoryEventQueue))
-            .Any()
+        services
+            .Where(e => e.ServiceType == typeof(IEventQueue))
+            .Any(e => e.ImplementationType == typeof(InMemoryEventQueue))
             .Should().BeTrue();
 
         InMemoryEventQueueConfiguration? config = services
-            .Where(e => e.ServiceType == typeof(InMemoryEventQueueConfiguration))
-            .Single().ImplementationInstance as InMemoryEventQueueConfiguration;
+            .Single(e => e.ServiceType == typeof(InMemoryEventQueueConfiguration))
+            .ImplementationInstance as InMemoryEventQueueConfiguration;
 
         config.Should().NotBeNull();
 
-        config.Capacity.Should().Be(capacity);
+        config!.Capacity.Should().Be(capacity);
 
     }
 }

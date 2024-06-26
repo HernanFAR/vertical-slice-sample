@@ -27,7 +27,7 @@ public class AbstractExceptionHandlingBehaviorTests
     }
 
     [Fact]
-    public async Task BeforeHandleAsync_ShouldInterrumptExecution()
+    public async Task BeforeHandleAsync_ShouldInterruptExecution()
     {
         const int expErrorCount = 1;
         FluentValidationStreamBehavior<Request, Result> pipeline = new(new Validator());
@@ -55,18 +55,12 @@ public class AbstractExceptionHandlingBehaviorTests
             );
     }
 
-
     [Fact]
     public async Task BeforeHandleAsync_ShouldProcess()
     {
         const string expResultMessage = "testing :D";
         FluentValidationStreamBehavior<Request, Result> pipeline = new(new Validator());
         Request request = new(expResultMessage);
-
-        async IAsyncEnumerable<Result> Yield()
-        {
-            yield return new Result(expResultMessage);
-        }
 
         Aff<Runtime, IAsyncEnumerable<Result>> next = Eff(Yield);
 
@@ -85,6 +79,14 @@ public class AbstractExceptionHandlingBehaviorTests
                 }, 
                 _ => throw new UnreachableException()
             );
-    }
 
+        return;
+
+        static async IAsyncEnumerable<Result> Yield()
+        {
+            await Task.Delay(1);
+
+            yield return new Result(expResultMessage);
+        }
+    }
 }

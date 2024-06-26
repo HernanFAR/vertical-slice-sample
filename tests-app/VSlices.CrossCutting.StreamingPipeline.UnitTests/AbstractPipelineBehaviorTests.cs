@@ -17,7 +17,7 @@ public class AbstractStreamPipelineBehaviorTests
     public record Request : IStream<Result>;
 
     [Fact]
-    public async Task BeforeHandleAsync_ShouldInterrumptExecution()
+    public async Task BeforeHandleAsync_ShouldInterruptExecution()
     {
         Request request = new();
         NotFound failure = new("Testing");
@@ -93,6 +93,8 @@ public class AbstractStreamPipelineBehaviorTests
 
         async IAsyncEnumerable<Result> Yield()
         {
+            await Task.Delay(1);
+
             yield return expResult;
         }
     }
