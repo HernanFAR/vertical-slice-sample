@@ -58,8 +58,8 @@ internal sealed class Handler(
     readonly QuestionManager _manage = manage;
 
     public Aff<Runtime, Unit> Define(Command request) =>
-        from question in _repository.Read<Runtime>(request.Id)
-        from _ in _manage.Delete<Runtime>(question)
+        from question in _repository.Read(request.Id)
+        from _ in _manage.Delete(question)
         select unit;
 
 }

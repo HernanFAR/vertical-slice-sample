@@ -53,7 +53,7 @@ internal sealed class Handler(IQuestionRepository repository) : IHandler<Query>
     private readonly IQuestionRepository _repository = repository;
 
     public Aff<Runtime, Unit> Define(Query request) =>
-        from exists in _repository.Exists<Runtime>(request.Id)
+        from exists in _repository.Exists(request.Id)
         from _ in guard(exists, new NotFound("No se ha encontrado la pregunta").AsError)
         select unit;
 
