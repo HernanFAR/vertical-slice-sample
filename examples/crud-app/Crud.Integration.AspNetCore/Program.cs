@@ -19,3 +19,5 @@ app.UseHttpsRedirection();
 app.UseEndpointDefinitions();
 
 app.Run();
+
+internal sealed partial class Program;
