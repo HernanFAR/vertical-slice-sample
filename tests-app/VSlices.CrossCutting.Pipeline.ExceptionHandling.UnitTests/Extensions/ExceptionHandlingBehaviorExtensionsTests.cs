@@ -51,7 +51,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
     [Fact]
     public void AddExceptionHandlingPipeline_ShouldThrowInvalidOperation_DetailDoesNotImplementPipelineBehavior()
     {
-        var expMessage = $"The type {typeof(object).FullName} does not implement {typeof(IPipelineBehavior<,>).FullName}";
+        var expMessage = $"The type {typeof(FalsePipeline).FullName} does not implement {typeof(IPipelineBehavior<,>).FullName}";
         
         FeatureBuilder builder = new(new ServiceCollection());
 

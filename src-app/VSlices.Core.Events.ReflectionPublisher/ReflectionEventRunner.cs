@@ -13,7 +13,7 @@ namespace VSlices.Core.Events;
 /// </summary>
 /// 
 [RequiresDynamicCode("This class uses Type.MakeGenericType to create RequestHandlerWrapper instances")]
-public class ReflectionEventRunner : IEventRunner
+public sealed class ReflectionEventRunner : IEventRunner
 {
     internal static readonly ConcurrentDictionary<Type, AbstractHandlerWrapper> RequestHandlers = new();
 
@@ -39,11 +39,11 @@ public class ReflectionEventRunner : IEventRunner
             requestType =>
             {
                 Type wrapperType = typeof(RequestHandlerWrapper<>).MakeGenericType(requestType);
-                object wrapper = Activator.CreateInstance(wrapperType, _strategy)
+                object wrapper = Activator.CreateInstance(wrapperType)
                                  ?? throw new InvalidOperationException($"Could not create wrapper type for {requestType}");
                 return (AbstractHandlerWrapper)wrapper;
             });
 
-        return await handler.HandleAsync(request, runtime, _serviceProvider);
+        return await handler.HandleAsync(request, runtime, _serviceProvider, _strategy);
     }
 }
