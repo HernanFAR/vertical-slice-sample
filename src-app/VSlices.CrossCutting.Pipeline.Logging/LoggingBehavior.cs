@@ -55,8 +55,16 @@ public sealed class LoggingBehavior<TRequest, TResult>(
     protected override Aff<Runtime, TResult> AfterFailureHandling(TRequest request, Error result) =>
         from _ in Eff(() =>
         {
-            _logger.LogError(_messageTemplate.FailureEnd, 
-                _timeProvider.GetUtcNow(), typeof(TRequest).FullName, request, result);
+            if (result.IsExpected)
+            {
+                _logger.LogWarning(_messageTemplate.FailureEnd, 
+                    _timeProvider.GetUtcNow(), typeof(TRequest).FullName, request, result);
+            }
+            else
+            {
+                _logger.LogError(_messageTemplate.FailureEnd,
+                    _timeProvider.GetUtcNow(), typeof(TRequest).FullName, request, result);
+            }
 
             return unit;
         })

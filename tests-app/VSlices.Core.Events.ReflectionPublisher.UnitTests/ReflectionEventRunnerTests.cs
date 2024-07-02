@@ -210,7 +210,6 @@ public class ReflectionEventRunnerTests
         services.AddScoped(_ => strategy);
 
         var provider = services.BuildServiceProvider();
-        var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
         var stopwatch = Stopwatch.StartNew();
