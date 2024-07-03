@@ -1,28 +1,29 @@
-using System.Globalization;
 using FluentAssertions;
 using LanguageExt;
 using LanguageExt.Common;
 using LanguageExt.SysX.Live;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using System.Globalization;
 using VSlices.Base.Failures;
-using VSlices.Core.UseCases;
-using VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
+using VSlices.Core.Stream;
+using VSlices.CrossCutting.StreamPipeline.Logging.MessageTemplates;
 using static LanguageExt.Prelude;
 
-namespace VSlices.CrossCutting.Pipeline.Logging.UnitTests;
+namespace VSlices.CrossCutting.StreamPipeline.Logging.UnitTests;
 
-public class LoggingBehaviorTests
+public class LoggingStreamBehaviorTests
 {
-    public sealed record Request : IRequest;
+    public sealed record Response;
+    public sealed record Request : IStream<Response>;
 
     public abstract class Logger : ILogger<Request>
     {
         void ILogger.Log<TState>(
-            LogLevel logLevel, 
-            EventId eventId, 
-            TState state, 
-            Exception? exception, 
+            LogLevel logLevel,
+            EventId eventId,
+            TState state,
+            Exception? exception,
             Func<TState, Exception?, string> formatter)
         {
             string message = formatter(state, exception);
@@ -31,16 +32,18 @@ public class LoggingBehaviorTests
 
         public abstract void Log(LogLevel logLevel, string message);
 
-        public virtual bool IsEnabled(LogLevel logLevel) => true;
+        public virtual bool IsEnabled(LogLevel logLevel)
+        {
+            return true;
+        }
 
         public abstract IDisposable BeginScope<TState>(TState state);
     }
 
-    readonly Logger _logger = Substitute.For<Logger>();
+    private readonly Logger _logger = Substitute.For<Logger>();
+    private readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
 
-    readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
-
-    LoggingBehavior<Request, Unit> GetSut(ILoggingMessageTemplate template) => new(template, _logger, _timeProvider);
+    LoggingStreamBehavior<Request, Response> GetSut(ILoggingMessageTemplate template) => new(template, _logger, _timeProvider);
 
     public static IEnumerable<object[]> GetTemplates()
     {
@@ -56,7 +59,7 @@ public class LoggingBehaviorTests
     public async Task Define_Success_ShouldLogInputAndSuccessOutput(ILoggingMessageTemplate template)
     {
         // Arrange
-        LoggingBehavior<Request, Unit> sut = GetSut(template);
+        LoggingStreamBehavior<Request, Response> sut = GetSut(template);
         DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
         Request request = new();
 
@@ -64,26 +67,33 @@ public class LoggingBehaviorTests
             expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request);
 
         string expSuccessEndMessage = string.Format(template.SuccessEnd,
-            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request, unit);
+            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request);
 
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
         // Act
-        Fin<Unit> result = await sut
-            .Define(request, SuccessAff(unit))
+        Fin<IAsyncEnumerable<Response>> result = await sut
+            .Define(request, SuccessAff(Yield()))
             .Run(Runtime.New());
 
         // Assert
         result.IsSucc.Should().BeTrue();
 
         _logger.Received(1).Log(
-            LogLevel.Information, 
+            LogLevel.Information,
             expStartMessage);
 
         _logger.Received(1).Log(
             LogLevel.Information,
             expSuccessEndMessage);
+
+        return;
+
+        async IAsyncEnumerable<Response> Yield()
+        {
+            yield return new Response();
+        }
     }
 
     [Theory]
@@ -91,7 +101,7 @@ public class LoggingBehaviorTests
     public async Task Define_Success_ShouldLogInputAndFailureOutput(ILoggingMessageTemplate template)
     {
         // Arrange
-        LoggingBehavior<Request, Unit> sut = GetSut(template);
+        LoggingStreamBehavior<Request, Response> sut = GetSut(template);
         DateTimeOffset expFirstTime = DateTimeOffset.Now;
 
         Request request = new();
@@ -107,8 +117,8 @@ public class LoggingBehaviorTests
             .Returns(expFirstTime);
 
         // Act
-        Fin<Unit> result = await sut
-            .Define(request, EffMaybe<Unit>(() => expError))
+        Fin<IAsyncEnumerable<Response>> result = await sut
+            .Define(request, EffMaybe<IAsyncEnumerable<Response>>(() => expError))
             .Run(Runtime.New());
 
         // Assert
@@ -128,7 +138,7 @@ public class LoggingBehaviorTests
     public async Task Define_Failure_ShouldLogInputAndFailureOutput(ILoggingMessageTemplate template)
     {
         // Arrange
-        LoggingBehavior<Request, Unit> sut = GetSut(template);
+        LoggingStreamBehavior<Request, Response> sut = GetSut(template);
         DateTimeOffset expFirstTime = DateTimeOffset.Now;
 
         Request request = new();
@@ -144,8 +154,8 @@ public class LoggingBehaviorTests
             .Returns(expFirstTime);
 
         // Act
-        Fin<Unit> result = await sut
-            .Define(request, EffMaybe<Unit>(() => expError))
+        Fin<IAsyncEnumerable<Response>> result = await sut
+            .Define(request, EffMaybe<IAsyncEnumerable<Response>>(() => expError))
             .Run(Runtime.New());
 
         // Assert
