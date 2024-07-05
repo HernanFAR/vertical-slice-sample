@@ -3,42 +3,35 @@ using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using VSlices.Core.Events.Configurations;
+using VSlices.CrossCutting.BackgroundTaskListener;
 using VSlices.Domain.Interfaces;
 
 namespace VSlices.Core.Events;
 
 /// <summary>
-/// Default implementation of <see cref="IEventListenerCore" />
+/// Core of event listener
 /// </summary>
 /// <remarks>
 /// It has a retry mecanism for each <see cref="IEvent" />
 /// </remarks>
-public sealed class EventListenerCore : IEventListenerCore
+public sealed class EventListenerBackgroundTask(
+    ILogger<EventListenerBackgroundTask> logger,
+    IServiceProvider serviceProvider,
+    EventListenerConfiguration configOptions) 
+    : IBackgroundTask
 {
-    readonly ILogger<EventListenerCore> _logger;
-    readonly IServiceProvider _serviceProvider;
-    readonly EventListenerConfiguration _config;
-    readonly IEventQueue _eventQueue;
-    readonly Dictionary<Guid, int> _retries = new();
+    readonly ILogger<EventListenerBackgroundTask> _logger = logger;
+    readonly IServiceProvider _serviceProvider = serviceProvider;
+    readonly EventListenerConfiguration _config = configOptions;
+    readonly IEventQueue _eventQueue = serviceProvider.GetRequiredService<IEventQueue>();
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EventListenerCore"/> class.
-    /// </summary>
-    /// <param name="logger">Logger</param>
-    /// <param name="serviceProvider">Service provider</param>
-    /// <param name="configOptions">Configuration</param>
-    public EventListenerCore(ILogger<EventListenerCore> logger,
-        IServiceProvider serviceProvider,
-        EventListenerConfiguration configOptions)
-    {
-        _logger = logger;
-        _serviceProvider = serviceProvider;
-        _config = configOptions;
-        _eventQueue = serviceProvider.GetRequiredService<IEventQueue>();
-    }
+    readonly Dictionary<Guid, int> _retries = [];
 
     /// <inheritdoc />
-    public async Task ProcessEvents(CancellationToken cancellationToken)
+    public string Identifier => nameof(EventListenerBackgroundTask);
+
+    /// <inheritdoc />
+    public async ValueTask ExecuteAsync(CancellationToken cancellationToken)
     {
         using var source = new CancellationTokenSource();
         var runtime = Runtime.New(ActivityEnv.Default, source);
