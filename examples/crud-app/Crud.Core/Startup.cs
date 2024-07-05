@@ -26,8 +26,7 @@ public static class Startup
             // Events
             .AddReflectionEventRunner()
             .AddInMemoryEventQueue()
-            .AddDefaultEventListener()
-            .AddDefaultHostedEventListener();
+            .AddEventListener();
 }
 
 internal sealed class Anchor;

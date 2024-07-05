@@ -44,7 +44,7 @@ public class EventExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.AddPublisher<EventRunner>();
+        services.AddEventRunner<EventRunner>();
 
         services
             .Where(e => e.ServiceType == typeof(IEventRunner))
@@ -60,7 +60,7 @@ public class EventExtensionsTests
         var expMessage = $"{typeof(object).FullName} does not implement {typeof(IEventRunner).FullName}";
         var services = new ServiceCollection();
 
-        var act = () => services.AddPublisher(typeof(object));
+        var act = () => services.AddEventRunner(typeof(object));
 
         act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 
@@ -98,11 +98,11 @@ public class EventExtensionsTests
     {
         var services = new ServiceCollection();
 
-        services.AddEventListener<EventListenerCore>();
+        services.AddEventListener<EventListenerBackgroundTask>();
 
         services
             .Where(e => e.ServiceType == typeof(IEventListenerCore))
-            .Where(e => e.ImplementationType == typeof(EventListenerCore))
+            .Where(e => e.ImplementationType == typeof(EventListenerBackgroundTask))
             .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
 
@@ -124,14 +124,14 @@ public class EventExtensionsTests
         const MoveActions moveActions = MoveActions.ImmediateRetry;
         var services = new ServiceCollection();
 
-        services.AddDefaultEventListener(config =>
+        services.AddEventListener(config =>
         {
             config.ActionInException = moveActions;
         });
 
         services
             .Where(e => e.ServiceType == typeof(IEventListenerCore))
-            .Where(e => e.ImplementationType == typeof(EventListenerCore))
+            .Where(e => e.ImplementationType == typeof(EventListenerBackgroundTask))
             .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
 

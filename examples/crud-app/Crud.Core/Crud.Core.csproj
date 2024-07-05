@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\src-app\VSlices.Core.Events.HostedEventListener\VSlices.Core.Events.HostedEventListener.csproj" />
     <ProjectReference Include="..\..\..\src-app\VSlices.Core.Events.InMemoryEventQueue\VSlices.Core.Events.InMemoryEventQueue.csproj" />
     <ProjectReference Include="..\..\..\src-app\VSlices.Core.Events.ReflectionPublisher\VSlices.Core.Events.ReflectionPublisher.csproj" />
     <ProjectReference Include="..\..\..\src-app\VSlices.Core.Presentation.AspNetCore\VSlices.Core.Presentation.AspNetCore.csproj" />
