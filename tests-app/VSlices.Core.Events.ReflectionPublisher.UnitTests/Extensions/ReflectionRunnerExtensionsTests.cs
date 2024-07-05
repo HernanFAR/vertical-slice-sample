@@ -2,9 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Core.Events.Strategies;
 
-namespace VSlices.Core.Events._ReflectionPublisher.UnitTests.Extensions;
+namespace VSlices.Core.Events._ReflectionRunner.UnitTests.Extensions;
 
-public class ReflectionPublisherExtensionsTests
+public class ReflectionRunnerExtensionsTests
 {
     [Fact]
     public void AddReflectionPublisher_ShouldAddReflectionPublisher()
