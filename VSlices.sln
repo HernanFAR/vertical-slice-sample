@@ -137,9 +137,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integ", "integ", "{3CDE8CD7
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{AAAF7688-7C6D-478F-89B2-77B695113ABE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.CrossCutting.StreamPipeline.Logging.UnitTests", "tests-app\VSlices.CrossCutting.StreamPipeline.Logging.UnitTests\VSlices.CrossCutting.StreamPipeline.Logging.UnitTests.csproj", "{5D342E08-A635-419B-BB54-795F953BCC5A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.StreamPipeline.Logging.UnitTests", "tests-app\VSlices.CrossCutting.StreamPipeline.Logging.UnitTests\VSlices.CrossCutting.StreamPipeline.Logging.UnitTests.csproj", "{5D342E08-A635-419B-BB54-795F953BCC5A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.CrossCutting.StreamPipeline.Logging", "src-app\VSlices.CrossCutting.StreamPipeline.Logging\VSlices.CrossCutting.StreamPipeline.Logging.csproj", "{CFE7C684-3631-4F51-B6FA-35DD42DBAE48}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.StreamPipeline.Logging", "src-app\VSlices.CrossCutting.StreamPipeline.Logging\VSlices.CrossCutting.StreamPipeline.Logging.csproj", "{CFE7C684-3631-4F51-B6FA-35DD42DBAE48}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "background-task-listener", "background-task-listener", "{0132A707-41E8-47FD-8052-9BA1E2B62583}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.BackgroundTaskListener", "src-app\VSlices.CrossCutting.BackgroundTaskListener\VSlices.CrossCutting.BackgroundTaskListener.csproj", "{6BFAD9C3-35AF-41A0-91AA-1B11256C8E29}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.BackgroundTaskListener.Hosting", "src-app\VSlices.CrossCutting.BackgroundTaskListener.Hosting\VSlices.CrossCutting.BackgroundTaskListener.Hosting.csproj", "{8A380739-86FC-46E5-B057-8F472784CA58}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -339,6 +345,14 @@ Global
 		{CFE7C684-3631-4F51-B6FA-35DD42DBAE48}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFE7C684-3631-4F51-B6FA-35DD42DBAE48}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFE7C684-3631-4F51-B6FA-35DD42DBAE48}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BFAD9C3-35AF-41A0-91AA-1B11256C8E29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BFAD9C3-35AF-41A0-91AA-1B11256C8E29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BFAD9C3-35AF-41A0-91AA-1B11256C8E29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BFAD9C3-35AF-41A0-91AA-1B11256C8E29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8A380739-86FC-46E5-B057-8F472784CA58}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8A380739-86FC-46E5-B057-8F472784CA58}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8A380739-86FC-46E5-B057-8F472784CA58}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8A380739-86FC-46E5-B057-8F472784CA58}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -410,6 +424,9 @@ Global
 		{AAAF7688-7C6D-478F-89B2-77B695113ABE} = {3CDE8CD7-B0F6-4361-8FA1-A8F6B0E56DB4}
 		{5D342E08-A635-419B-BB54-795F953BCC5A} = {3E55357F-D8D2-4134-9F1E-0875B6F722C3}
 		{CFE7C684-3631-4F51-B6FA-35DD42DBAE48} = {FB0BC2C7-9D3E-4E78-A59D-E4064C9DBCC2}
+		{0132A707-41E8-47FD-8052-9BA1E2B62583} = {3D20519C-AB73-4034-B724-FA398B69EB20}
+		{6BFAD9C3-35AF-41A0-91AA-1B11256C8E29} = {0132A707-41E8-47FD-8052-9BA1E2B62583}
+		{8A380739-86FC-46E5-B057-8F472784CA58} = {0132A707-41E8-47FD-8052-9BA1E2B62583}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {653AE7A1-A4C4-42F2-9804-FE7E032C3E8C}

@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<Description>Base package for implementations in CrossCutting projects</Description>
+		<Description>Extension package for pipeline implementations in CrossCutting projects</Description>
 		<PackageTags>functional;request;result;pipeline;cross-cutting</PackageTags>
 	</PropertyGroup>
 
