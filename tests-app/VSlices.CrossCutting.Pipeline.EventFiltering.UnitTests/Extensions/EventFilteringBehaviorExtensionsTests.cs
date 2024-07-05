@@ -3,7 +3,6 @@ using LanguageExt;
 using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
-using VSlices.Core;
 using VSlices.Core.Builder;
 using VSlices.CrossCutting.Pipeline.EventFiltering.MessageTemplates;
 using VSlices.Domain;
@@ -13,7 +12,7 @@ namespace VSlices.CrossCutting.Pipeline.EventFiltering.UnitTests.Extensions;
 
 public class EventFilteringBehaviorExtensionsTests
 {
-    public record EventFilter : IEventFilter<Request, Handler>
+    public record EventFilter : IEventFilter<Request>
     {
         public Aff<Runtime, bool> Define(Request @event)
         {
@@ -22,14 +21,6 @@ public class EventFilteringBehaviorExtensionsTests
     }
 
     public record Request : Event;
-
-    public class Handler : IHandler<Request>
-    {
-        public Aff<Runtime, Unit> Define(Request request)
-        {
-            throw new NotImplementedException();
-        }
-    }
 
     public class CustomTemplate : IEventFilteringMessageTemplate
     {
@@ -47,11 +38,11 @@ public class EventFilteringBehaviorExtensionsTests
 
         builder.Services
             .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Unit>))
-            .Any(e => e.ImplementationType == typeof(EventFilteringBehavior<Request, Handler>))
+            .Any(e => e.ImplementationType == typeof(EventFilteringBehavior<Request>))
             .Should().BeTrue();
 
         builder.Services
-            .Where(e => e.ServiceType == typeof(IEventFilter<Request, Handler>))
+            .Where(e => e.ServiceType == typeof(IEventFilter<Request>))
             .Any(e => e.ImplementationType == typeof(EventFilter))
             .Should().BeTrue();
 
@@ -71,11 +62,11 @@ public class EventFilteringBehaviorExtensionsTests
 
         builder.Services
             .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Unit>))
-            .Any(e => e.ImplementationType == typeof(EventFilteringBehavior<Request, Handler>))
+            .Any(e => e.ImplementationType == typeof(EventFilteringBehavior<Request>))
             .Should().BeTrue();
 
         builder.Services
-            .Where(e => e.ServiceType == typeof(IEventFilter<Request, Handler>))
+            .Where(e => e.ServiceType == typeof(IEventFilter<Request>))
             .Any(e => e.ImplementationType == typeof(EventFilter))
             .Should().BeTrue();
 
@@ -95,11 +86,11 @@ public class EventFilteringBehaviorExtensionsTests
 
         builder.Services
             .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Unit>))
-            .Any(e => e.ImplementationType == typeof(EventFilteringBehavior<Request, Handler>))
+            .Any(e => e.ImplementationType == typeof(EventFilteringBehavior<Request>))
             .Should().BeTrue();
 
         builder.Services
-            .Where(e => e.ServiceType == typeof(IEventFilter<Request, Handler>))
+            .Where(e => e.ServiceType == typeof(IEventFilter<Request>))
             .Any(e => e.ImplementationType == typeof(EventFilter))
             .Should().BeTrue();
 
@@ -118,6 +109,6 @@ public class EventFilteringBehaviorExtensionsTests
 
         act.Should()
             .Throw<InvalidOperationException>()
-            .WithMessage($"{typeof(object).FullName} does not implement {typeof(IEventFilter<,>).FullName}");
+            .WithMessage($"{typeof(object).FullName} does not implement {typeof(IEventFilter<>).FullName}");
     }
 }

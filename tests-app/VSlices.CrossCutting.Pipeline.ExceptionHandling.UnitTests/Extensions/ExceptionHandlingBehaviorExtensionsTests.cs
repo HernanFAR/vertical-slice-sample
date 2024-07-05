@@ -39,7 +39,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
     {
         FeatureBuilder builder = new(new ServiceCollection());
 
-        builder.AddExceptionHandling<TestPipeline1<Request, Result>>();
+        builder.AddExceptionHandlingBehavior<TestPipeline1<Request, Result>>();
 
         builder.Services
             .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Result>))
@@ -55,7 +55,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
         
         FeatureBuilder builder = new(new ServiceCollection());
 
-        Func<FeatureBuilder> act = () => builder.AddExceptionHandling<FalsePipeline>();
+        Func<FeatureBuilder> act = () => builder.AddExceptionHandlingBehavior<FalsePipeline>();
 
         act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 
@@ -68,7 +68,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
 
         FeatureBuilder builder = new(new ServiceCollection());
 
-        Func<FeatureBuilder> act = () => builder.AddExceptionHandling<TestPipeline2<Request, Result>>();
+        Func<FeatureBuilder> act = () => builder.AddExceptionHandlingBehavior<TestPipeline2<Request, Result>>();
 
         act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 
