@@ -35,7 +35,7 @@ public sealed class EventFilteringBehavior<TRequest, THandler>(
             {
                 if (c is false)
                 {
-                    _logger.LogWarning(_template.SkipExecution, 
+                    _logger.LogInformation(_template.SkipExecution, 
                         _timeProvider.GetUtcNow(), typeof(THandler).FullName, request);
 
                     return unitAff;

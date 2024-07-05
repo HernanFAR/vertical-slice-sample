@@ -13,10 +13,9 @@ public sealed class CreateQuestionDependencies : IFeatureDependencies
     {
         featureBuilder
             .AddEndpoint<EndpointDefinition>()
-            .AddLoggingBehaviorFor<Command>()
-                .UsingSpanishTemplate()
-            .AddFluentValidationBehaviorUsing<Validator>()
-            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
+            .AddLoggingFor<Command>().UsingSpanishTemplate()
+            .AddFluentValidationUsing<Validator>()
+            .AddExceptionHandling<LoggingExceptionHandlerPipeline<Command, Unit>>()
             .AddHandler<Handler>();
     }
 }

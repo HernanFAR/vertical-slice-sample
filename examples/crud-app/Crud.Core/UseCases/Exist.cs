@@ -13,9 +13,8 @@ public sealed class ExistsQuestionDependencies : IFeatureDependencies
     {
         featureBuilder
             .AddEndpoint<EndpointDefinition>()
-            .AddLoggingBehaviorFor<Query>()
-                .UsingSpanishTemplate()
-            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Query, Unit>>()
+            .AddLoggingFor<Query>().UsingSpanishTemplate()
+            .AddExceptionHandling<LoggingExceptionHandlerPipeline<Query, Unit>>()
             .AddHandler<Handler>();
     }
 }
