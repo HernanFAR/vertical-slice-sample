@@ -1,12 +1,13 @@
 ﻿using VSlices.Core.Events;
 using VSlices.Core.Events.Configurations;
+using VSlices.CrossCutting.BackgroundTaskListener;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// <see cref="IServiceCollection"/> extensions for <see cref="IEventRunner"/>, <see cref="IEventQueue"/> and
-/// <see cref="IEventListenerCore"/>
+/// <see cref="EventListenerBackgroundTask"/>
 /// </summary>
 public static class EventExtensions
 {
@@ -16,10 +17,10 @@ public static class EventExtensions
     /// <typeparam name="T">Implementation of the <see cref="IEventRunner"/></typeparam>
     /// <param name="services">Service collection</param>
     /// <returns>Service collection</returns>
-    public static IServiceCollection AddPublisher<T>(this IServiceCollection services)
+    public static IServiceCollection AddEventRunner<T>(this IServiceCollection services)
         where T : IEventRunner
     {
-        return services.AddPublisher(typeof(T));
+        return services.AddEventRunner(typeof(T));
     }
 
     /// <summary>
@@ -29,7 +30,7 @@ public static class EventExtensions
     /// <param name="type">Implementation Type</param>
     /// <returns>ServiceCollection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static IServiceCollection AddPublisher(this IServiceCollection services,
+    public static IServiceCollection AddEventRunner(this IServiceCollection services,
         Type type)
     {
         if (!typeof(IEventRunner).IsAssignableFrom(type))
@@ -84,47 +85,14 @@ public static class EventExtensions
     /// <param name="services">Service Collection</param>
     /// <param name="configAction">Configuration action</param>
     /// <returns>Service Collection</returns>
-    public static IServiceCollection AddDefaultEventListener(this IServiceCollection services,
-        Action<EventListenerConfiguration>? configAction = null)
-    {
-        return services.AddEventListener(typeof(EventListenerCore), configAction);
-    }
-
-    /// <summary>
-    /// Adds a hosted service that will listen for events in the background
-    /// </summary>
-    /// <typeparam name="T">Implementation Type</typeparam>
-    /// <param name="services">Service Collection</param>
-    /// <param name="configAction">Configuration action</param>
-    /// <returns>Service Collection</returns>
-    public static IServiceCollection AddEventListener<T>(this IServiceCollection services,
-        Action<EventListenerConfiguration>? configAction = null)
-        where T : IEventListenerCore
-    {
-        return services.AddEventListener(typeof(T), configAction);
-    }
-
-    /// <summary>
-    /// Adds a hosted service that will listen for events in the background
-    /// </summary>
-    /// <param name="services">Service Collection</param>
-    /// <param name="type">Implementation Type</param>
-    /// <param name="configAction">Action to configure the <see cref="EventListenerConfiguration" /></param>
-    /// <returns>Service Collection</returns>
     public static IServiceCollection AddEventListener(this IServiceCollection services,
-        Type type, Action<EventListenerConfiguration>? configAction)
+        Action<EventListenerConfiguration>? configAction = null)
     {
-        if (!typeof(IEventListenerCore).IsAssignableFrom(type))
-        {
-            throw new InvalidOperationException($"{type.FullName} does not implement {typeof(IEventListenerCore).FullName}");
-        }
-
         EventListenerConfiguration config = new();
 
         configAction?.Invoke(config);
 
-        return services.AddSingleton(typeof(IEventListenerCore), type)
+        return services.AddSingleton<IBackgroundTask, EventListenerBackgroundTask>()
             .AddSingleton(config);
     }
-
 }
