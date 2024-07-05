@@ -19,7 +19,7 @@ public static class FluentValidationBehaviorExtensions
     /// <param name="implValidatorType">Request to intercept with a <see cref="FluentValidationBehavior{TRequest, TResult}" /></param>
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static FeatureBuilder AddFluentValidationUsing(this FeatureBuilder featureBuilder, Type implValidatorType)
+    public static FeatureBuilder AddFluentValidationBehaviorUsing(this FeatureBuilder featureBuilder, Type implValidatorType)
     {
         Type validatorType = implValidatorType
              .GetInterfaces()
@@ -57,9 +57,9 @@ public static class FluentValidationBehaviorExtensions
     /// <param name="services">Service Collection</param>
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static FeatureBuilder AddFluentValidationUsing<TValidator>(this FeatureBuilder services)
+    public static FeatureBuilder AddFluentValidationBehaviorUsing<TValidator>(this FeatureBuilder services)
         where TValidator : IValidator
     {
-        return services.AddFluentValidationUsing(typeof(TValidator));
+        return services.AddFluentValidationBehaviorUsing(typeof(TValidator));
     }
 }
