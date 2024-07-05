@@ -3,8 +3,10 @@ using LanguageExt;
 using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Core.Events.Configurations;
+using VSlices.CrossCutting.BackgroundTaskListener;
 using VSlices.Domain.Interfaces;
 
+// ReSharper disable once CheckNamespace
 namespace VSlices.Core.Events.Units.Extensions;
 
 public class EventExtensionsTests
@@ -92,32 +94,6 @@ public class EventExtensionsTests
         act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 
     }
-
-    [Fact]
-    public void AddDefaultEventListener_ShouldAddEventListener_DetailWithoutConfig()
-    {
-        var services = new ServiceCollection();
-
-        services.AddEventListener<EventListenerBackgroundTask>();
-
-        services
-            .Where(e => e.ServiceType == typeof(IEventListenerCore))
-            .Where(e => e.ImplementationType == typeof(EventListenerBackgroundTask))
-            .Any(e => e.Lifetime == ServiceLifetime.Singleton)
-            .Should().BeTrue();
-
-        var descriptor = services
-            .Where(e => e.ServiceType == typeof(EventListenerConfiguration))
-            .Single(e => e.Lifetime == ServiceLifetime.Singleton);
-
-        var opts = (EventListenerConfiguration)descriptor.ImplementationInstance!;
-
-        opts.ActionInException.Should().Be(MoveActions.MoveLast);
-        opts.MaxRetries.Should().Be(3);
-
-
-    }
-
     [Fact]
     public void AddDefaultEventListener_ShouldAddEventListener_DetailWithConfig()
     {
@@ -130,7 +106,7 @@ public class EventExtensionsTests
         });
 
         services
-            .Where(e => e.ServiceType == typeof(IEventListenerCore))
+            .Where(e => e.ServiceType == typeof(IBackgroundTask))
             .Where(e => e.ImplementationType == typeof(EventListenerBackgroundTask))
             .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
@@ -146,18 +122,4 @@ public class EventExtensionsTests
 
 
     }
-
-    [Fact]
-    public void AddDefaultEventListener_ShouldThrowInvalidOperationException()
-    {
-        var expMessage = $"{typeof(object).FullName} does not implement {typeof(IEventListenerCore).FullName}";
-        var services = new ServiceCollection();
-
-        var act = () => services.AddEventListener(typeof(object), null);
-
-        act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
-
-
-    }
-
 }
