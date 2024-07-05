@@ -10,8 +10,9 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class HostingExtensions
 {
     /// <summary>
-    /// Adds a <see cref="IBackgroundTaskListener"/> of type <typeparamref name="T"/>
+    /// Adds a <see cref="IBackgroundTaskListener"/>
     /// </summary>
     public static IServiceCollection AddHostedTaskListener(this IServiceCollection services)
-        => services.AddSingleton<IBackgroundTaskListener, HostedTaskListener>();
+        => services.AddHostedService<HostedTaskListener>()
+            .AddSingleton<IBackgroundTaskListener, HostedTaskListener>();
 }

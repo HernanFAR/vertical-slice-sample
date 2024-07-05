@@ -206,8 +206,8 @@ public class EventFlowTests
     [Fact]
     public async Task InMemoryEventFlow_ThirdTry()
     {
-        var logger = Mock.Of<ILogger<EventListenerCore>>();
-        Mock<ILogger<EventListenerCore>>? loggerMock = Mock.Get(logger);
+        var logger = Mock.Of<ILogger<EventListenerBackgroundTask>>();
+        Mock<ILogger<EventListenerBackgroundTask>>? loggerMock = Mock.Get(logger);
 
         ServiceProvider provider = new ServiceCollection()
             .AddDefaultHostedEventListener()

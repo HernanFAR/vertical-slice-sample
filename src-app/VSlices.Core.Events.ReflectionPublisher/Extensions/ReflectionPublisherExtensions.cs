@@ -21,7 +21,7 @@ public static class ReflectionPublisherExtensions
     {
         strategy ??= new AwaitInParallelStrategy();
 
-        services.AddPublisher<ReflectionEventRunner>();
+        services.AddEventRunner<ReflectionEventRunner>();
         services.AddSingleton(strategy);
 
         return services;
