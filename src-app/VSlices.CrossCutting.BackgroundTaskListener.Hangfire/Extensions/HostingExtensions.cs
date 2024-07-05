@@ -16,6 +16,6 @@ public static class HostingExtensions
     public static IServiceCollection AddHangfireTaskListener(this IServiceCollection services, Action<IGlobalConfiguration> configuration)
         => services.AddHostedService<HangfireTaskListener>()
             .AddSingleton<IBackgroundTaskListener, HangfireTaskListener>()
-            .AddHangfire(configuration)
-            .AddHangfireServer();
+            .AddHangfireServer()
+            .AddHangfire(configuration);
 }
