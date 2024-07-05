@@ -23,7 +23,7 @@ public class LoggingBehaviorExtensionsTests
     {
         FeatureBuilder builder = new(new ServiceCollection());
 
-        builder.AddLoggingBehaviorFor<Request>()
+        builder.AddLoggingFor<Request>()
             .UsingSpanishTemplate();
 
         builder.Services
@@ -42,7 +42,7 @@ public class LoggingBehaviorExtensionsTests
     {
         FeatureBuilder builder = new(new ServiceCollection());
 
-        builder.AddLoggingBehaviorFor<Request>()
+        builder.AddLoggingFor<Request>()
             .UsingEnglishTemplate();
 
         builder.Services
@@ -61,7 +61,7 @@ public class LoggingBehaviorExtensionsTests
     {
         FeatureBuilder builder = new(new ServiceCollection());
 
-        builder.AddLoggingBehaviorFor<Request>()
+        builder.AddLoggingFor<Request>()
             .UsingTemplate<CustomTemplate>();
 
         builder.Services
@@ -80,7 +80,7 @@ public class LoggingBehaviorExtensionsTests
     {
         FeatureBuilder builder = new(new ServiceCollection());
 
-        Func<LoggingBehaviorBuilder> act = () => builder.AddLoggingBehaviorFor(typeof(object));
+        Func<LoggingBehaviorBuilder> act = () => builder.AddLoggingFor(typeof(object));
 
         act.Should()
             .Throw<InvalidOperationException>()

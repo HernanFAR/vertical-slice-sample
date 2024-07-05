@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using System.Globalization;
 using VSlices.Base.Failures;
+using VSlices.Core;
 using VSlices.CrossCutting.Pipeline.EventFiltering.MessageTemplates;
 using VSlices.Domain;
 using static LanguageExt.Prelude;
@@ -39,11 +40,19 @@ public class EventFilteringBehaviorTests
         public abstract IDisposable BeginScope<TState>(TState state);
     }
 
+    public class Handler : IHandler<Request>
+    {
+        public Aff<Runtime, Unit> Define(Request request)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     readonly Logger _logger = Substitute.For<Logger>();
-    readonly IEventFilter<Request> _eventFilter = Substitute.For<IEventFilter<Request>>();
+    readonly IEventFilter<Request, Handler> _eventFilter = Substitute.For<IEventFilter<Request, Handler>>();
     readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
 
-    EventFilteringBehavior<Request> GetSut(IEventFilteringMessageTemplate template) 
+    EventFilteringBehavior<Request, Handler> GetSut(IEventFilteringMessageTemplate template) 
         => new(_eventFilter, template, _logger, _timeProvider);
 
     public static IEnumerable<object[]> GetTemplates()
@@ -60,13 +69,13 @@ public class EventFilteringBehaviorTests
     public async Task Define_Success_ShouldLogInputAndSuccessOutput(IEventFilteringMessageTemplate template)
     {
         // Arrange
-        EventFilteringBehavior<Request> sut = GetSut(template);
+        EventFilteringBehavior<Request, Handler> sut = GetSut(template);
 
         DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
         Request request = new();
 
         string expStartMessage = string.Format(template.ContinueExecution,
-            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request);
+            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Handler).FullName, request);
 
         _eventFilter.Define(request)
             .Returns(trueAff);
@@ -93,13 +102,13 @@ public class EventFilteringBehaviorTests
     public async Task Define_Success_ShouldLogInputAndFailureOutput(IEventFilteringMessageTemplate template)
     {
         // Arrange
-        EventFilteringBehavior<Request> sut = GetSut(template);
+        EventFilteringBehavior<Request, Handler> sut = GetSut(template);
 
         DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
         Request request = new();
 
         string expStartMessage = string.Format(template.SkipExecution,
-            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request);
+            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Handler).FullName, request);
 
         _eventFilter.Define(request)
             .Returns(falseAff);

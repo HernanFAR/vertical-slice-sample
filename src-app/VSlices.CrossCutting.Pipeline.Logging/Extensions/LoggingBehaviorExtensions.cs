@@ -19,9 +19,9 @@ public static class LoggingBehaviorExtensions
     /// <param name="featureBuilder">Service Collection</param>
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static LoggingBehaviorBuilder AddLoggingBehaviorFor<T>(this FeatureBuilder featureBuilder)
+    public static LoggingBehaviorBuilder AddLoggingFor<T>(this FeatureBuilder featureBuilder)
         where T : IFeature
-        => featureBuilder.AddLoggingBehaviorFor(typeof(T));
+        => featureBuilder.AddLoggingFor(typeof(T));
     
     /// <summary>
     /// Adds an open generic pipeline behavior to the service collection
@@ -30,7 +30,7 @@ public static class LoggingBehaviorExtensions
     /// <param name="feature">Behavior</param>
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static LoggingBehaviorBuilder AddLoggingBehaviorFor(this FeatureBuilder featureBuilder, Type feature)
+    public static LoggingBehaviorBuilder AddLoggingFor(this FeatureBuilder featureBuilder, Type feature)
     {
         Type featureInterface = feature
             .GetInterfaces()

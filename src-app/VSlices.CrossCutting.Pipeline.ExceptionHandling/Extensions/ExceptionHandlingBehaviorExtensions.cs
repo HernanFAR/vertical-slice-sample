@@ -16,9 +16,9 @@ public static class ExceptionHandlingBehaviorExtensions
     /// <param name="featureBuilder">Service Collection</param>
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static FeatureBuilder AddExceptionHandlingBehavior<T>(this FeatureBuilder featureBuilder)
+    public static FeatureBuilder AddExceptionHandling<T>(this FeatureBuilder featureBuilder)
         where T : IPipelineBehavior
-        => featureBuilder.AddExceptionHandlingBehavior(typeof(T));
+        => featureBuilder.AddExceptionHandling(typeof(T));
 
     /// <summary>
     /// Adds an open generic pipeline behavior to the service collection
@@ -27,7 +27,7 @@ public static class ExceptionHandlingBehaviorExtensions
     /// <param name="exceptionHandlingBehavior">Behavior</param>
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static FeatureBuilder AddExceptionHandlingBehavior(this FeatureBuilder featureBuilder,
+    public static FeatureBuilder AddExceptionHandling(this FeatureBuilder featureBuilder,
         Type exceptionHandlingBehavior)
     {
         var pipelineInterface = exceptionHandlingBehavior.GetInterfaces()

@@ -12,12 +12,12 @@ using VSlices.Domain.Interfaces;
 namespace VSlices.Core.Builder;
 
 /// <summary>
-/// <see cref="FeatureBuilder"/> extensions for <see cref="EventFilteringBehavior{TRequest}"/>
+/// <see cref="FeatureBuilder"/> extensions for <see cref="EventFilteringBehavior{TRequest, THandler}"/>
 /// </summary>
 public static class EventFilteringBehaviorExtensions
 {
     /// <summary>
-    /// Adds an open generic pipeline behavior to the service collection
+    /// Adds an event filtering behavior using a specific <see cref="IEventFilter{TEvent, THandler}"/>
     /// </summary>
     /// <param name="featureBuilder">Service Collection</param>
     /// <returns>Service Collection</returns>
@@ -27,30 +27,31 @@ public static class EventFilteringBehaviorExtensions
         => featureBuilder.AddEventFilteringUsing(typeof(T));
 
     /// <summary>
-    /// Adds an open generic pipeline behavior to the service collection
+    /// Adds
     /// </summary>
     /// <param name="featureBuilder">Service Collection</param>
-    /// <param name="eventFilterType">Behavior</param>
+    /// <param name="eventFilterImplementationType">Behavior</param>
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public static EventFilteringBehaviorBuilder AddEventFilteringUsing(this FeatureBuilder featureBuilder, Type eventFilterType)
+    public static EventFilteringBehaviorBuilder AddEventFilteringUsing(this FeatureBuilder featureBuilder, Type eventFilterImplementationType)
     {
-        Type validatorType = eventFilterType
+        Type eventFilterInterfaceType = eventFilterImplementationType
                                  .GetInterfaces()
                                  .Where(x => x.IsGenericType)
-                                 .SingleOrDefault(x => x.GetGenericTypeDefinition() == typeof(IEventFilter<>))
+                                 .SingleOrDefault(x => x.GetGenericTypeDefinition() == typeof(IEventFilter<,>))
                              ?? throw new InvalidOperationException(
-                                 $"{eventFilterType.FullName} does not implement {typeof(IEventFilter<>).FullName}");
+                                 $"{eventFilterImplementationType.FullName} does not implement {typeof(IEventFilter<,>).FullName}");
 
-        Type eventType = validatorType.GetGenericArguments()[0];
+        Type eventType = eventFilterInterfaceType.GetGenericArguments()[0];
+        Type handlerType = eventFilterInterfaceType.GetGenericArguments()[1];
 
-        featureBuilder.Services.AddTransient(validatorType, eventFilterType);
+        featureBuilder.Services.AddTransient(eventFilterInterfaceType, eventFilterImplementationType);
 
         Type pipelineBehaviorType = typeof(IPipelineBehavior<,>)
             .MakeGenericType(eventType, typeof(Unit));
 
-        Type fluentValidationBehaviorType = typeof(EventFilteringBehavior<>)
-            .MakeGenericType(eventType);
+        Type fluentValidationBehaviorType = typeof(EventFilteringBehavior<,>)
+            .MakeGenericType(eventType, handlerType);
 
         featureBuilder.Services.AddTransient(pipelineBehaviorType, fluentValidationBehaviorType);
 
@@ -60,7 +61,7 @@ public static class EventFilteringBehaviorExtensions
 }
 
 /// <summary>
-/// Builder for <see cref="EventFilteringBehavior{TRequest}"/>
+/// Builder for <see cref="EventFilteringBehavior{TRequest, THandler}"/>
 /// </summary>
 /// <param name="builder"></param>
 public sealed class EventFilteringBehaviorBuilder(FeatureBuilder builder)
