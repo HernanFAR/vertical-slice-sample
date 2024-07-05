@@ -7,7 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection;
 /// <summary>
 /// <see cref="IServiceCollection"/> extensions for <see cref="ReflectionEventRunner"/>.
 /// </summary>
-public static class ReflectionPublisherExtensions
+public static class ReflectionRunnerExtensions
 {
     /// <summary>
     /// Add <see cref="ReflectionEventRunner"/> to the <see cref="IServiceCollection"/>.

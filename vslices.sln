@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events", "src-
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events.InMemoryEventQueue", "src-app\VSlices.Core.Events.InMemoryEventQueue\VSlices.Core.Events.InMemoryEventQueue.csproj", "{D18F0F7C-74C4-4F5E-9C97-9D1E7629E32D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events.ReflectionPublisher", "src-app\VSlices.Core.Events.ReflectionPublisher\VSlices.Core.Events.ReflectionPublisher.csproj", "{66E99E33-AAF8-44EC-AA6D-8408A052C0C9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events.ReflectionRunner", "src-app\VSlices.Core.Events.ReflectionPublisher\VSlices.Core.Events.ReflectionRunner.csproj", "{66E99E33-AAF8-44EC-AA6D-8408A052C0C9}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Presentation.AspNetCore", "src-app\VSlices.Core.Presentation.AspNetCore\VSlices.Core.Presentation.AspNetCore.csproj", "{96F687A6-EC35-44FF-8982-1474A3345105}"
 EndProject
@@ -53,7 +53,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events.InMemor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events.UnitTests", "tests-app\VSlices.Core.Events.Units\VSlices.Core.Events.UnitTests.csproj", "{DF855FB3-111C-4F52-8ED0-B03B80F83A9D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events.ReflectionPublisher.UnitTests", "tests-app\VSlices.Core.Events.ReflectionPublisher.UnitTests\VSlices.Core.Events.ReflectionPublisher.UnitTests.csproj", "{76193257-01A6-42A5-9332-985F6065349A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events.ReflectionRunner.UnitTests", "tests-app\VSlices.Core.Events.ReflectionPublisher.UnitTests\VSlices.Core.Events.ReflectionRunner.UnitTests.csproj", "{76193257-01A6-42A5-9332-985F6065349A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events.IntegTests", "tests-app\VSlices.Core.Events.Hosted.InMemory.Reflection.IntegTests\VSlices.Core.Events.IntegTests.csproj", "{A0B3EA92-09FB-447E-9857-D289B3B9B1F2}"
 EndProject

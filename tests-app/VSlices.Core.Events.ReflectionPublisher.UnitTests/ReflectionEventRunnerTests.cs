@@ -12,7 +12,7 @@ using VSlices.Domain;
 using static System.Net.Mime.MediaTypeNames;
 
 // ReSharper disable once CheckNamespace
-namespace VSlices.Core.Events._ReflectionPublisher.UnitTests;
+namespace VSlices.Core.Events._ReflectionRunner.UnitTests;
 
 public class ReflectionEventRunnerTests
 {
