@@ -14,8 +14,9 @@ public sealed class DeleteQuestionDependencies : IFeatureDependencies
     {
         featureBuilder
             .AddEndpoint<EndpointDefinition>()
-            .AddLoggingFor<Command>().UsingSpanishTemplate()
-            .AddExceptionHandling<LoggingExceptionHandlerPipeline<Command, Unit>>()
+            .AddLoggingBehaviorFor<Command>()
+                .UsingSpanishTemplate()
+            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
             .AddHandler<Handler>();
     }
 }

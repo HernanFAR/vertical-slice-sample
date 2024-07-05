@@ -15,9 +15,10 @@ public sealed class UpdateQuestionDependencies : IFeatureDependencies
     {
         featureBuilder
             .AddEndpoint<EndpointDefinition>()
-            .AddLoggingFor<Command>().UsingSpanishTemplate()
-            .AddFluentValidationUsing<Validator>()
-            .AddExceptionHandling<LoggingExceptionHandlerPipeline<Command, Unit>>()
+            .AddLoggingBehaviorFor<Command>()
+                .UsingSpanishTemplate()
+            .AddFluentValidationBehaviorUsing<Validator>()
+            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
             .AddHandler<Handler>();
     }
 }
