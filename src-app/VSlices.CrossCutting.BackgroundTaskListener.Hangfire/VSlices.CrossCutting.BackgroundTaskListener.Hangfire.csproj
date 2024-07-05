@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Extension package for background task listener using Hangfire implementations in CrossCutting projects</Description>
+		<PackageTags>functional;request;result;pipeline;cross-cutting</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Hangfire.AspNetCore" Version="1.8.14" />
+	  <PackageReference Include="Hangfire.Core" Version="1.8.14" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\VSlices.CrossCutting.BackgroundTaskListener\VSlices.CrossCutting.BackgroundTaskListener.csproj" />
+	</ItemGroup>
+
+</Project>

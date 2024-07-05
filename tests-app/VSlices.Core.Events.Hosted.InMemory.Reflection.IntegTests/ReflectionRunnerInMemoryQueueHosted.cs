@@ -12,7 +12,7 @@ using Xunit;
 
 namespace VSlices.Core.Events.Hosted.InMemory.Reflection.IntegTests;
 
-public class EventFlowTests
+public class ReflectionRunnerInMemoryQueueHosted
 {
     public record AlwaysUnitEvent : Event;
 
