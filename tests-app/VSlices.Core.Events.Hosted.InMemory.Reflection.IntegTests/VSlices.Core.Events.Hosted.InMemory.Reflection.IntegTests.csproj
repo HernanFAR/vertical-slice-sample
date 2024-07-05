@@ -28,6 +28,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\src-app\VSlices.Core.Events.InMemoryEventQueue\VSlices.Core.Events.InMemoryEventQueue.csproj" />
 		<ProjectReference Include="..\..\src-app\VSlices.Core.Events.ReflectionPublisher\VSlices.Core.Events.ReflectionPublisher.csproj" />
+		<ProjectReference Include="..\..\src-app\VSlices.CrossCutting.BackgroundTaskListener.Hosting\VSlices.CrossCutting.BackgroundTaskListener.Hosting.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
