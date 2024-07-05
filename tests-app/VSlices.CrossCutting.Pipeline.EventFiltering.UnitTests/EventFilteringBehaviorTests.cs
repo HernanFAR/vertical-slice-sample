@@ -125,7 +125,7 @@ public class EventFilteringBehaviorTests
         result.IsSucc.Should().BeTrue();
 
         _logger.Received(1).Log(
-            LogLevel.Information,
+            LogLevel.Warning,
             expStartMessage);
     }
 }
