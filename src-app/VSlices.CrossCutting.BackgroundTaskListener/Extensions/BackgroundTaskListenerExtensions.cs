@@ -14,4 +14,5 @@ public static class BackgroundTaskListenerExtensions
     public static IServiceCollection AddTaskListener<T>(this IServiceCollection services)
         where T : class, IBackgroundTaskListener 
         => services.AddSingleton<IBackgroundTaskListener, T>();
+
 }
