@@ -1,6 +1,5 @@
 ﻿using LanguageExt;
-using LanguageExt.SysX.Live;
-using VSlices.Base.Failures;
+using VSlices.Core;
 using VSlices.Core.Stream;
 using static LanguageExt.Prelude;
 
@@ -15,14 +14,11 @@ public abstract class AbstractExceptionHandlingStreamBehavior<TRequest, TResult>
     where TRequest : IStream<TResult>
 {
     /// <inheritdoc />
-    protected override Aff<Runtime, IAsyncEnumerable<TResult>> InHandle(TRequest request, Aff<Runtime, IAsyncEnumerable<TResult>> next)
-    {
-        return from result in next
-                       | @catch(ex => ex.IsExceptional
-                           ? Process(ex, request)
-                           : FailAff<Runtime, IAsyncEnumerable<TResult>>(ex))
-               select result;
-    }
+    protected override Eff<HandlerRuntime, IAsyncEnumerable<TResult>> InHandle(
+        TRequest request, Eff<HandlerRuntime, IAsyncEnumerable<TResult>> next) =>
+        from result in next | catchM(e => e.IsExceptional,
+                                     e => Process(e.ToException(), request))
+        select result;
 
     /// <summary>
     /// Processes the exception
@@ -31,5 +27,5 @@ public abstract class AbstractExceptionHandlingStreamBehavior<TRequest, TResult>
     /// <param name="ex">The throw exception</param>
     /// <param name="request">The related request information</param>
     /// <returns>A <see cref="ValueTask"/> representing the processing of the exception</returns>
-    protected internal abstract Aff<Runtime, IAsyncEnumerable<TResult>> Process(Exception ex, TRequest request);
+    protected internal abstract Eff<HandlerRuntime, IAsyncEnumerable<TResult>> Process(Exception ex, TRequest request);
 }

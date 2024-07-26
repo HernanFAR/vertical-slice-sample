@@ -1,5 +1,5 @@
 ﻿using LanguageExt;
-using LanguageExt.SysX.Live;
+using VSlices.Core;
 using VSlices.Core.Stream;
 
 namespace VSlices.CrossCutting.StreamPipeline;
@@ -18,7 +18,8 @@ public interface IStreamPipelineBehavior<in TRequest, TResult>
     /// <param name="request">The intercepted request</param>
     /// <param name="next">The next action in the pipeline</param>
     /// <returns>
-    /// A <see cref="Aff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult"/>
+    /// A <see cref="Eff{A,B}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult"/>
     /// </returns>
-    Aff<Runtime, IAsyncEnumerable<TResult>> Define(TRequest request, Aff<Runtime, IAsyncEnumerable<TResult>> next);
+    Eff<HandlerRuntime, IAsyncEnumerable<TResult>> Define(
+        TRequest request, Eff<HandlerRuntime, IAsyncEnumerable<TResult>> next);
 }

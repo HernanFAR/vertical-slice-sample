@@ -1,33 +1,30 @@
-﻿using LanguageExt;
-using LanguageExt.SysX.Live;
-using VSlices.Base;
+﻿using VSlices.Base;
 
 namespace VSlices.Core;
 
 /// <summary>
-/// Defines a asyncronous effect for a specific <see cref="IFeature{TResult}"/>
+/// Defines asynchronous effect for a specific <see cref="IFeature{TResult}"/>
 /// </summary>
 /// <remarks>If idempotency is necessary, the handler itself must ensure it</remarks>
-/// <typeparam name="TRequest">The request to be handled</typeparam>
+/// <typeparam name="TRequest">The request to handle</typeparam>
 /// <typeparam name="TResult">The expected result of the handler</typeparam>
 public interface IHandler<in TRequest, TResult>
     where TRequest : IFeature<TResult>
 {
     /// <summary>
-    /// Defines the asyncronous effect for a <see cref="IFeature{TResult}"/>
+    /// Defines the asynchronous effect for a <see cref="IFeature{TResult}"/>
     /// </summary>
-    /// <param name="request">The request to be handled</param>
+    /// <param name="request">The request to handle</param>
     /// <returns>
-    /// An <see cref="Aff{TRuntime, TResult}"/> that represents the operation in lazy evaluation, which when runned
+    /// An <see cref="LanguageExt.Eff{TRuntime, TResult}"/> that represents the operation in lazy evaluation, which when ran
     /// returns a <typeparamref name="TResult"/>
     /// </returns>
-    Aff<Runtime, TResult> Define(TRequest request);
+    Eff<HandlerRuntime, TResult> Define(TRequest request);
 }
 
 /// <summary>
 /// Defines a handler for a <see cref="IFeature{TResult}"/>
 /// </summary>
-/// <typeparam name="TRequest">The request to be handled</typeparam>
+/// <typeparam name="TRequest">The request to handle</typeparam>
 public interface IHandler<in TRequest> : IHandler<TRequest, Unit>
-    where TRequest : IFeature<Unit>
-{ }
+    where TRequest : IFeature<Unit>;

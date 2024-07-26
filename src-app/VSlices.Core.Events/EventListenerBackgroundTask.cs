@@ -1,8 +1,8 @@
 ﻿using LanguageExt;
-using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using VSlices.Core.Events.Configurations;
+using VSlices.Core.Traits;
 using VSlices.CrossCutting.BackgroundTaskListener;
 using VSlices.Domain.Interfaces;
 
@@ -12,7 +12,7 @@ namespace VSlices.Core.Events;
 /// Core of event listener
 /// </summary>
 /// <remarks>
-/// It has a retry mecanism for each <see cref="IEvent" />
+/// It has a retry mechanism for each <see cref="IEvent" />
 /// </remarks>
 public sealed class EventListenerBackgroundTask(
     ILogger<EventListenerBackgroundTask> logger,
@@ -20,12 +20,12 @@ public sealed class EventListenerBackgroundTask(
     EventListenerConfiguration configOptions) 
     : IBackgroundTask
 {
-    readonly ILogger<EventListenerBackgroundTask> _logger = logger;
-    readonly IServiceProvider _serviceProvider = serviceProvider;
-    readonly EventListenerConfiguration _config = configOptions;
-    readonly IEventQueue _eventQueue = serviceProvider.GetRequiredService<IEventQueue>();
+    private readonly ILogger<EventListenerBackgroundTask> _logger = logger;
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
+    private readonly EventListenerConfiguration _config = configOptions;
+    private readonly IEventQueue _eventQueue = serviceProvider.GetRequiredService<IEventQueue>();
 
-    readonly Dictionary<Guid, int> _retries = [];
+    private readonly Dictionary<Guid, int> _retries = [];
 
     /// <inheritdoc />
     public string Identifier => nameof(EventListenerBackgroundTask);
@@ -33,44 +33,42 @@ public sealed class EventListenerBackgroundTask(
     /// <inheritdoc />
     public async ValueTask ExecuteAsync(CancellationToken cancellationToken)
     {
-        using var source = new CancellationTokenSource();
-        var runtime = Runtime.New(ActivityEnv.Default, source);
+        DependencyProvider dependencyProvider = new(_serviceProvider);
+        var                envIo              = EnvIO.New(token: cancellationToken);
+        var                runtime            = HandlerRuntime.New(dependencyProvider, envIo);
 
-        await using (cancellationToken.Register(source.Cancel))
+        while (!cancellationToken.IsCancellationRequested)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+
+            var publisher = scope.ServiceProvider.GetRequiredService<IEventRunner>();
+
+            IEvent workItem = await _eventQueue.DequeueAsync(cancellationToken);
+            var retry = false;
+
+            do
             {
-                await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-
-                var publisher = scope.ServiceProvider.GetRequiredService<IEventRunner>();
-
-                IEvent workItem = await _eventQueue.DequeueAsync(cancellationToken);
-                var retry = false;
-
-                do
+                try
                 {
-                    try
-                    {
-                        Fin<Unit> result = await publisher.PublishAsync(workItem, runtime);
+                    Fin<Unit> result = publisher.Publish(workItem, runtime);
 
-                        _ = result.IfFail(error => throw error);
+                    _ = result.IfFail(error => throw error);
 
-                        _retries.Remove(workItem.EventId);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error occurred executing {WorkItem}.",
-                            workItem.GetType().FullName);
-
-                        retry = await CheckRetry(workItem, cancellationToken);
-                    }
+                    _retries.Remove(workItem.EventId);
                 }
-                while (retry);
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error occurred executing {WorkItem}.",
+                        workItem.GetType().FullName);
+
+                    retry = await CheckRetry(workItem, cancellationToken);
+                }
             }
+            while (retry);
         }
     }
 
-    async Task<bool> CheckRetry(IEvent workItem, CancellationToken stoppingToken)
+    private async Task<bool> CheckRetry(IEvent workItem, CancellationToken stoppingToken)
     {
         if (_retries.TryGetValue(workItem.EventId, out int retries))
         {

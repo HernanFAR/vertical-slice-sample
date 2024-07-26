@@ -1,7 +1,7 @@
 ﻿namespace VSlices.CrossCutting.BackgroundTaskListener;
 
 /// <summary>
-/// Defines a background task listener with a unspecified provider
+/// Defines a background task listener with an unspecified provider
 /// </summary>
 public interface IBackgroundTaskListener
 {
@@ -13,7 +13,7 @@ public interface IBackgroundTaskListener
 }
 
 /// <summary>
-/// Defines a task that can be register as a background task
+/// Defines a task that executes in the background using <see cref="IBackgroundTaskListener"/>
 /// </summary>
 public interface IBackgroundTask
 {

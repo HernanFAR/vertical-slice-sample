@@ -13,7 +13,7 @@ public static class HandlerExtensions
     /// <summary>
     /// Adds <typeparamref name="T"/> as <see cref="IHandler{TRequest,TResult}"/> to the service collection.
     /// </summary>
-    /// <typeparam name="T">The endpoint definition to be added</typeparam>
+    /// <typeparam name="T">The endpoint definition to add</typeparam>
     /// <param name="featureBuilder">Service collection</param>
     /// <returns>Service collection</returns>
     public static FeatureBuilder AddHandler<T>(this FeatureBuilder featureBuilder)
@@ -23,7 +23,7 @@ public static class HandlerExtensions
     /// Adds an the specified <see cref="Type"/> as <see cref="IHandler{TRequest,TResult}"/> to the service collection.
     /// </summary>
     /// <param name="featureBuilder">Service collection</param>
-    /// <param name="handlerType">The endpoint definition to be added</param>
+    /// <param name="handlerType">The endpoint definition to add</param>
     /// <exception cref="InvalidOperationException"></exception>
     /// <returns>Service collection</returns>
     public static FeatureBuilder AddHandler(this FeatureBuilder featureBuilder,

@@ -2,6 +2,7 @@
 using VSlices.Base;
 using VSlices.CrossCutting.Pipeline;
 
+// ReSharper disable once CheckNamespace
 namespace VSlices.Core.Builder;
 
 /// <summary>
@@ -13,17 +14,17 @@ public static class PipelineBehaviorExtensions
     /// <summary>
     /// Adds <typeparamref name="T"/> as <see cref="IPipelineBehavior{TRequest,TResult}"/> to the service collection.
     /// </summary>
-    /// <typeparam name="T">The endpoint definition to be added</typeparam>
+    /// <typeparam name="T">The endpoint definition to add</typeparam>
     /// <param name="featureBuilder">Service collection</param>
     /// <returns>Service collection</returns>
     public static FeatureBuilder AddPipeline<T>(this FeatureBuilder featureBuilder)
         => featureBuilder.AddPipeline(typeof(T));
 
     /// <summary>
-    /// Adds an the specified <see cref="Type"/> as <see cref="IHandler{TRequest,TResult}"/> to the service collection.
+    /// Adds the specified <see cref="Type"/> as <see cref="IHandler{TRequest,TResult}"/> to the service collection.
     /// </summary>
     /// <param name="featureBuilder">Service collection</param>
-    /// <param name="handlerType">The endpoint definition to be added</param>
+    /// <param name="handlerType">The endpoint definition to add</param>
     /// <exception cref="InvalidOperationException"></exception>
     /// <returns>Service collection</returns>
     public static FeatureBuilder AddPipeline(this FeatureBuilder featureBuilder,

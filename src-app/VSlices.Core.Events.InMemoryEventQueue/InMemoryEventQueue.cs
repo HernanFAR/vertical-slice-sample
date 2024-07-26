@@ -4,7 +4,7 @@ using VSlices.Domain.Interfaces;
 namespace VSlices.Core.Events;
 
 /// <summary>
-/// Allows to publish, peek and dequeue events through an in memory channel
+/// Allows publishing, peek and dequeue events through an in memory channel.
 /// </summary>
 public sealed class InMemoryEventQueue : IEventQueue
 {
@@ -13,10 +13,10 @@ public sealed class InMemoryEventQueue : IEventQueue
     /// <summary>
     /// Creates a new instance of <see cref="InMemoryEventQueue"/>
     /// </summary>
-    /// <param name="inMemoryEventQueueConfiguration">Configuration</param>
-    public InMemoryEventQueue(InMemoryEventQueueConfiguration inMemoryEventQueueConfiguration)
+    /// <param name="configuration">Configuration</param>
+    public InMemoryEventQueue(InMemoryEventQueueConfiguration configuration)
     {
-        var options = new BoundedChannelOptions(inMemoryEventQueueConfiguration.Capacity)
+        var options = new BoundedChannelOptions(configuration.Capacity)
         {
             FullMode = BoundedChannelFullMode.Wait
         };
@@ -30,7 +30,6 @@ public sealed class InMemoryEventQueue : IEventQueue
 
     /// <inheritdoc />
     public async ValueTask EnqueueAsync(IEvent @event, CancellationToken cancellationToken)
-    {
-        await _channel.Writer.WriteAsync(@event, cancellationToken);
-    }
+        => await _channel.Writer.WriteAsync(@event, cancellationToken);
+    
 }

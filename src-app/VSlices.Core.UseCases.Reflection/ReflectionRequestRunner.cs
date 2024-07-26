@@ -1,33 +1,22 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
-using LanguageExt;
-using LanguageExt.Common;
-using LanguageExt.SysX.Live;
+using VSlices.Core.Traits;
 using VSlices.Core.UseCases.Internals;
 
 namespace VSlices.Core.UseCases;
 
 /// <summary>
-/// Sends a request through the VSlices pipeline to be handled by a single handler, using reflection
+/// Sends a request through the VSlices pipeline to handle by a single handler, using reflection.
 /// </summary>
 [RequiresDynamicCode("This class uses Type.MakeGenericType to create RequestRunnerWrapper instances")]
-public class ReflectionRequestRunner : IRequestRunner
+public class ReflectionRequestRunner(IServiceProvider serviceProvider) : IRequestRunner
 {
     private static readonly ConcurrentDictionary<Type, AbstractRequestRunnerWrapper> RequestHandlers = new();
 
-    private readonly IServiceProvider _serviceProvider;
-
-    /// <summary>
-    /// Creates a new instance of <see cref="ReflectionRequestRunner"/>
-    /// </summary>
-    /// <param name="serviceProvider"><see cref="IServiceProvider"/> used to resolve handlers</param>
-    public ReflectionRequestRunner(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-    }
+    private readonly IServiceProvider _serviceProvider = serviceProvider;
 
     /// <inheritdoc />
-    public async ValueTask<Fin<TResponse>> RunAsync<TResponse>(IRequest<TResponse> request, Runtime runtime)
+    public Fin<TResponse> Run<TResponse>(IRequest<TResponse> request, HandlerRuntime runtime)
     {
         var handler = (AbstractRequestRunnerWrapper<TResponse>)RequestHandlers
             .GetOrAdd(request.GetType(), 
@@ -40,17 +29,16 @@ public class ReflectionRequestRunner : IRequestRunner
                     return (AbstractRequestRunnerWrapper)wrapper;
                 });
 
-        return await handler.HandleAsync(request, runtime, _serviceProvider);
+        return handler.Handle(request, runtime, _serviceProvider);
     }
 
     /// <inheritdoc />
-    public async ValueTask<Fin<TResult>> RunAsync<TResult>(IRequest<TResult> request, CancellationToken cancellationToken)
+    public Fin<TResult> Run<TResult>(IRequest<TResult> request,
+                                     CancellationToken cancellationToken = default)
     {
-        using var source = new CancellationTokenSource();
+        DependencyProvider dependencyProvider = new(_serviceProvider);
+        var                envIo              = EnvIO.New(token: cancellationToken);
 
-        await using (cancellationToken.Register(source.Cancel))
-        {
-            return await RunAsync(request, Runtime.New(ActivityEnv.Default, source));
-        }
+        return Run(request, HandlerRuntime.New(dependencyProvider, envIo));
     }
 }
