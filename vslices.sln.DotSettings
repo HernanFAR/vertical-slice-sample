@@ -1,2 +1,10 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:Boolean x:Key="/Default/GrammarAndSpelling/GrammarChecking/Exceptions/=Asynchronously_0020runs_0020the/@EntryIndexedValue">True</s:Boolean>
+	<s:String x:Key="/Default/GrammarAndSpelling/GrammarChecking/RulesStates/=LanguageTool_002EEN_002EDATE_005FFUTURE_005FVERB_005FPAST_005FUS/@EntryIndexedValue"></s:String>
+	<s:Boolean x:Key="/Default/GrammarAndSpelling/GrammarChecking/RulesStates/=LanguageTool_002EEN_002EDATE_005FFUTURE_005FVERB_005FPAST_005FUS/@EntryIndexRemoved">True</s:Boolean>
+	<s:String x:Key="/Default/GrammarAndSpelling/GrammarChecking/RulesStates/=LanguageTool_002EEN_002EWHITESPACE_005FPARAGRAPH/@EntryIndexedValue"></s:String>
+	<s:Boolean x:Key="/Default/GrammarAndSpelling/GrammarChecking/RulesStates/=LanguageTool_002EEN_002EWHITESPACE_005FPARAGRAPH/@EntryIndexRemoved">True</s:Boolean>
+	<s:String x:Key="/Default/GrammarAndSpelling/GrammarChecking/RulesStates/=LanguageTool_002EEN_002EWHITESPACE_005FPARAGRAPH_005FBEGIN/@EntryIndexedValue"></s:String>
+	<s:Boolean x:Key="/Default/GrammarAndSpelling/GrammarChecking/RulesStates/=LanguageTool_002EEN_002EWHITESPACE_005FPARAGRAPH_005FBEGIN/@EntryIndexRemoved">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=Impls/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/UserDictionary/Words/=Integ/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>

@@ -26,7 +26,10 @@ public interface IEventQueueReader
     /// Asynchronously dequeue the next event from the queue
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>A <see cref="ValueTask"/> that represents the asynchronous execution which returns a <see cref="IEvent"/></returns>
+    /// <returns>
+    /// A <see cref="ValueTask"/> that represents the asynchronous execution, which
+    /// returns a <see cref="IEvent"/>
+    /// </returns>
     ValueTask<IEvent> DequeueAsync(CancellationToken cancellationToken = default);
 
 }

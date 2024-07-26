@@ -1,5 +1,4 @@
 ﻿using LanguageExt;
-using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
 using VSlices.CrossCutting.Pipeline;
@@ -8,42 +7,43 @@ namespace VSlices.Core.UseCases.Internals;
 
 internal abstract class AbstractRequestRunnerWrapper
 {
-    public abstract ValueTask<Fin<object?>> HandleAsync(
+    public abstract Fin<object?> Handle(
         object request,
-        Runtime runtime,
+        HandlerRuntime runtime,
         IServiceProvider serviceProvider);
 }
 
 internal abstract class AbstractRequestRunnerWrapper<TResponse> : AbstractRequestRunnerWrapper
 {
-    public abstract ValueTask<Fin<TResponse>> HandleAsync(
+    public abstract Fin<TResponse> Handle(
         IFeature<TResponse> request,
-        Runtime runtime,
+        HandlerRuntime runtime,
         IServiceProvider serviceProvider);
 }
 
 internal class RequestRunnerWrapper<TRequest, TResponse> : AbstractRequestRunnerWrapper<TResponse>
     where TRequest : IFeature<TResponse>
 {
-    public override async ValueTask<Fin<object?>> HandleAsync(object request, Runtime runtime, IServiceProvider serviceProvider)
+    public override Fin<object?> Handle(object request, HandlerRuntime runtime, IServiceProvider serviceProvider)
     {
-        return await HandleAsync((IFeature<TResponse>)request, runtime, serviceProvider);
+        return Handle((IFeature<TResponse>)request, runtime, serviceProvider);
     }
 
-    public override ValueTask<Fin<TResponse>> HandleAsync(IFeature<TResponse> request, Runtime runtime, 
+    public override Fin<TResponse> Handle(IFeature<TResponse> request, HandlerRuntime runtime, 
         IServiceProvider serviceProvider)
     {
         var handler = serviceProvider.GetRequiredService<IHandler<TRequest, TResponse>>();
 
-        Aff<Runtime, TResponse> handlerEffect = handler.Define((TRequest)request);
+        Eff<HandlerRuntime, TResponse> handlerEffect = handler.Define((TRequest)request);
 
         IEnumerable<IPipelineBehavior<TRequest, TResponse>> pipelines = serviceProvider
             .GetServices<IPipelineBehavior<TRequest, TResponse>>()
             .Reverse();
 
-        Aff<Runtime, TResponse> effectChain = pipelines.Aggregate(handlerEffect, 
-                (next, behavior) => behavior.Define((TRequest)request, next));
+        Eff<HandlerRuntime, TResponse> effectChain = pipelines
+            .Aggregate(handlerEffect,
+                       (next, behavior) => behavior.Define((TRequest)request, next));
 
-        return effectChain.Run(runtime);
+        return effectChain.Run(runtime, runtime.EnvIO);
     }
 }

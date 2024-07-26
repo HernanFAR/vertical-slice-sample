@@ -1,10 +1,11 @@
 ﻿using LanguageExt;
 using LanguageExt.Common;
-using LanguageExt.SysX.Live;
 using Microsoft.Extensions.Logging;
+using VSlices.Core;
 using VSlices.Core.Stream;
 using VSlices.CrossCutting.StreamPipeline.Logging.MessageTemplates;
 using static LanguageExt.Prelude;
+using static VSlices.CorePrelude;
 
 namespace VSlices.CrossCutting.StreamPipeline.Logging;
 
@@ -13,60 +14,67 @@ namespace VSlices.CrossCutting.StreamPipeline.Logging;
 /// </summary>
 /// <typeparam name="TRequest">Request to handle</typeparam>
 /// <typeparam name="TResult">Expected result</typeparam>
-/// <param name="messageTemplate">Message templates</param>
-/// <param name="logger">Logger</param>
-/// <param name="timeProvider">Time provider</param>
-public sealed class LoggingStreamBehavior<TRequest, TResult>(
-    ILoggingMessageTemplate messageTemplate,
-    ILogger<TRequest> logger,
-    TimeProvider timeProvider)
-    : AbstractStreamPipelineBehavior<TRequest, TResult>
+public sealed class LoggingStreamBehavior<TRequest, TResult> : AbstractStreamPipelineBehavior<TRequest, TResult>
     where TRequest : IStream<TResult>
 {
-    private readonly ILoggingMessageTemplate _messageTemplate = messageTemplate;
-    private readonly ILogger<TRequest> _logger = logger;
-    private readonly TimeProvider _timeProvider = timeProvider;
-
     /// <inheritdoc />
-    protected override Aff<Runtime, Unit> BeforeHandle(TRequest request) =>
-        from _ in Eff(() =>
+    protected override Eff<HandlerRuntime, Unit> BeforeHandle(TRequest request) =>
+        from logger in provide<ILogger<TRequest>>()
+        from template in provide<ILoggingMessageTemplate>()
+        from time in provide<TimeProvider>()
+        from _ in liftEff(() =>
         {
-            _logger.LogInformation(_messageTemplate.Start,
-                _timeProvider.GetUtcNow(), typeof(TRequest).FullName, request);
+            logger.LogInformation(template.Start, 
+                                  time.GetUtcNow(), 
+                                  typeof(TRequest).FullName, 
+                                  request);
 
             return unit;
         })
         select unit;
 
     /// <inheritdoc />
-    protected override Aff<Runtime, IAsyncEnumerable<TResult>> AfterSuccessHandling(TRequest request, IAsyncEnumerable<TResult> result) =>
-        from _ in Eff(() =>
-        {
-            _logger.LogInformation(_messageTemplate.SuccessEnd,
-                _timeProvider.GetUtcNow(), typeof(TRequest).FullName, request, result);
+    protected override Eff<HandlerRuntime, IAsyncEnumerable<TResult>> AfterSuccessHandling(TRequest request, IAsyncEnumerable<TResult> result) =>
+        from logger in provide<ILogger<TRequest>>()
+        from template in provide<ILoggingMessageTemplate>()
+        from time in provide<TimeProvider>()
+        from _ in liftEff(() =>
+                          {
+                              logger.LogInformation(template.SuccessEnd,
+                                                    time.GetUtcNow(), 
+                                                    typeof(TRequest).FullName, 
+                                                    request, result);
 
-            return unit;
-        })
+                              return unit;
+                          })
         from result_ in SuccessEff(result)
         select result_;
 
     /// <inheritdoc />
-    protected override Aff<Runtime, IAsyncEnumerable<TResult>> AfterFailureHandling(TRequest request, Error result) =>
-        from _ in Eff(() =>
-        {
-            if (result.IsExpected)
-            {
-                _logger.LogWarning(_messageTemplate.FailureEnd,
-                    _timeProvider.GetUtcNow(), typeof(TRequest).FullName, request, result);
-            }
-            else
-            {
-                _logger.LogError(_messageTemplate.FailureEnd,
-                    _timeProvider.GetUtcNow(), typeof(TRequest).FullName, request, result);
-            }
+    protected override Eff<HandlerRuntime, IAsyncEnumerable<TResult>> AfterFailureHandling(TRequest request, Error result) =>
+        from logger in provide<ILogger<TRequest>>()
+        from template in provide<ILoggingMessageTemplate>()
+        from time in provide<TimeProvider>()
+        from _ in liftEff(() =>
+                          {
+                              if (result.IsExpected)
+                              {
+                                  logger.LogWarning(template.FailureEnd,
+                                                    time.GetUtcNow(),
+                                                    typeof(TRequest).FullName, 
+                                                    request, result);
+                              }
+                              else
+                              {
+                                  logger.LogError(template.FailureEnd,
+                                                  time.GetUtcNow(),
+                                                  typeof(TRequest).FullName, 
+                                                  request, 
+                                                  result);
+                              }
 
-            return unit;
-        })
-        from result_ in EffMaybe<IAsyncEnumerable<TResult>>(() => result)
+                              return unit;
+                          })
+        from result_ in liftEff<IAsyncEnumerable<TResult>>(() => result)
         select result_;
 }

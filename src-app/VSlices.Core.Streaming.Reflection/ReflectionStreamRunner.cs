@@ -1,13 +1,13 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using LanguageExt;
-using LanguageExt.SysX.Live;
 using VSlices.Core.Stream.Internals;
+using VSlices.Core.Traits;
 
 namespace VSlices.Core.Stream;
 
 /// <summary>
-/// Sends a request through the VSlices pipeline to be handled by a single handler, using reflection
+/// Sends a request through the VSlices pipeline to handle by a single handler, using reflection.
 /// </summary>
 [RequiresDynamicCode("This class uses Type.MakeGenericType to create StreamRunnerWrapper instances")]
 public class ReflectionStreamRunner : IStreamRunner
@@ -26,7 +26,8 @@ public class ReflectionStreamRunner : IStreamRunner
     }
 
     /// <inheritdoc />
-    public async ValueTask<Fin<IAsyncEnumerable<TResult>>> RunAsync<TResult>(IStream<TResult> request, Runtime runtime)
+    public Fin<IAsyncEnumerable<TResult>> Run<TResult>(IStream<TResult> request, 
+                                                       HandlerRuntime runtime)
     {
         var handler = (AbstractStreamRunnerWrapper<TResult>)RequestHandlers
             .GetOrAdd(request.GetType(), 
@@ -39,19 +40,16 @@ public class ReflectionStreamRunner : IStreamRunner
                     return (AbstractStreamRunnerWrapper)wrapper;
                 });
 
-        return await handler.HandleAsync(request, runtime, _serviceProvider);
+        return handler.Handle(request, runtime, _serviceProvider);
     }
 
     /// <inheritdoc />
-    public async ValueTask<Fin<IAsyncEnumerable<TResult>>> RunAsync<TResult>(
-        IStream<TResult> request, 
-        CancellationToken cancellationToken)
+    public Fin<IAsyncEnumerable<TResult>> Run<TResult>(IStream<TResult> request, 
+                                                       CancellationToken cancellationToken = default)
     {
-        using CancellationTokenSource source = new();
+        DependencyProvider dependencyProvider = new(_serviceProvider);
+        var                envIo              = EnvIO.New(token: cancellationToken);
 
-        await using (cancellationToken.Register(source.Cancel))
-        {
-            return await RunAsync(request, Runtime.New(ActivityEnv.Default, source));
-        }
+        return Run(request, HandlerRuntime.New(dependencyProvider, envIo));
     }
 }

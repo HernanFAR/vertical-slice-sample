@@ -1,7 +1,4 @@
 ﻿using LanguageExt;
-using LanguageExt.Common;
-using LanguageExt.SysX.Live;
-using static LanguageExt.Prelude;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
 using VSlices.Core.Events.Strategies;
@@ -11,9 +8,9 @@ namespace VSlices.Core.Events.Internals;
 
 internal abstract class AbstractHandlerWrapper
 {
-    public abstract ValueTask<Fin<Unit>> HandleAsync(
+    public abstract Fin<Unit> Handle(
         IFeature<Unit> request,
-        Runtime runtime,
+        HandlerRuntime runtime,
         IServiceProvider serviceProvider,
         IPublishingStrategy strategy);
 }
@@ -21,29 +18,34 @@ internal abstract class AbstractHandlerWrapper
 internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
     where TRequest : IFeature<Unit>
 {
-    public override async ValueTask<Fin<Unit>> HandleAsync(
+    public override Fin<Unit> Handle(
         IFeature<Unit> request,
-        Runtime runtime, 
+        HandlerRuntime runtime,
         IServiceProvider serviceProvider,
         IPublishingStrategy strategy)
     {
         IEnumerable<IHandler<TRequest, Unit>> handlers = serviceProvider
             .GetServices<IHandler<TRequest, Unit>>();
 
-        Aff<Runtime, Unit>[] handlerDelegates = handlers.Select(handler =>
-            {
-                Aff<Runtime, Unit> handlerEffect = handler.Define((TRequest)request);
+        Eff<HandlerRuntime, Unit>[] delegates =
+            handlers.Select(handler =>
+                            {
+                                Eff<HandlerRuntime, Unit> handlerEffect =
+                                    handler.Define((TRequest)request);
 
-                IEnumerable<IPipelineBehavior<TRequest, Unit>> pipelines = serviceProvider
-                    .GetServices<IPipelineBehavior<TRequest, Unit>>()
-                    .Reverse();
+                                IEnumerable<IPipelineBehavior<TRequest, Unit>>
+                                    pipelines = serviceProvider
+                                                .GetServices<IPipelineBehavior<TRequest, Unit>>()
+                                                .Reverse();
 
-                return pipelines.Aggregate(handlerEffect,
-                    (current, behavior) => behavior.Define((TRequest)request, current));
+                                return pipelines.Aggregate(handlerEffect,
+                                                           (current, behavior) =>
+                                                               behavior.Define((TRequest)request,
+                                                                               current));
 
-            })
-            .ToArray();
+                            })
+                    .ToArray();
 
-        return await strategy.HandleAsync(handlerDelegates, runtime);
+        return strategy.Handle(delegates, runtime);
     }
 }

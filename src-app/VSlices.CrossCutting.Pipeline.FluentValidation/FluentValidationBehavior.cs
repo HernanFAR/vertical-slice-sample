@@ -2,10 +2,10 @@
 using FluentValidation.Results;
 using LanguageExt;
 using LanguageExt.Common;
-using LanguageExt.SysX.Live;
 using static LanguageExt.Prelude;
+using static VSlices.CorePrelude;
 using VSlices.Base;
-using VSlices.Base.Failures;
+using VSlices.Core;
 
 namespace VSlices.CrossCutting.Pipeline.FluentValidation;
 
@@ -17,22 +17,12 @@ namespace VSlices.CrossCutting.Pipeline.FluentValidation;
 public sealed class FluentValidationBehavior<TRequest, TResult> : AbstractPipelineBehavior<TRequest, TResult>
     where TRequest : IFeature<TResult>
 {
-    private readonly IValidator<TRequest> _requestValidator;
-
-    /// <summary>
-    /// Creates a new instance using the validator registered in the container
-    /// </summary>
-    /// <param name="requestValidator">Validators registered</param>
-    public FluentValidationBehavior(IValidator<TRequest> requestValidator)
-    {
-        _requestValidator = requestValidator;
-    }
-
     /// <inheritdoc />
-    protected override Aff<Runtime, Unit> BeforeHandle(TRequest request) =>
-        from cancelToken in cancelToken<Runtime>()
-        from validationResult in Aff(async () => await _requestValidator.ValidateAsync(request, cancelToken))
-        from f in guard(validationResult.IsValid, validationResult.ToUnprocessable() as Error)
+    protected override Eff<HandlerRuntime, Unit> BeforeHandle(TRequest request) =>
+        from validator in provide<IValidator<TRequest>>()
+        from token in cancelToken
+        from result in liftEff(async () => await validator.ValidateAsync(request, token))
+        from _ in guard(result.IsValid, result.ToUnprocessable() as Error)
         select unit;
 
 }

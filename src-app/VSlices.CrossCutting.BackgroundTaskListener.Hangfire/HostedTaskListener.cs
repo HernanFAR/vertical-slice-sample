@@ -14,8 +14,8 @@ public sealed class HangfireTaskListener(
     IEnumerable<IBackgroundTask> backgroundTasks)
     : BackgroundService, IBackgroundTaskListener
 {
-    readonly IBackgroundJobClient _hangfireJobClient = hangfireJobClient;
-    readonly IEnumerable<IBackgroundTask> _backgroundTasks = backgroundTasks;
+    private readonly IBackgroundJobClient _hangfireJobClient = hangfireJobClient;
+    private readonly IEnumerable<IBackgroundTask> _backgroundTasks = backgroundTasks;
 
     /// <inheritdoc />
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

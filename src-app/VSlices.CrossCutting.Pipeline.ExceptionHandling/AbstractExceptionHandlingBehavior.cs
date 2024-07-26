@@ -1,9 +1,7 @@
 ﻿using LanguageExt;
-using LanguageExt.Common;
-using LanguageExt.SysX.Live;
 using static LanguageExt.Prelude;
 using VSlices.Base;
-using VSlices.Base.Failures;
+using VSlices.Core;
 
 namespace VSlices.CrossCutting.Pipeline.ExceptionHandling;
 
@@ -16,11 +14,9 @@ public abstract class AbstractExceptionHandlingBehavior<TRequest, TResult> : Abs
     where TRequest : IFeature<TResult>
 {
     /// <inheritdoc />
-    protected override Aff<Runtime, TResult> InHandle(TRequest request, Aff<Runtime, TResult> next) =>
-        from result in next
-                       | @catch(ex => ex.IsExceptional
-                           ? Process(ex, request)
-                           : FailAff<TResult>(ex))
+    protected override Eff<HandlerRuntime, TResult> InHandle(TRequest request, Eff<HandlerRuntime, TResult> next) =>
+        from result in next | catchM(e => e.IsExceptional, 
+                                     e => Process(e.ToException(), request))
         select result;
 
     /// <summary>
@@ -30,6 +26,6 @@ public abstract class AbstractExceptionHandlingBehavior<TRequest, TResult> : Abs
     /// <param name="ex">The throw exception</param>
     /// <param name="request">The related request information</param>
     /// <returns>A <see cref="ValueTask"/> representing the processing of the exception</returns>
-    protected internal abstract Aff<Runtime, TResult> Process(Exception ex, TRequest request);
+    protected internal abstract Eff<HandlerRuntime, TResult> Process(Exception ex, TRequest request);
 
 }
