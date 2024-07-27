@@ -23,26 +23,22 @@ internal sealed class Handler
         from repository in provide<IQuestionRepository>()
         from logger in provide<ILogger>()
         from question in repository
-         .Read(request.Id)
-         .Match(Succ: question =>
-                  liftEff(() =>
-                          {
-                              logger.LogInformation("Se ha realizado un cambio en la tabla Questions, cambio de " +
-                                                    "tipo: {State}, valores actuales: {Entity}",
-                                                    request.CurrentState.ToString(),
-                                                    question);
+            .Read(request.Id)
+            .Match(Succ: question => liftEff(() => 
+            {
+                logger.LogInformation("Se ha realizado un cambio en la tabla Questions, cambio de tipo: {State}, valores actuales: {Entity}", 
+                                      request.CurrentState.ToString(), 
+                                      question);
 
-                              return unit;
-                          }),
-                Fail: _ => 
-                  liftEff(() =>
-                           {
-                               logger
-                                   .LogInformation("Se ha realizado un cambio en la tabla Questions, cambio de " +
-                                                   "tipo: {State}, no se ha encontrado la entidad",
-                                                   request.CurrentState.ToString());
+                return unit;
+            }),
+            Fail: _ => liftEff(() => 
+           {
+               logger.LogInformation("Se ha realizado un cambio en la tabla Questions, cambio de " +
+                                     "tipo: {State}, no se ha encontrado la entidad",
+                                     request.CurrentState.ToString());
 
-                               return unit;
-                           }))
+               return unit;
+           }))
         select unit;
 }
