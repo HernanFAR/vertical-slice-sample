@@ -10,6 +10,7 @@ global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Routing;
 
+global using static VSlices.CorePrelude;
 global using static LanguageExt.Prelude;
 
 // ReSharper disable once CheckNamespace

@@ -1,8 +1,8 @@
 ﻿using Crud.CrossCutting.Pipelines;
+using Crud.Domain;
 using Crud.Domain.Services;
 using Crud.Domain.ValueObjects;
 using FluentValidation;
-using LanguageExt.SysX.Live;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Create;
@@ -23,7 +23,7 @@ public sealed class CreateQuestionDependencies : IFeatureDependencies
 
 public sealed record CreateQuestionContract(string Text);
 
-internal sealed record Command(string Text) : IRequest<Unit>;
+internal sealed record Command(NonEmptyString Text) : IRequest<Unit>;
 
 internal sealed class EndpointDefinition : IEndpointDefinition
 {
@@ -31,32 +31,31 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
     public void Define(IEndpointRouteBuilder builder)
     {
-        builder.MapPost(Path, HandlerAsync)
+        builder.MapPost(Path, Handler)
             .Produces(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
             .WithName("CreateQuestion");
     }
 
-    public async Task<IResult> HandlerAsync(
+    public IResult Handler(
         [FromBody]
         CreateQuestionContract contract,
         IRequestRunner runner,
         CancellationToken cancellationToken)
     {
-        Command command = new(contract.Text);
+        Command command = new(contract.Text.ToNonEmpty());
 
-        return await runner
-            .RunAsync(command, cancellationToken)
+        return runner
+            .Run(command, cancellationToken)
             .MatchResult(_ => TypedResults.Created());
     }
 }
 
-internal sealed class Handler(QuestionManager manager) : IHandler<Command, Unit>
+internal sealed class Handler : IHandler<Command, Unit>
 {
-    private readonly QuestionManager _manager = manager;
-
-    public Aff<Runtime, Unit> Define(Command request) =>
-        from _ in _manager.Create(new NonEmptyString(request.Text))
+    public Eff<HandlerRuntime, Unit> Define(Command request) =>
+        from manager in provide<QuestionManager>()
+        from _ in manager.Create(request.Text)
         select unit;
 }
 

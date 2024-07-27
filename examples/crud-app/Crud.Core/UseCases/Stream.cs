@@ -1,7 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 using Crud.CrossCutting;
 using Crud.CrossCutting.Pipelines;
-using LanguageExt.SysX.Live;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Core.Stream;
@@ -33,17 +32,17 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
     public void Define(IEndpointRouteBuilder builder)
     {
-        builder.MapGet(Path, HandlerAsync)
+        builder.MapGet(Path, Handler)
             .Produces(StatusCodes.Status200OK)
             .WithName("StreamQuestion");
     }
 
-    public async Task<IResult> HandlerAsync(
+    public IResult Handler(
         IStreamRunner runner,
         CancellationToken cancellationToken)
     {
-        return await runner
-            .RunAsync(Query.Instance, cancellationToken)
+        return runner
+            .Run(Query.Instance, cancellationToken)
             .MatchResult(TypedResults.Ok);
     }
 }
@@ -52,9 +51,9 @@ internal sealed class Handler(AppDbContext context) : IStreamHandler<Query, Ques
 {
     readonly AppDbContext _context = context;
 
-    public Aff<Runtime, IAsyncEnumerable<QuestionDto>> Define(Query request) =>
-        from cancelToken in cancelToken<Runtime>()
-        from questions in Eff(() => Yield(cancelToken))
+    public Eff<HandlerRuntime, IAsyncEnumerable<QuestionDto>> Define(Query request) =>
+        from token in cancelToken
+        from questions in liftEff(() => Yield(token))
         select questions;
 
     public async IAsyncEnumerable<QuestionDto> Yield(

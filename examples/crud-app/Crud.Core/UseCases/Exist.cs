@@ -1,8 +1,6 @@
 ﻿using Crud.CrossCutting.Pipelines;
-using Crud.Domain;
 using Crud.Domain.Repositories;
 using Crud.Domain.ValueObjects;
-using LanguageExt.SysX.Live;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Exists;
@@ -28,13 +26,13 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
     public void Define(IEndpointRouteBuilder builder)
     {
-        builder.MapMethods(Path, new[] { HttpMethods.Head }, HandlerAsync)
+        builder.MapMethods(Path, new[] { HttpMethods.Head }, Handler)
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithName("ExistsQuestion");
     }
 
-    public async Task<IResult> HandlerAsync(
+    public IResult Handler(
         [FromRoute]
         Guid id,
         IRequestRunner runner,
@@ -42,18 +40,17 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     {
         Query query = new(new QuestionId(id));
 
-        return await runner
-            .RunAsync(query, cancellationToken)
+        return runner
+            .Run(query, cancellationToken)
             .MatchResult(_ => TypedResults.NoContent());
     }
 }
 
-internal sealed class Handler(IQuestionRepository repository) : IHandler<Query>
+internal sealed class Handler : IHandler<Query>
 {
-    private readonly IQuestionRepository _repository = repository;
-
-    public Aff<Runtime, Unit> Define(Query request) =>
-        from exists in _repository.Exists(request.Id)
+    public Eff<HandlerRuntime, Unit> Define(Query request) =>
+        from repository in provide<IQuestionRepository>()
+        from exists in repository.Exists(request.Id)
         from _ in guard(exists, new NotFound("No se ha encontrado la pregunta").AsError)
         select unit;
 

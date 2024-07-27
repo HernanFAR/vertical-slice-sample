@@ -1,9 +1,7 @@
 ﻿using Crud.CrossCutting.Pipelines;
-using Crud.Domain;
 using Crud.Domain.Repositories;
 using Crud.Domain.Services;
 using Crud.Domain.ValueObjects;
-using LanguageExt.SysX.Live;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Delete;
@@ -29,13 +27,13 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
     public void Define(IEndpointRouteBuilder builder)
     {
-        builder.MapDelete(Path, HandlerAsync)
+        builder.MapDelete(Path, Handler)
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithName("DeleteQuestion");
     }
 
-    public async Task<IResult> HandlerAsync(
+    public IResult Handler(
         [FromRoute]
         Guid id,
         IRequestRunner runner,
@@ -43,23 +41,19 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     {
         Command command = new(new QuestionId(id));
 
-        return await runner
-            .RunAsync(command, cancellationToken)
+        return runner
+            .Run(command, cancellationToken)
             .MatchResult(TypedResults.Ok);
     }
 }
 
-internal sealed class Handler(
-    IQuestionRepository repository,
-    QuestionManager manage) 
-    : IHandler<Command>
+internal sealed class Handler : IHandler<Command>
 {
-    readonly IQuestionRepository _repository = repository;
-    readonly QuestionManager _manage = manage;
-
-    public Aff<Runtime, Unit> Define(Command request) =>
-        from question in _repository.Read(request.Id)
-        from _ in _manage.Delete(question)
+    public Eff<HandlerRuntime, Unit> Define(Command request) =>
+        from repository in provide<IQuestionRepository>()
+        from manager in provide<QuestionManager>()
+        from question in repository.Read(request.Id)
+        from _ in manager.Delete(question)
         select unit;
 
 }
