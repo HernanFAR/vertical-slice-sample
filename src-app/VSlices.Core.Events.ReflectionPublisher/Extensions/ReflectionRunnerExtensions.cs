@@ -12,14 +12,14 @@ public static class ReflectionRunnerExtensions
     /// <summary>
     /// Add <see cref="ReflectionEventRunner"/> to the <see cref="IServiceCollection"/>.
     /// </summary>
-    /// <remarks>Default publishing strategy is <see cref="AwaitInParallelStrategy"/></remarks>
+    /// <remarks>Default publishing strategy is <see cref="AwaitForEachStrategy"/></remarks>
     /// <param name="services">Service Collection</param>
     /// <param name="strategy">Publishing strategy</param>
     /// <returns>Service Collection</returns>
     public static IServiceCollection AddReflectionEventRunner(this IServiceCollection services,
         IPublishingStrategy? strategy = null)
     {
-        strategy ??= new AwaitInParallelStrategy();
+        strategy ??= new AwaitForEachStrategy();
 
         services.AddEventRunner<ReflectionEventRunner>();
         services.AddSingleton(strategy);

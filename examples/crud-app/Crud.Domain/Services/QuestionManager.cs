@@ -1,47 +1,47 @@
 ﻿using Crud.Domain.Events;
 using Crud.Domain.Repositories;
 using Crud.Domain.ValueObjects;
-using LanguageExt.SysX.Live;
+using VSlices.Core;
 using VSlices.Core.Events;
 
 namespace Crud.Domain.Services;
 
-public sealed class QuestionManager(
-    IQuestionRepository repository, 
-    IEventQueueWriter eventWriter)
+public sealed class QuestionManager
 {
-    readonly IQuestionRepository _repository = repository;
-    readonly IEventQueueWriter _eventWriter = eventWriter;
-
-    public Aff<Runtime, Unit> Create(QuestionId id, NonEmptyString text)  =>
-        from question in Eff(() => new Question(id, text))
-        from _1 in _repository.Create(question)
+    public Eff<HandlerRuntime, Unit> Create(QuestionId id, NonEmptyString text)  =>
+        from question in liftEff(() => new Question(id, text))
+        from repository in provide<IQuestionRepository>()
+        from _1 in repository.Create(question)
         from _2 in PublishEventCore(question.Id, EState.Created)
         select unit;
 
-    public Aff<Runtime, Unit> Create(NonEmptyString text) =>
-        from question in Eff(() => Question.Create(text))
-        from _1 in _repository.Create(question)
+    public Eff<HandlerRuntime, Unit> Create(NonEmptyString text) =>
+        from question in liftEff(() => Question.Create(text))
+        from repository in provide<IQuestionRepository>()
+        from _1 in repository.Create(question)
         from _2 in PublishEventCore(question.Id, EState.Created)
         select unit;
 
-    public Aff<Runtime, Unit> Update(Question question) =>
-        from _1 in _repository.Update(question)
+    public Eff<HandlerRuntime, Unit> Update(Question question) =>
+        from repository in provide<IQuestionRepository>()
+        from _1 in repository.Update(question)
         from _2 in PublishEventCore(question.Id, EState.Updated)
         select unit;
 
-    public Aff<Runtime, Unit> Delete(Question question) =>
-        from _1 in _repository.Delete(question)
+    public Eff<HandlerRuntime, Unit> Delete(Question question) =>
+        from repository in provide<IQuestionRepository>()
+        from _1 in repository.Delete(question)
         from _2 in PublishEventCore(question.Id, EState.Removed)
         select unit;
 
-    Aff<Runtime, Unit> PublishEventCore(QuestionId id, EState state) =>
-        from cancelToken in cancelToken<Runtime>()
-        from _ in Aff(async () =>
+    private Eff<HandlerRuntime, Unit> PublishEventCore(QuestionId id, EState state) =>
+        from token in cancelToken
+        from eventWriter in provide<IEventQueueWriter>()
+        from _ in liftEff(async () =>
         {
             QuestionMutatedEvent @event = new(id, state);
 
-            await _eventWriter.EnqueueAsync(@event, cancelToken);
+            await eventWriter.EnqueueAsync(@event, token);
 
             return unit;
         })

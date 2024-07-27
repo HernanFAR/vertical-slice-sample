@@ -1,6 +1,5 @@
 ﻿using Crud.CrossCutting;
 using Crud.CrossCutting.Pipelines;
-using LanguageExt.SysX.Live;
 using Microsoft.EntityFrameworkCore;
 
 // ReSharper disable once CheckNamespace
@@ -34,30 +33,29 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
     public void Define(IEndpointRouteBuilder builder)
     {
-        builder.MapGet(Path, HandlerAsync)
+        builder.MapGet(Path, Handler)
             .Produces(StatusCodes.Status200OK)
             .WithName("ReadQuestion");
     }
 
-    public async Task<IResult> HandlerAsync(
+    public IResult Handler(
         IRequestRunner runner,
         CancellationToken cancellationToken)
     {
-        return await runner
-            .RunAsync(Query.Instance, cancellationToken)
+        return runner
+            .Run(Query.Instance, cancellationToken)
             .MatchResult(TypedResults.Ok);
     }
 }
 
-internal sealed class Handler(AppDbContext context) : IHandler<Query, ReadQuestionDto>
+internal sealed class Handler : IHandler<Query, ReadQuestionDto>
 {
-    readonly AppDbContext _context = context;
-
-    public Aff<Runtime, ReadQuestionDto> Define(Query request) =>
-        from cancelToken in cancelToken<Runtime>()
-        from questions in Aff(async () => await _context.Questions
-            .Select(x => new QuestionDto(x.Id, x.Text))
-            .ToArrayAsync(cancelToken))
+    public Eff<HandlerRuntime, ReadQuestionDto> Define(Query request) =>
+        from context in provide<AppDbContext>()
+        from cancelToken in cancelToken
+        from questions in liftEff(() => context
+                                        .Questions
+                                        .Select(x => new QuestionDto(x.Id, x.Text))
+                                        .ToArrayAsync(cancelToken))
         select new ReadQuestionDto(questions);
-
 }

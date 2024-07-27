@@ -1,20 +1,19 @@
 ﻿using Crud.Domain.ValueObjects;
-using LanguageExt.Effects.Traits;
-using LanguageExt.SysX.Live;
+using VSlices.Core;
 
 namespace Crud.Domain.Repositories;
 
 public interface IQuestionRepository
 {
-    Aff<Runtime, Unit> Create(Question question);
+    Eff<HandlerRuntime, Unit> Create(Question question);
 
-    Aff<Runtime, Question> Read(QuestionId requestId);
+    Eff<HandlerRuntime, Question> Read(QuestionId requestId);
 
-    Aff<Runtime, Unit> Update(Question question);
+    Eff<HandlerRuntime, Unit> Update(Question question);
 
-    Aff<Runtime, bool> Exists(QuestionId id);
+    Eff<HandlerRuntime, bool> Exists(QuestionId id);
 
-    Aff<Runtime, bool> Exists(NonEmptyString text);
+    Eff<HandlerRuntime, bool> Exists(NonEmptyString text);
 
-    Aff<Runtime, Unit> Delete(Question question);
+    Eff<HandlerRuntime, Unit> Delete(Question question);
 }

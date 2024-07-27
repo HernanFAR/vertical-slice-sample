@@ -1,12 +1,10 @@
 using FluentAssertions;
 using Hangfire;
 using LanguageExt;
-using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
-using VSlices.CrossCutting.BackgroundTaskListener.Hangfire;
 using VSlices.Domain;
 using static LanguageExt.Prelude;
 
@@ -20,14 +18,22 @@ public class ReflectionRunnerInMemoryQueueHangfire
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
-        public Aff<Runtime, Unit> Define(AlwaysUnitEvent request) =>
-            from _ in Eff(() =>
+        [Obsolete]
+        public Aff<Runtime, Unit> Define(AlwaysUnitEvent request)
+        {
+            return from _ in Eff(() =>
             {
                 HandledEvent.Set();
 
                 return unit;
             })
-            select unit;
+                   select unit;
+        }
+
+        Eff<HandlerRuntime, Unit> IHandler<AlwaysUnitEvent, Unit>.Define(AlwaysUnitEvent request)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public record FirstFailureThenUnitEvent : Event;
@@ -38,20 +44,27 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
         public bool First { get; set; } = true;
 
-        public Aff<Runtime, Unit> Define(FirstFailureThenUnitEvent request) =>
-            from _1 in guardnot(First, () =>
+        [Obsolete]
+        public Aff<Runtime, Unit> Define(FirstFailureThenUnitEvent request)
+        {
+            return from _1 in guardnot(First, () =>
             {
                 First = false;
                 throw new Exception("First failure");
             })
-            from _2 in Eff(() =>
-            {
-                HandledEvent.Set();
+                   from _2 in Eff(() =>
+                   {
+                       HandledEvent.Set();
 
-                return unit;
-            })
-            select unit;
-        
+                       return unit;
+                   })
+                   select unit;
+        }
+
+        Eff<HandlerRuntime, Unit> IHandler<FirstFailureThenUnitEvent, Unit>.Define(FirstFailureThenUnitEvent request)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public record FirstAndSecondFailureThenUnitEvent : Event;
@@ -64,28 +77,31 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
         public bool Second { get; set; } = true;
 
-        public Aff<Runtime, Unit> Define(FirstAndSecondFailureThenUnitEvent request) =>
-            from _1 in Eff(() =>
+        [Obsolete]
+        public Aff<Runtime, Unit> Define(FirstAndSecondFailureThenUnitEvent request)
+        {
+            return from _1 in Eff(() =>
             {
                 if (!First) return unit;
 
                 First = false;
                 throw new Exception("First failure");
             })
-            from _2 in Eff(() =>
-            {
-                if (!Second) return unit;
+                   from _2 in Eff(() =>
+                   {
+                       if (!Second) return unit;
 
-                Second = false;
-                throw new Exception("Second failure");
-            })
-            from _3 in Eff(() =>
-            {
-                HandledEvent.Set();
+                       Second = false;
+                       throw new Exception("Second failure");
+                   })
+                   from _3 in Eff(() =>
+                   {
+                       HandledEvent.Set();
 
-                return unit;
-            })
-            select unit;
+                       return unit;
+                   })
+                   select unit;
+        }
     }
 
     public record AlwaysFailureEvent : Event;
@@ -112,9 +128,9 @@ public class ReflectionRunnerInMemoryQueueHangfire
             .BuildServiceProvider();
 
         IEnumerable<IHostedService> backgroundEventListener = provider.GetServices<IHostedService>();
-        var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
+        InMemoryEventQueue eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
 
-        var event1 = new AlwaysUnitEvent();
+        AlwaysUnitEvent event1 = new();
 
         foreach (IHostedService service in backgroundEventListener)
         {
@@ -123,8 +139,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
         await eventQueue.EnqueueAsync(event1, default);
 
-
-        var handler = provider.GetRequiredService<AlwaysUnitHandler>();
+        AlwaysUnitHandler handler = provider.GetRequiredService<AlwaysUnitHandler>();
         handler.HandledEvent.WaitOne(5000).Should().BeTrue();
     }
 
@@ -142,9 +157,9 @@ public class ReflectionRunnerInMemoryQueueHangfire
             .BuildServiceProvider();
 
         IEnumerable<IHostedService> backgroundEventListener = provider.GetServices<IHostedService>();
-        var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
+        InMemoryEventQueue eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
 
-        var event2 = new AlwaysUnitEvent();
+        AlwaysUnitEvent event2 = new();
 
         foreach (IHostedService service in backgroundEventListener)
         {
@@ -155,7 +170,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
         await eventQueue.EnqueueAsync(event2, default);
 
-        var handler = provider.GetRequiredService<AlwaysUnitHandler>();
+        AlwaysUnitHandler handler = provider.GetRequiredService<AlwaysUnitHandler>();
         handler.HandledEvent.WaitOne(5000).Should().BeTrue();
     }
 
@@ -173,9 +188,9 @@ public class ReflectionRunnerInMemoryQueueHangfire
             .BuildServiceProvider();
 
         IEnumerable<IHostedService> services = provider.GetServices<IHostedService>();
-        var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
+        InMemoryEventQueue eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
 
-        var event2 = new FirstFailureThenUnitEvent();
+        FirstFailureThenUnitEvent event2 = new();
 
         foreach (IHostedService hostedService in services)
         {
@@ -186,7 +201,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
         await eventQueue.EnqueueAsync(event2, default);
 
-        var handler = provider.GetRequiredService<FirstFailureThenUnitHandler>();
+        FirstFailureThenUnitHandler handler = provider.GetRequiredService<FirstFailureThenUnitHandler>();
 
         handler.HandledEvent.WaitOne(5000).Should().BeTrue();
     }
@@ -205,9 +220,9 @@ public class ReflectionRunnerInMemoryQueueHangfire
             .BuildServiceProvider();
 
         IEnumerable<IHostedService> backgroundEventListener = provider.GetServices<IHostedService>();
-        var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
+        InMemoryEventQueue eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
 
-        var event2 = new FirstAndSecondFailureThenUnitEvent();
+        FirstAndSecondFailureThenUnitEvent event2 = new();
 
         foreach (IHostedService service in backgroundEventListener)
         {
@@ -218,7 +233,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
         await eventQueue.EnqueueAsync(event2, default);
 
-        var handler = provider.GetRequiredService<FirstAndSecondFailureThenUnitHandler>();
+        FirstAndSecondFailureThenUnitHandler handler = provider.GetRequiredService<FirstAndSecondFailureThenUnitHandler>();
 
         handler.HandledEvent.WaitOne(5000).Should().BeTrue();
     }
@@ -226,7 +241,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
     [Fact]
     public async Task InMemoryEventFlow_ThirdTry()
     {
-        var logger = Mock.Of<ILogger<EventListenerBackgroundTask>>();
+        ILogger<EventListenerBackgroundTask> logger = Mock.Of<ILogger<EventListenerBackgroundTask>>();
         Mock<ILogger<EventListenerBackgroundTask>>? loggerMock = Mock.Get(logger);
 
         ServiceProvider provider = new ServiceCollection()
@@ -240,9 +255,9 @@ public class ReflectionRunnerInMemoryQueueHangfire
             .BuildServiceProvider();
 
         IEnumerable<IHostedService> backgroundEventListener = provider.GetServices<IHostedService>();
-        var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
+        InMemoryEventQueue eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
 
-        var event2 = new AlwaysFailureEvent();
+        AlwaysFailureEvent event2 = new();
 
         foreach (IHostedService service in backgroundEventListener)
         {

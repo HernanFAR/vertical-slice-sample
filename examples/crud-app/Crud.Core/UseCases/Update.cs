@@ -4,7 +4,6 @@ using Crud.Domain.Repositories;
 using Crud.Domain.Services;
 using Crud.Domain.ValueObjects;
 using FluentValidation;
-using LanguageExt.SysX.Live;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Update;
@@ -33,14 +32,14 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
     public void Define(IEndpointRouteBuilder builder)
     {
-        builder.MapPut(Path, HandlerAsync)
+        builder.MapPut(Path, Handler)
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
             .WithName("UpdateQuestion");
     }
 
-    public async Task<IResult> HandlerAsync(
+    public IResult Handler(
         [FromBody]
         UpdateQuestionContract contract,
         [FromRoute]
@@ -50,29 +49,25 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     {
         Command command = new(new QuestionId(id), new NonEmptyString(contract.Text));
 
-        return await runner
-            .RunAsync(command, cancellationToken)
+        return runner
+            .Run(command, cancellationToken)
             .MatchResult(TypedResults.Ok);
     }
 }
 
-internal sealed class Handler(
-    IQuestionRepository repository,
-    QuestionManager manager)
-    : IHandler<Command>
+internal sealed class Handler : IHandler<Command>
 {
-    private readonly IQuestionRepository _repository = repository;
-    private readonly QuestionManager _manager = manager;
-
-    public Aff<Runtime, Unit> Define(Command request) =>
-        from cancelToken in cancelToken<Runtime>()
-        from exists in _repository.Exists(request.Id)
+    public Eff<HandlerRuntime, Unit> Define(Command request) =>
+        from token in cancelToken
+        from repository in provide<IQuestionRepository>()
+        from manager in provide<QuestionManager>()
+        from exists in repository.Exists(request.Id)
         from _ in exists
-            ? from question in _repository.Read(request.Id)
-            from _1 in Eff(() => question.UpdateState(request.Text))
-            from _2 in _manager.Update(question)
-            select unit
-            : _manager.Create(request.Id, request.Text)
+                      ? from question in repository.Read(request.Id)
+                        from _1 in liftEff(() => question.UpdateState(request.Text))
+                        from _2 in manager.Update(question)
+                        select unit
+                      : manager.Create(request.Id, request.Text)
         select unit;
 }
 
