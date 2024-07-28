@@ -2,9 +2,10 @@ using FluentAssertions;
 using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
-using LanguageExt.SysX.Live;
+using VSlices.Core.Traits;
 using VSlices.CrossCutting.Pipeline;
 using static LanguageExt.Prelude;
+using static VSlices.CorePrelude;
 
 namespace VSlices.Core.UseCases.Reflection.UnitTests;
 
@@ -21,18 +22,12 @@ public class ReflectionRequestRunnerTests
     public class PipelineBehaviorOne<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
-        readonly Accumulator _accumulator;
-
-        public PipelineBehaviorOne(Accumulator accumulator)
-        {
-            _accumulator = accumulator;
-        }
-
-        public Aff<Runtime, TResponse> Define(TRequest request, Aff<Runtime, TResponse> next) =>
-            from _ in Eff(() =>
+        public Eff<HandlerRuntime, TResponse> Define(TRequest request, Eff<HandlerRuntime, TResponse> next) =>
+            from accumulator in provide<Accumulator>()
+            from _ in liftEff(() =>
             {
-                _accumulator.Count += 1;
-                _accumulator.Str += "OpenPipelineOne_";
+                accumulator.Count += 1;
+                accumulator.Str += "OpenPipelineOne_";
 
                 return unit;
             })
@@ -43,18 +38,12 @@ public class ReflectionRequestRunnerTests
     public class PipelineBehaviorTwo<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
-        readonly Accumulator _accumulator;
-
-        public PipelineBehaviorTwo(Accumulator accumulator)
-        {
-            _accumulator = accumulator;
-        }
-
-        public Aff<Runtime, TResponse> Define(TRequest request, Aff<Runtime, TResponse> next) =>
-            from _ in Eff(() =>
+        public Eff<HandlerRuntime, TResponse> Define(TRequest request, Eff<HandlerRuntime, TResponse> next) =>
+            from accumulator in provide<Accumulator>()
+            from _ in liftEff(() =>
             {
-                _accumulator.Count += 1;
-                _accumulator.Str += "OpenPipelineTwo_";
+                accumulator.Count += 1;
+                accumulator.Str += "OpenPipelineTwo_";
 
                 return unit;
             })
@@ -64,18 +53,12 @@ public class ReflectionRequestRunnerTests
 
     public class ConcretePipelineBehaviorOne : IPipelineBehavior<RequestOne, Unit>
     {
-        readonly Accumulator _accumulator;
-
-        public ConcretePipelineBehaviorOne(Accumulator accumulator)
-        {
-            _accumulator = accumulator;
-        }
-
-        public Aff<Runtime, Unit> Define(RequestOne request, Aff<Runtime, Unit> next) =>
-            from _ in Eff(() =>
+        public Eff<HandlerRuntime, Unit> Define(RequestOne request, Eff<HandlerRuntime, Unit> next) =>
+            from accumulator in provide<Accumulator>()
+            from _ in liftEff(() =>
             {
-                _accumulator.Count += 1;
-                _accumulator.Str += "ConcretePipelineOne_";
+                accumulator.Count += 1;
+                accumulator.Str += "ConcretePipelineOne_";
 
                 return unit;
             })
@@ -86,19 +69,13 @@ public class ReflectionRequestRunnerTests
     public record RequestOne : IRequest;
 
     public class HandlerOne : IHandler<RequestOne, Unit>
-    {
-        readonly Accumulator _accumulator;
-
-        public HandlerOne(Accumulator accumulator)
-        {
-            _accumulator = accumulator;
-        }
-
-        public Aff<Runtime, Unit> Define(RequestOne requestOne) =>
-            from _ in Eff(() =>
+    {        
+        public Eff<HandlerRuntime, Unit> Define(RequestOne requestOne) =>
+            from accumulator in provide<Accumulator>()
+            from _ in liftEff(() =>
             {
-                _accumulator.Count += 1;
-                _accumulator.Str += "HandlerOne_";
+                accumulator.Count += 1;
+                accumulator.Str += "HandlerOne_";
 
                 return unit;
             })
@@ -109,18 +86,12 @@ public class ReflectionRequestRunnerTests
 
     public class HandlerTwo : IHandler<RequestTwo, Unit>
     {
-        readonly Accumulator _accumulator;
-
-        public HandlerTwo(Accumulator accumulator)
-        {
-            _accumulator = accumulator;
-        }
-
-        public Aff<Runtime, Unit> Define(RequestTwo request) =>
-            from _ in Eff(() =>
+        public Eff<HandlerRuntime, Unit> Define(RequestTwo request) =>
+            from accumulator in provide<Accumulator>()
+            from _ in liftEff(() =>
             {
-                _accumulator.Count += 1;
-                _accumulator.Str += "EventHandlerTwo_";
+                accumulator.Count += 1;
+                accumulator.Str += "EventHandlerTwo_";
 
                 return unit;
             })
@@ -137,12 +108,13 @@ public class ReflectionRequestRunnerTests
         services.AddTransient<IRequestRunner, ReflectionRequestRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider provider = services.BuildServiceProvider();
+        ServiceProvider    provider           = services.BuildServiceProvider();
+        DependencyProvider dependencyProvider = new(provider);
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne(), default(CancellationToken));
+        Fin<Unit> effectResult = sender.Run(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
 
         _ = effectResult.Match(
             _ => unit,
@@ -164,12 +136,13 @@ public class ReflectionRequestRunnerTests
         services.AddTransient<IRequestRunner, ReflectionRequestRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider provider = services.BuildServiceProvider();
+        ServiceProvider    provider           = services.BuildServiceProvider();
+        DependencyProvider dependencyProvider = new(provider);
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne(), default(CancellationToken));
+        Fin<Unit> effectResult = sender.Run(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
 
         _ = effectResult.Match(
             _ => unit,
@@ -192,12 +165,13 @@ public class ReflectionRequestRunnerTests
         services.AddTransient<IRequestRunner, ReflectionRequestRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider provider = services.BuildServiceProvider();
+        ServiceProvider    provider           = services.BuildServiceProvider();
+        DependencyProvider dependencyProvider = new(provider);
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne(), default(CancellationToken));
+        Fin<Unit> effectResult = sender.Run(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
 
         _ = effectResult.Match(
             _ => unit,
@@ -219,12 +193,13 @@ public class ReflectionRequestRunnerTests
         services.AddTransient<IRequestRunner, ReflectionRequestRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider provider = services.BuildServiceProvider();
+        ServiceProvider    provider           = services.BuildServiceProvider();
+        DependencyProvider dependencyProvider = new(provider);
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne(), default(CancellationToken));
+        Fin<Unit> effectResult = sender.Run(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
 
         _ = effectResult.Match(
             _ => unit,
@@ -248,13 +223,14 @@ public class ReflectionRequestRunnerTests
         services.AddTransient<IRequestRunner, ReflectionRequestRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider provider = services.BuildServiceProvider();
+        ServiceProvider    provider           = services.BuildServiceProvider();
+        DependencyProvider dependencyProvider = new(provider);
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = await sender.RunAsync(new RequestOne(), default(CancellationToken));
-
+        Fin<Unit> effectResult = sender.Run(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        
         _ = effectResult.Match(
             _ => unit,
             _ => throw new UnreachableException());
@@ -278,12 +254,13 @@ public class ReflectionRequestRunnerTests
         services.AddTransient<IRequestRunner, ReflectionRequestRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider provider = services.BuildServiceProvider();
+        ServiceProvider    provider           = services.BuildServiceProvider();
+        DependencyProvider dependencyProvider = new(provider);
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = await sender.RunAsync(new RequestTwo(), default(CancellationToken));
+        Fin<Unit> effectResult = sender.Run(new RequestTwo(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
 
         _ = effectResult.Match(
             _ => unit,

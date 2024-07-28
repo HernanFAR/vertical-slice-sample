@@ -1,12 +1,13 @@
 using System.Diagnostics;
 using FluentAssertions;
 using Moq;
-using VSlices.Base;
 using LanguageExt;
 using LanguageExt.Common;
-using LanguageExt.SysX.Live;
+using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base.Failures;
+using VSlices.Core;
 using VSlices.Core.Stream;
+using VSlices.Core.Traits;
 using static LanguageExt.Prelude;
 
 namespace VSlices.CrossCutting.StreamPipeline.ExceptionHandling.UnitTests;
@@ -18,7 +19,7 @@ public class AbstractExceptionHandlingStreamBehaviorTests
 
     
     [Fact]
-    public async Task InHandle_ShouldReturnFailure()
+    public Task InHandle_ShouldReturnFailure()
     {
         Request request = new();
         Exception expEx = new();
@@ -27,13 +28,13 @@ public class AbstractExceptionHandlingStreamBehaviorTests
         Mock<AbstractExceptionHandlingStreamBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Aff<Runtime, IAsyncEnumerable<Result>> next = Aff<Runtime, IAsyncEnumerable<Result>>((env) => throw expEx);
+        Eff<HandlerRuntime, IAsyncEnumerable<Result>> next = liftEff<HandlerRuntime, IAsyncEnumerable<Result>>(env => Error.New(expEx));
 
         pipelineMock.Setup(e => e.BeforeHandle(request))
-            .Verifiable();
+                    .Verifiable();
 
         pipelineMock.Setup(e => e.Process(expEx, request))
-            .Returns(AffMaybe<Runtime, IAsyncEnumerable<Result>>(_ => ValueTask.FromResult<Fin<IAsyncEnumerable<Result>>>(new ServerError("Internal server error").AsError())))
+            .Returns(liftEff<HandlerRuntime, IAsyncEnumerable<Result>>(_ => new ServerError("Internal server error").AsError()))
             .Verifiable();
 
         pipelineMock.Setup(e => e.InHandle(request, next))
@@ -43,8 +44,14 @@ public class AbstractExceptionHandlingStreamBehaviorTests
                 request, It.Is<ServerError>(e => e.Message == "Internal server error")))
             .Verifiable();
 
-        Aff<Runtime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
-        Fin<IAsyncEnumerable<Result>> pipelineResult = await pipelineEffect.Run(Runtime.New());
+        Eff<HandlerRuntime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
+
+        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+
+        DependencyProvider dependencyProvider = new(provider);
+        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+
+        Fin<IAsyncEnumerable<Result>> pipelineResult = pipelineEffect.Run(runtime, runtime.EnvIO);
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -58,7 +65,7 @@ public class AbstractExceptionHandlingStreamBehaviorTests
 
                 return unit;
             });
-
+        return Task.CompletedTask;
     }
 
 }

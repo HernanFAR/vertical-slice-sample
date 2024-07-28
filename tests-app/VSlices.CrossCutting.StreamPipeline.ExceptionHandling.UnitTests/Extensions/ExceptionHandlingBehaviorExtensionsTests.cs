@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using LanguageExt;
-using LanguageExt.SysX.Live;
+using VSlices.Core;
 using VSlices.Core.Builder;
 using VSlices.Core.Stream;
 
@@ -17,7 +17,7 @@ public class ExceptionHandlingStreamBehaviorExtensionsTests
     public class TestPipeline1<TRequest, TResult> : AbstractExceptionHandlingStreamBehavior<TRequest, TResult>
         where TRequest : IStream<TResult>
     {
-        protected internal override Aff<Runtime, IAsyncEnumerable<TResult>> Process(Exception ex, TRequest request)
+        protected internal override Eff<HandlerRuntime, IAsyncEnumerable<TResult>> Process(Exception ex, TRequest request)
         {
             throw new NotImplementedException();
         }
@@ -26,7 +26,7 @@ public class ExceptionHandlingStreamBehaviorExtensionsTests
     public class TestPipeline2<TRequest, TResult> : IStreamPipelineBehavior<TRequest, TResult>
         where TRequest : IStream<TResult>
     {
-        public Aff<Runtime, IAsyncEnumerable<TResult>> Define(TRequest request, Aff<Runtime, IAsyncEnumerable<TResult>> next)
+        public Eff<HandlerRuntime, IAsyncEnumerable<TResult>> Define(TRequest request, Eff<HandlerRuntime, IAsyncEnumerable<TResult>> next)
         {
             throw new UnreachableException();
         }

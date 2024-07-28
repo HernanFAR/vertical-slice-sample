@@ -2,10 +2,12 @@ using FluentAssertions;
 using FluentValidation;
 using System.Diagnostics;
 using LanguageExt;
-using LanguageExt.SysX.Live;
+using Microsoft.Extensions.DependencyInjection;
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Base.Failures;
+using VSlices.Core;
+using VSlices.Core.Traits;
 
 namespace VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests;
 
@@ -26,17 +28,27 @@ public class AbstractExceptionHandlingBehaviorTests
     }
 
     [Fact]
-    public async Task BeforeHandleAsync_ShouldInterrumptExecution()
+    public Task BeforeHandleAsync_ShouldInterruptExecution()
     {
         const int expErrorCount = 1;
-        FluentValidationBehavior<Request, RequestResult> pipeline = new(new Validator());
+        FluentValidationBehavior<Request, RequestResult> pipeline = new();
         Request request = new(null!);
 
-        Aff<Runtime, RequestResult> next = Aff<Runtime, RequestResult>(_ => throw new UnreachableException());
+        #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        Eff<HandlerRuntime, RequestResult> next = liftEff<HandlerRuntime, RequestResult>(async _ => throw new UnreachableException());
+        #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
-        Aff<Runtime, RequestResult> pipelineEffect = pipeline.Define(request, next);
+        Eff<HandlerRuntime, RequestResult> pipelineEffect = pipeline.Define(request, next);
 
-        Fin<RequestResult> pipelineResult = await pipelineEffect.Run(Runtime.New());
+
+        ServiceProvider provider = new ServiceCollection()
+            .AddTransient<IValidator<Request>, Validator>()
+            .BuildServiceProvider();
+
+        DependencyProvider dependencyProvider = new(provider);
+        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+
+        Fin<RequestResult> pipelineResult = pipelineEffect.Run(runtime, EnvIO.New());
 
         _ = pipelineResult
             .Match(
@@ -52,5 +64,6 @@ public class AbstractExceptionHandlingBehaviorTests
                     return unit;
                 }
             );
+        return Task.CompletedTask;
     }
 }

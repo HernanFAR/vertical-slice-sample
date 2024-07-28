@@ -1,12 +1,14 @@
 using FluentAssertions;
 using LanguageExt;
 using LanguageExt.Common;
-using LanguageExt.SysX.Live;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using System.Globalization;
+using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base.Failures;
+using VSlices.Core;
 using VSlices.Core.Stream;
+using VSlices.Core.Traits;
 using VSlices.CrossCutting.StreamPipeline.Logging.MessageTemplates;
 using static LanguageExt.Prelude;
 
@@ -37,13 +39,12 @@ public class LoggingStreamBehaviorTests
             return true;
         }
 
-        public abstract IDisposable BeginScope<TState>(TState state);
+        public abstract IDisposable? BeginScope<TState1>(TState1 state)
+            where TState1 : notnull;
     }
 
     private readonly Logger _logger = Substitute.For<Logger>();
     private readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
-
-    LoggingStreamBehavior<Request, Response> GetSut(ILoggingMessageTemplate template) => new(template, _logger, _timeProvider);
 
     public static IEnumerable<object[]> GetTemplates()
     {
@@ -56,10 +57,10 @@ public class LoggingStreamBehaviorTests
 
     [Theory]
     [MemberData(nameof(GetTemplates))]
-    public async Task Define_Success_ShouldLogInputAndSuccessOutput(ILoggingMessageTemplate template)
+    public Task Define_Success_ShouldLogInputAndSuccessOutput(ILoggingMessageTemplate template)
     {
         // Arrange
-        LoggingStreamBehavior<Request, Response> sut = GetSut(template);
+        LoggingStreamBehavior<Request, Response> sut = new();
         DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
         Request request = new();
 
@@ -72,10 +73,14 @@ public class LoggingStreamBehaviorTests
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
+        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+
+        DependencyProvider dependencyProvider = new(provider);
+        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+
         // Act
-        Fin<IAsyncEnumerable<Response>> result = await sut
-            .Define(request, SuccessAff(Yield()))
-            .Run(Runtime.New());
+        Fin<IAsyncEnumerable<Response>> result = sut.Define(request, SuccessEff(Yield()))
+                                                    .Run(runtime, runtime.EnvIO);
 
         // Assert
         result.IsSucc.Should().BeTrue();
@@ -88,9 +93,11 @@ public class LoggingStreamBehaviorTests
             LogLevel.Information,
             expSuccessEndMessage);
 
-        return;
+        return Task.CompletedTask;
 
+        #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         async IAsyncEnumerable<Response> Yield()
+            #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
         {
             yield return new Response();
         }
@@ -98,10 +105,10 @@ public class LoggingStreamBehaviorTests
 
     [Theory]
     [MemberData(nameof(GetTemplates))]
-    public async Task Define_Success_ShouldLogInputAndFailureOutput(ILoggingMessageTemplate template)
+    public Task Define_Success_ShouldLogInputAndFailureOutput(ILoggingMessageTemplate template)
     {
         // Arrange
-        LoggingStreamBehavior<Request, Response> sut = GetSut(template);
+        LoggingStreamBehavior<Request, Response> sut = new();
         DateTimeOffset expFirstTime = DateTimeOffset.Now;
 
         Request request = new();
@@ -116,10 +123,15 @@ public class LoggingStreamBehaviorTests
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
+        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+
+        DependencyProvider dependencyProvider = new(provider);
+        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+
         // Act
-        Fin<IAsyncEnumerable<Response>> result = await sut
-            .Define(request, EffMaybe<IAsyncEnumerable<Response>>(() => expError))
-            .Run(Runtime.New());
+        Fin<IAsyncEnumerable<Response>> result = sut
+            .Define(request, liftEff<IAsyncEnumerable<Response>>(() => expError))
+            .Run(runtime, runtime.EnvIO);
 
         // Assert
         result.IsSucc.Should().BeFalse();
@@ -131,14 +143,15 @@ public class LoggingStreamBehaviorTests
         _logger.Received(1).Log(
             LogLevel.Warning,
             expFailureEndMessage);
+        return Task.CompletedTask;
     }
 
     [Theory]
     [MemberData(nameof(GetTemplates))]
-    public async Task Define_Failure_ShouldLogInputAndFailureOutput(ILoggingMessageTemplate template)
+    public Task Define_Failure_ShouldLogInputAndFailureOutput(ILoggingMessageTemplate template)
     {
         // Arrange
-        LoggingStreamBehavior<Request, Response> sut = GetSut(template);
+        LoggingStreamBehavior<Request, Response> sut = new();
         DateTimeOffset expFirstTime = DateTimeOffset.Now;
 
         Request request = new();
@@ -153,10 +166,14 @@ public class LoggingStreamBehaviorTests
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
+        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+
+        DependencyProvider dependencyProvider = new(provider);
+        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+
         // Act
-        Fin<IAsyncEnumerable<Response>> result = await sut
-            .Define(request, EffMaybe<IAsyncEnumerable<Response>>(() => expError))
-            .Run(Runtime.New());
+        Fin<IAsyncEnumerable<Response>> result = sut.Define(request, liftEff<IAsyncEnumerable<Response>>(() => expError))
+                                                    .Run(runtime, runtime.EnvIO);
 
         // Assert
         result.IsSucc.Should().BeFalse();
@@ -168,5 +185,6 @@ public class LoggingStreamBehaviorTests
         _logger.Received(1).Log(
             LogLevel.Error,
             expFailureEndMessage);
+        return Task.CompletedTask;
     }
 }

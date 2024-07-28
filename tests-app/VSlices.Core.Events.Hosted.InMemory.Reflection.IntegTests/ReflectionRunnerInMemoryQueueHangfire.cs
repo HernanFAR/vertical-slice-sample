@@ -18,18 +18,6 @@ public class ReflectionRunnerInMemoryQueueHangfire
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
-        [Obsolete]
-        public Aff<Runtime, Unit> Define(AlwaysUnitEvent request)
-        {
-            return from _ in Eff(() =>
-            {
-                HandledEvent.Set();
-
-                return unit;
-            })
-                   select unit;
-        }
-
         Eff<HandlerRuntime, Unit> IHandler<AlwaysUnitEvent, Unit>.Define(AlwaysUnitEvent request)
         {
             throw new NotImplementedException();
@@ -43,23 +31,6 @@ public class ReflectionRunnerInMemoryQueueHangfire
         public AutoResetEvent HandledEvent { get; } = new(false);
 
         public bool First { get; set; } = true;
-
-        [Obsolete]
-        public Aff<Runtime, Unit> Define(FirstFailureThenUnitEvent request)
-        {
-            return from _1 in guardnot(First, () =>
-            {
-                First = false;
-                throw new Exception("First failure");
-            })
-                   from _2 in Eff(() =>
-                   {
-                       HandledEvent.Set();
-
-                       return unit;
-                   })
-                   select unit;
-        }
 
         Eff<HandlerRuntime, Unit> IHandler<FirstFailureThenUnitEvent, Unit>.Define(FirstFailureThenUnitEvent request)
         {
@@ -78,23 +49,23 @@ public class ReflectionRunnerInMemoryQueueHangfire
         public bool Second { get; set; } = true;
 
         [Obsolete]
-        public Aff<Runtime, Unit> Define(FirstAndSecondFailureThenUnitEvent request)
+        public Eff<HandlerRuntime, Unit> Define(FirstAndSecondFailureThenUnitEvent request)
         {
-            return from _1 in Eff(() =>
+            return from _1 in liftEff(() =>
             {
                 if (!First) return unit;
 
                 First = false;
                 throw new Exception("First failure");
             })
-                   from _2 in Eff(() =>
+                   from _2 in liftEff(() =>
                    {
                        if (!Second) return unit;
 
                        Second = false;
                        throw new Exception("Second failure");
                    })
-                   from _3 in Eff(() =>
+                   from _3 in liftEff(() =>
                    {
                        HandledEvent.Set();
 
@@ -108,7 +79,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
     public class AlwaysFailureHandler : IHandler<AlwaysFailureEvent>
     {
-        public Aff<Runtime, Unit> Define(AlwaysFailureEvent request)
+        public Eff<HandlerRuntime, Unit> Define(AlwaysFailureEvent request)
         {
             throw new Exception("Always failure");
         }

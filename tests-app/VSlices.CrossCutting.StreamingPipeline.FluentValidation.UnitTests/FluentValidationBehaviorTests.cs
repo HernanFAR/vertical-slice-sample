@@ -2,11 +2,13 @@ using FluentAssertions;
 using FluentValidation;
 using System.Diagnostics;
 using LanguageExt;
-using LanguageExt.SysX.Live;
+using Microsoft.Extensions.DependencyInjection;
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Base.Failures;
+using VSlices.Core;
 using VSlices.Core.Stream;
+using VSlices.Core.Traits;
 
 namespace VSlices.CrossCutting.StreamPipeline.FluentValidation.UnitTests;
 
@@ -30,55 +32,73 @@ public class AbstractExceptionHandlingBehaviorTests
     public async Task BeforeHandleAsync_ShouldInterruptExecution()
     {
         const int expErrorCount = 1;
-        FluentValidationStreamBehavior<Request, Result> pipeline = new(new Validator());
+        FluentValidationStreamBehavior<Request, Result> pipeline = new();
         Request request = new(null!);
 
-        Aff<Runtime, IAsyncEnumerable<Result>> next = Aff<IAsyncEnumerable<Result>>(() => throw new UnreachableException());
+        Eff<HandlerRuntime, IAsyncEnumerable<Result>> next =
+            lift<HandlerRuntime,
+                 IAsyncEnumerable<Result>>(_ => throw new UnreachableException());
 
-        Aff<Runtime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
+        Eff<HandlerRuntime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
 
-        Fin<IAsyncEnumerable<Result>> pipelineResult = await pipelineEffect.Run(Runtime.New());
+        ServiceProvider provider = new ServiceCollection()
+            .AddTransient<IValidator<Request>, Validator>()
+            .BuildServiceProvider();
 
-        _ = pipelineResult
-            .Match(
-                _ => throw new UnreachableException(),
-                failure =>
-                {
-                    var unprocessable = (Unprocessable)failure;
+        DependencyProvider dependencyProvider = new(provider);
+        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
 
-                    unprocessable.Errors.Should().HaveCount(expErrorCount);
-                    unprocessable.Errors[0].Name.Should().Be(nameof(Request.Value));
-                    unprocessable.Errors[0].Detail.Should().Be(Validator.ValueEmptyMessage);
+        Fin<IAsyncEnumerable<Result>> result = pipelineEffect.Run(runtime);
 
-                    return unit;
-                }
-            );
+        result
+            .Match(Succ: _ => throw new UnreachableException(),
+                   Fail: failure =>
+                   {
+                       var unprocessable = (Unprocessable)failure;
+
+                       unprocessable.Errors.Should()
+                                    .HaveCount(expErrorCount);
+                       unprocessable.Errors[0]
+                                    .Name.Should()
+                                    .Be(nameof(Request.Value));
+                       unprocessable.Errors[0]
+                                    .Detail.Should()
+                                    .Be(Validator.ValueEmptyMessage);
+
+                       return unit;
+                   });
     }
 
     [Fact]
     public async Task BeforeHandleAsync_ShouldProcess()
     {
         const string expResultMessage = "testing :D";
-        FluentValidationStreamBehavior<Request, Result> pipeline = new(new Validator());
+        FluentValidationStreamBehavior<Request, Result> pipeline = new();
         Request request = new(expResultMessage);
 
-        Aff<Runtime, IAsyncEnumerable<Result>> next = Eff(Yield);
+        Eff<HandlerRuntime, IAsyncEnumerable<Result>> next = liftEff(Yield);
 
-        Aff<Runtime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
+        Eff<HandlerRuntime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
 
-        Fin<IAsyncEnumerable<Result>> pipelineResult = await pipelineEffect.Run(Runtime.New());
+        ServiceProvider provider = new ServiceCollection()
+            .AddTransient<IValidator<Request>, Validator>()
+            .BuildServiceProvider();
+
+        DependencyProvider dependencyProvider = new(provider);
+        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        
+        Fin<IAsyncEnumerable<Result>> pipelineResult = pipelineEffect.Run(runtime);
 
         await pipelineResult
-            .Match(
-                async enumeration =>
-                {
-                    await foreach (Result val in enumeration)
-                    {
-                        val.Value.Should().Be(expResultMessage);
-                    }
-                }, 
-                _ => throw new UnreachableException()
-            );
+            .Match(async enumeration =>
+                   {
+                       await foreach (Result val in enumeration)
+                       {
+                           val.Value.Should()
+                              .Be(expResultMessage);
+                       }
+                   },
+                   _ => throw new UnreachableException());
 
         return;
 

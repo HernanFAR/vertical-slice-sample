@@ -13,9 +13,9 @@ public class LoggingBehaviorExtensionsTests
 
     public class CustomTemplate : ILoggingMessageTemplate
     {
-        public string Start { get; }
-        public string FailureEnd { get; }
-        public string SuccessEnd { get; }
+        public string Start { get; } = string.Empty;
+        public string FailureEnd { get; } = string.Empty;
+        public string SuccessEnd { get; } = string.Empty;
     }
 
     [Fact]

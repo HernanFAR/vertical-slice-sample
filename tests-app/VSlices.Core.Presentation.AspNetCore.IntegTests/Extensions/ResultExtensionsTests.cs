@@ -14,13 +14,12 @@ namespace VSlices.Core.Presentation.AspNetCore.IntegTests.Extensions;
 public class ResponseExtensionsTests
 {
     [Fact]
-    public async Task MatchResult_ShouldAwaitThenCallSuccessFunction()
+    public void MatchResult_ShouldAwaitThenCallSuccessFunction()
     {
-        Aff<Unit> oneOf = unitAff;
+        Eff<Unit> oneOf = unitEff;
 
-        _ = (await oneOf
-                .Run()
-                .MatchResult(_ => TypedResults.Ok()))
+        _ = (oneOf.Run()
+                  .MatchResult(_ => TypedResults.Ok()))
             .Should()
             .BeOfType<Ok>();
 
@@ -161,11 +160,12 @@ public class ResponseExtensionsTests
         const string expErrorDetail1_2 = "ErrorDetail2";
         const string expErrorDetail2_1 = "ErrorDetail3";
 
-        Failures.ValidationDetail[] errors = {
-            new (expErrorName1, expErrorDetail1_1),
-            new (expErrorName1, expErrorDetail1_2),
-            new (expErrorName2, expErrorDetail2_1)
-        };
+        ValidationDetail[] errors =
+        [
+            new ValidationDetail(expErrorName1, expErrorDetail1_1),
+            new ValidationDetail(expErrorName1, expErrorDetail1_2),
+            new ValidationDetail(expErrorName2, expErrorDetail2_1)
+        ];
 
         Fin<Unit> oneOf = Fin<Unit>.Fail(new Failures.Unprocessable(expTitle, errors));
 

@@ -1,14 +1,11 @@
 using FluentAssertions;
 using LanguageExt;
-using LanguageExt.Common;
-using LanguageExt.SysX.Live;
 using static LanguageExt.Prelude;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using VSlices.Domain;
-using Xunit;
 
 namespace VSlices.Core.Events.Hosted.InMemory.Reflection.IntegTests;
 
@@ -20,8 +17,8 @@ public class ReflectionRunnerInMemoryQueueHosted
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
-        public Aff<Runtime, Unit> Define(AlwaysUnitEvent request) =>
-            from _ in Eff(() =>
+        public Eff<HandlerRuntime, Unit> Define(AlwaysUnitEvent request) =>
+            from _ in liftEff(() =>
             {
                 HandledEvent.Set();
 
@@ -38,13 +35,13 @@ public class ReflectionRunnerInMemoryQueueHosted
 
         public bool First { get; set; } = true;
 
-        public Aff<Runtime, Unit> Define(FirstFailureThenUnitEvent request) =>
+        public Eff<HandlerRuntime, Unit> Define(FirstFailureThenUnitEvent request) =>
             from _1 in guardnot(First, () =>
             {
                 First = false;
                 throw new Exception("First failure");
             })
-            from _2 in Eff(() =>
+            from _2 in liftEff(() =>
             {
                 HandledEvent.Set();
 
@@ -64,22 +61,22 @@ public class ReflectionRunnerInMemoryQueueHosted
 
         public bool Second { get; set; } = true;
 
-        public Aff<Runtime, Unit> Define(FirstAndSecondFailureThenUnitEvent request) =>
-            from _1 in Eff(() =>
+        public Eff<HandlerRuntime, Unit> Define(FirstAndSecondFailureThenUnitEvent request) =>
+            from _1 in liftEff(() =>
             {
                 if (!First) return unit;
 
                 First = false;
                 throw new Exception("First failure");
             })
-            from _2 in Eff(() =>
+            from _2 in liftEff(() =>
             {
                 if (!Second) return unit;
 
                 Second = false;
                 throw new Exception("Second failure");
             })
-            from _3 in Eff(() =>
+            from _3 in liftEff(() =>
             {
                 HandledEvent.Set();
 
@@ -92,7 +89,7 @@ public class ReflectionRunnerInMemoryQueueHosted
 
     public class AlwaysFailureHandler : IHandler<AlwaysFailureEvent>
     {
-        public Aff<Runtime, Unit> Define(AlwaysFailureEvent request)
+        public Eff<HandlerRuntime, Unit> Define(AlwaysFailureEvent request)
         {
             throw new Exception("Always failure");
         }

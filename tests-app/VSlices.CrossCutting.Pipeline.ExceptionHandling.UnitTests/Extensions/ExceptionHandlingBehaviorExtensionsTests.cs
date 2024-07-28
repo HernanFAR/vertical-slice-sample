@@ -2,8 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using LanguageExt;
-using LanguageExt.SysX.Live;
 using VSlices.Base;
+using VSlices.Core;
 using VSlices.Core.Builder;
 
 namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests.Extensions;
@@ -19,7 +19,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
     public class TestPipeline1<TRequest, TResult> : AbstractExceptionHandlingBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        protected internal override Aff<Runtime, TResult> Process(Exception ex, TRequest request)
+        protected internal override Eff<HandlerRuntime, TResult> Process(Exception ex, TRequest request)
         {
             throw new UnreachableException();
         }
@@ -28,7 +28,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
     public class TestPipeline2<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        public Aff<Runtime, TResult> Define(TRequest request, Aff<Runtime, TResult> next)
+        public Eff<HandlerRuntime, TResult> Define(TRequest request, Eff<HandlerRuntime, TResult> next)
         {
             throw new UnreachableException();
         }

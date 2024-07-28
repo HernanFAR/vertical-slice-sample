@@ -3,9 +3,10 @@ using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using LanguageExt.SysX.Live;
+using VSlices.Core.Traits;
 using VSlices.CrossCutting.StreamPipeline;
 using static LanguageExt.Prelude;
+using static VSlices.CorePrelude;
 
 namespace VSlices.Core.Stream.Reflection.UnitTests;
 
@@ -22,20 +23,14 @@ public class ReflectionStreamRunnerTests
     public class PipelineBehaviorOne<TRequest, TResult> : IStreamPipelineBehavior<TRequest, TResult>
         where TRequest : IStream<TResult>
     {
-        private readonly Accumulator _accumulator;
-
-        public PipelineBehaviorOne(Accumulator accumulator)
-        {
-            _accumulator = accumulator;
-        }
-
-        public Aff<Runtime, IAsyncEnumerable<TResult>> Define(
+        public Eff<HandlerRuntime, IAsyncEnumerable<TResult>> Define(
             TRequest request,
-            Aff<Runtime, IAsyncEnumerable<TResult>> next) =>
-            from _ in Eff(() =>
+            Eff<HandlerRuntime, IAsyncEnumerable<TResult>> next) =>
+            from accumulator in provide<Accumulator>()
+            from _ in liftEff(() =>
             {
-                _accumulator.Count += 1;
-                _accumulator.Str += "OpenPipelineOne_";
+                accumulator.Count += 1;
+                accumulator.Str += "OpenPipelineOne_";
 
                 return unit;
             })
@@ -53,10 +48,10 @@ public class ReflectionStreamRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<Runtime, IAsyncEnumerable<TResult>> Define(
+        public Eff<HandlerRuntime, IAsyncEnumerable<TResult>> Define(
             TRequest request,
-            Aff<Runtime, IAsyncEnumerable<TResult>> next) =>
-            from _ in Eff(() =>
+            Eff<HandlerRuntime, IAsyncEnumerable<TResult>> next) =>
+            from _ in liftEff(() =>
             {
                 _accumulator.Count += 1;
                 _accumulator.Str += "OpenPipelineTwo_";
@@ -76,10 +71,10 @@ public class ReflectionStreamRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<Runtime, IAsyncEnumerable<Response>> Define(
+        public Eff<HandlerRuntime, IAsyncEnumerable<Response>> Define(
             Request request,
-            Aff<Runtime, IAsyncEnumerable<Response>> next) =>
-            from _ in Eff(() =>
+            Eff<HandlerRuntime, IAsyncEnumerable<Response>> next) =>
+            from _ in liftEff(() =>
             {
                 _accumulator.Count += 1;
                 _accumulator.Str += "ConcretePipelineOne_";
@@ -102,16 +97,16 @@ public class ReflectionStreamRunnerTests
             _accumulator = accumulator;
         }
 
-        public Aff<Runtime, IAsyncEnumerable<Response>> Define(Request request) =>
-            from cancelToken in cancelToken<Runtime>()
-            from _ in Eff(() =>
+        public Eff<HandlerRuntime, IAsyncEnumerable<Response>> Define(Request request) =>
+            from token in cancelToken
+            from _ in liftEff(() =>
                 {
                     _accumulator.Count += 1;
                     _accumulator.Str += "HandlerOne_";
 
                     return unit;
                 })
-            from result in Eff(() => Yield(request, cancelToken))
+            from result in liftEff(() => Yield(request, token))
             select result;
 
         public async IAsyncEnumerable<Response> Yield(
@@ -135,18 +130,19 @@ public class ReflectionStreamRunnerTests
     public async Task Sender_Should_CallHandler()
     {
         const int expCount = 1;
-        ServiceCollection services = new();
+        ServiceCollection services = [];
 
         services.AddTransient<IStreamHandler<Request, Response>, Handler>();
         services.AddTransient<IStreamRunner, ReflectionStreamRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider provider = services.BuildServiceProvider();
+        ServiceProvider    provider           = services.BuildServiceProvider();
+        DependencyProvider dependencyProvider = new(provider);
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request(), Runtime.New());
+        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
 
         await result.Match(
             async enumeration =>
@@ -177,12 +173,13 @@ public class ReflectionStreamRunnerTests
         services.AddTransient<IStreamRunner, ReflectionStreamRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider provider = services.BuildServiceProvider();
+        ServiceProvider    provider           = services.BuildServiceProvider();
+        DependencyProvider dependencyProvider = new(provider);
 
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request(), Runtime.New());
+        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
 
         await result.Match(
             async enumeration =>
@@ -214,12 +211,13 @@ public class ReflectionStreamRunnerTests
         services.AddTransient<IStreamRunner, ReflectionStreamRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider provider = services.BuildServiceProvider();
+        ServiceProvider    provider           = services.BuildServiceProvider();
+        DependencyProvider dependencyProvider = new(provider);
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request(), Runtime.New());
+        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
 
         await result.Match(
             async enumeration =>
@@ -250,12 +248,13 @@ public class ReflectionStreamRunnerTests
         services.AddTransient<IStreamRunner, ReflectionStreamRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider provider = services.BuildServiceProvider();
+        ServiceProvider    provider           = services.BuildServiceProvider();
+        DependencyProvider dependencyProvider = new(provider);
 
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request(), Runtime.New());
+        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
 
         await result.Match(
             async enumeration =>
@@ -288,12 +287,13 @@ public class ReflectionStreamRunnerTests
         services.AddTransient<IStreamRunner, ReflectionStreamRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider provider = services.BuildServiceProvider();
+        ServiceProvider    provider           = services.BuildServiceProvider();
+        DependencyProvider dependencyProvider = new(provider);
 
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = await sender.RunAsync(new Request(), Runtime.New());
+        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
 
         await result.Match(
             async enumeration =>
