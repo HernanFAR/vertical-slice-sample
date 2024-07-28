@@ -3,6 +3,7 @@ using FluentAssertions;
 using Moq;
 using VSlices.Base;
 using LanguageExt;
+using LanguageExt.Common;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base.Failures;
 using VSlices.Core;
@@ -17,7 +18,7 @@ public class AbstractExceptionHandlingBehaviorTests
     public record Request : IFeature<Result>;
 
     [Fact]
-    public async Task InHandle_ShouldReturnFailure()
+    public void InHandle_ShouldReturnFailure()
     {
         Request request = new();
         Exception expEx = new();
@@ -39,7 +40,7 @@ public class AbstractExceptionHandlingBehaviorTests
             .Verifiable();
 
         pipelineMock.Setup(e => e.AfterFailureHandling(
-                request, It.Is<ServerError>(e => e.Message == "Internal server error")))
+                request, It.Is<Error>(e => e.Message == "Internal server error")))
             .Verifiable();
 
         Eff<HandlerRuntime, Result> pipelineEffect = pipeline.Define(request, next);
