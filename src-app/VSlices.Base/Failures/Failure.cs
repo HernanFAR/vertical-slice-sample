@@ -8,6 +8,21 @@ namespace VSlices.Base.Failures;
 public abstract record ExtensibleExpectedError(string Message, int Code, Dictionary<string, object?> Extensions)
     : Expected(Message, Code)
 {
+    /// <inheritdoc />
+    public override ErrorException ToErrorException()
+    {
+        ExpectedException exception = new(Message,
+                                          Code,
+                                          Inner.Map(e => e.ToErrorException()));
+
+        foreach ((string key, object? value) in Extensions)
+        {
+            exception.Data[key] = value;    
+        }
+
+        return exception;
+    }
+
     public Error AsError() => this;
 }
 

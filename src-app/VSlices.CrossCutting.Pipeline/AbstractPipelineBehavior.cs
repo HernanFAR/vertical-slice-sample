@@ -73,7 +73,7 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
     protected internal virtual Eff<HandlerRuntime, TResult> AfterFailureHandling(TRequest request, Error result) 
-        => FailEff<HandlerRuntime, TResult>(result); 
+        => liftEff<HandlerRuntime, TResult>(_ => result); 
 
     /// <inheritdoc />
     public Eff<HandlerRuntime, TResult> Define(TRequest request, Eff<HandlerRuntime, TResult> next) =>
