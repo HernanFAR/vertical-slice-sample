@@ -1,9 +1,12 @@
-﻿using Crud.CrossCutting.Pipelines;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Extensions;
+using Crud.CrossCutting.Pipelines;
 using Crud.Domain;
 using Crud.Domain.Repositories;
 using Crud.Domain.Services;
 using Crud.Domain.ValueObjects;
 using FluentValidation;
+using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Update;
@@ -22,7 +25,9 @@ public sealed class UpdateQuestionDependencies : IFeatureDependencies
     }
 }
 
-public sealed record UpdateQuestionContract(string Text);
+public sealed record UpdateQuestionContract(
+    [property: Required(ErrorMessage = "La pregunta es obligatoria")]
+    string Text);
 
 internal sealed record Command(QuestionId Id, NonEmptyString Text) : IRequest<Unit>;
 
@@ -36,6 +41,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
             .Produces(StatusCodes.Status200OK)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
+            .DataAnnotationsValidate<UpdateQuestionContract>()
             .WithName("UpdateQuestion");
     }
 
