@@ -317,7 +317,7 @@ public class ReflectionEventRunnerTests
         var publisher = provider.GetRequiredService<IEventRunner>();
 
         DependencyProvider dependencyProvider = new(provider);
-        publisher.Publish(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        publisher.Publish(new RequestTwo(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_OpenPipelineTwo_EventHandlerTwo_");

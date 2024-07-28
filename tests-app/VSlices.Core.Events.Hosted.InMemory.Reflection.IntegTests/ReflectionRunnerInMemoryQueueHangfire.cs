@@ -18,10 +18,12 @@ public class ReflectionRunnerInMemoryQueueHangfire
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
-        Eff<HandlerRuntime, Unit> IHandler<AlwaysUnitEvent, Unit>.Define(AlwaysUnitEvent request)
-        {
-            throw new NotImplementedException();
-        }
+        public Eff<HandlerRuntime, Unit> Define(AlwaysUnitEvent request) =>
+            from _ in liftEff(() =>
+            {
+                HandledEvent.Set();
+            })
+            select unit;
     }
 
     public record FirstFailureThenUnitEvent : Event;
@@ -32,10 +34,19 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
         public bool First { get; set; } = true;
 
-        Eff<HandlerRuntime, Unit> IHandler<FirstFailureThenUnitEvent, Unit>.Define(FirstFailureThenUnitEvent request)
-        {
-            throw new NotImplementedException();
-        }
+        public Eff<HandlerRuntime, Unit> Define(FirstFailureThenUnitEvent request) =>
+            from _1 in liftEff(() =>
+            {
+                if (First is false) return;
+
+                First = false;
+                throw new Exception();
+            })
+            from _2 in liftEff(() =>
+            {
+                HandledEvent.Set();
+            })
+            select unit;
     }
 
     public record FirstAndSecondFailureThenUnitEvent : Event;
@@ -48,31 +59,28 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
         public bool Second { get; set; } = true;
 
-        [Obsolete]
-        public Eff<HandlerRuntime, Unit> Define(FirstAndSecondFailureThenUnitEvent request)
-        {
-            return from _1 in liftEff(() =>
+        public Eff<HandlerRuntime, Unit> Define(FirstAndSecondFailureThenUnitEvent request) =>
+            from _1 in liftEff(() =>
             {
                 if (!First) return unit;
 
                 First = false;
                 throw new Exception("First failure");
             })
-                   from _2 in liftEff(() =>
-                   {
-                       if (!Second) return unit;
+            from _2 in liftEff(() =>
+            {
+                if (!Second) return unit;
 
-                       Second = false;
-                       throw new Exception("Second failure");
-                   })
-                   from _3 in liftEff(() =>
-                   {
-                       HandledEvent.Set();
+                Second = false;
+                throw new Exception("Second failure");
+            })
+            from _3 in liftEff(() =>
+            {
+                HandledEvent.Set();
 
-                       return unit;
-                   })
-                   select unit;
-        }
+                return unit;
+            })
+            select unit;
     }
 
     public record AlwaysFailureEvent : Event;

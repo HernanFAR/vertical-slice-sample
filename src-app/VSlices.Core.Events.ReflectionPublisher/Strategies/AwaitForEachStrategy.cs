@@ -26,6 +26,6 @@ public sealed class AwaitForEachStrategy : IPublishingStrategy
             result.IfFail(errors.Add);
         }
 
-        return errors.Count == 0 ? Error.Many(errors.ToArray()) : unit;
+        return errors.Count == 0 ? unit : Error.Many(errors.ToArray());
     }
 }

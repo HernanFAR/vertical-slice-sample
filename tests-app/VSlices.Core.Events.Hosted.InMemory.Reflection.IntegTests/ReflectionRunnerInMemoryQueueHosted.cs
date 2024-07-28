@@ -202,7 +202,7 @@ public class ReflectionRunnerInMemoryQueueHosted
     }
 
     [Fact]
-    public async Task InMemoryEventFlow_ThirdTry()
+    public async Task InMemoryEventFlow_NeverMakesIt()
     {
         var logger = Mock.Of<ILogger<EventListenerBackgroundTask>>();
         Mock<ILogger<EventListenerBackgroundTask>>? loggerMock = Mock.Get(logger);

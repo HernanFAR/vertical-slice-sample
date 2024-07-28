@@ -28,7 +28,7 @@ public class AbstractExceptionHandlingBehaviorTests
     }
 
     [Fact]
-    public Task BeforeHandleAsync_ShouldInterruptExecution()
+    public async Task BeforeHandleAsync_ShouldInterruptExecution()
     {
         const int expErrorCount = 1;
         FluentValidationBehavior<Request, RequestResult> pipeline = new();
@@ -55,15 +55,14 @@ public class AbstractExceptionHandlingBehaviorTests
                 _ => throw new UnreachableException(),
                 failure =>
                 {
-                    var unprocessable = (Unprocessable)failure;
+                    var unprocessable = failure.Should().BeOfType<Unprocessable>();
 
-                    unprocessable.Errors.Should().HaveCount(expErrorCount);
-                    unprocessable.Errors[0].Name.Should().Be(nameof(Request.Value));
-                    unprocessable.Errors[0].Detail.Should().Be(Validator.ValueEmptyMessage);
+                    unprocessable.Subject.Errors.Should().HaveCount(expErrorCount);
+                    unprocessable.Subject.Errors[0].Name.Should().Be(nameof(Request.Value));
+                    unprocessable.Subject.Errors[0].Detail.Should().Be(Validator.ValueEmptyMessage);
 
                     return unit;
                 }
             );
-        return Task.CompletedTask;
     }
 }

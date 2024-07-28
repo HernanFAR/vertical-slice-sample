@@ -46,6 +46,8 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
                             })
                     .ToArray();
 
-        return strategy.Handle(delegates, runtime);
+        var result =  strategy.Handle(delegates, runtime);
+
+        return result;
     }
 }
