@@ -133,7 +133,9 @@ public class AbstractPipelineBehaviorTests
 
         DependencyProvider dependencyProvider = new(provider);
         var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
-         
+
+        var         result_      = liftEff<HandlerRuntime, Result>(_ => failure).Run(runtime, runtime.EnvIO);
+
         Fin<Result> effectResult = effect.Run(runtime, runtime.EnvIO);
 
         pipelineMock.Verify();
