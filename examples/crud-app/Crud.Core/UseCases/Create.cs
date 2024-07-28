@@ -1,8 +1,10 @@
-﻿using Crud.CrossCutting.Pipelines;
+﻿using System.ComponentModel.DataAnnotations;
+using Crud.CrossCutting.Pipelines;
 using Crud.Domain;
 using Crud.Domain.Services;
 using Crud.Domain.ValueObjects;
 using FluentValidation;
+using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Create;
@@ -21,7 +23,9 @@ public sealed class CreateQuestionDependencies : IFeatureDependencies
     }
 }
 
-public sealed record CreateQuestionContract(string Text);
+public sealed record CreateQuestionContract(
+    [property: Required(ErrorMessage = "La pregunta es obligatorio")]
+    string Text);
 
 internal sealed record Command(NonEmptyString Text) : IRequest<Unit>;
 
@@ -34,6 +38,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
         builder.MapPost(Path, Handler)
             .Produces(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
+            .DataAnnotationsValidate<CreateQuestionContract>()
             .WithName("CreateQuestion");
     }
 
