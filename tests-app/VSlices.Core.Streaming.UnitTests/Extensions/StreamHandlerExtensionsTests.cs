@@ -2,9 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using LanguageExt;
-using LanguageExt.Common;
-using LanguageExt.SysX.Live;
-using VSlices.Base;
 using VSlices.Core.Builder;
 
 namespace VSlices.Core.Stream.UnitTests.Extensions;
@@ -17,7 +14,7 @@ public class StreamHandlerExtensionsTests
     
     public class Handler : IStreamHandler<Feature, Result>
     {
-        public Aff<Runtime, IAsyncEnumerable<Result>> Define(Feature request)
+        public Eff<HandlerRuntime, IAsyncEnumerable<Result>> Define(Feature request)
         {
             throw new UnreachableException();
         }

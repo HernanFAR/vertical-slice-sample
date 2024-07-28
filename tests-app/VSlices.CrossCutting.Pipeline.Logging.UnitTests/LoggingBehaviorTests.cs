@@ -2,12 +2,15 @@ using System.Globalization;
 using FluentAssertions;
 using LanguageExt;
 using LanguageExt.Common;
-using LanguageExt.SysX.Live;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using VSlices.Base.Failures;
+using VSlices.Core;
+using VSlices.Core.Traits;
 using VSlices.Core.UseCases;
 using VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
+using VSlices.CrossCutting.Pipeline.Logging.UnitTests.Extensions;
 using static LanguageExt.Prelude;
 
 namespace VSlices.CrossCutting.Pipeline.Logging.UnitTests;
@@ -18,12 +21,12 @@ public class LoggingBehaviorTests
 
     public abstract class Logger : ILogger<Request>
     {
-        void ILogger.Log<TState>(
+        void ILogger.Log<TState1>(
             LogLevel logLevel, 
             EventId eventId, 
-            TState state, 
+            TState1 state, 
             Exception? exception, 
-            Func<TState, Exception?, string> formatter)
+            Func<TState1, Exception?, string> formatter)
         {
             string message = formatter(state, exception);
             Log(logLevel, message);
@@ -33,15 +36,14 @@ public class LoggingBehaviorTests
 
         public virtual bool IsEnabled(LogLevel logLevel) => true;
 
-        public abstract IDisposable BeginScope<TState>(TState state);
+        public abstract IDisposable? BeginScope<TState1>(TState1 state)
+            where TState1 : notnull;
     }
 
     readonly Logger _logger = Substitute.For<Logger>();
 
     readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
-
-    LoggingBehavior<Request, Unit> GetSut(ILoggingMessageTemplate template) => new(template, _logger, _timeProvider);
-
+    
     public static IEnumerable<object[]> GetTemplates()
     {
         return
@@ -53,10 +55,10 @@ public class LoggingBehaviorTests
 
     [Theory]
     [MemberData(nameof(GetTemplates))]
-    public async Task Define_Success_ShouldLogInputAndSuccessOutput(ILoggingMessageTemplate template)
+    public Task Define_Success_ShouldLogInputAndSuccessOutput(ILoggingMessageTemplate template)
     {
         // Arrange
-        LoggingBehavior<Request, Unit> sut = GetSut(template);
+        LoggingBehavior<Request, Unit> sut = new();
         DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
         Request request = new();
 
@@ -69,10 +71,14 @@ public class LoggingBehaviorTests
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
+        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+
+        DependencyProvider dependencyProvider = new(provider);
+        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+
         // Act
-        Fin<Unit> result = await sut
-            .Define(request, SuccessAff(unit))
-            .Run(Runtime.New());
+        Fin<Unit> result = sut.Define(request, SuccessEff(unit))
+                              .Run(runtime, runtime.EnvIO);
 
         // Assert
         result.IsSucc.Should().BeTrue();
@@ -84,14 +90,15 @@ public class LoggingBehaviorTests
         _logger.Received(1).Log(
             LogLevel.Information,
             expSuccessEndMessage);
+        return Task.CompletedTask;
     }
 
     [Theory]
     [MemberData(nameof(GetTemplates))]
-    public async Task Define_Success_ShouldLogInputAndFailureOutput(ILoggingMessageTemplate template)
+    public Task Define_Success_ShouldLogInputAndFailureOutput(ILoggingMessageTemplate template)
     {
         // Arrange
-        LoggingBehavior<Request, Unit> sut = GetSut(template);
+        LoggingBehavior<Request, Unit> sut = new();
         DateTimeOffset expFirstTime = DateTimeOffset.Now;
 
         Request request = new();
@@ -106,10 +113,16 @@ public class LoggingBehaviorTests
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
+
+
+        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+
+        DependencyProvider dependencyProvider = new(provider);
+        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+
         // Act
-        Fin<Unit> result = await sut
-            .Define(request, EffMaybe<Unit>(() => expError))
-            .Run(Runtime.New());
+        Fin<Unit> result = sut.Define(request, liftEff<Unit>(() => expError))
+                              .Run(runtime, runtime.EnvIO);
 
         // Assert
         result.IsSucc.Should().BeFalse();
@@ -121,14 +134,15 @@ public class LoggingBehaviorTests
         _logger.Received(1).Log(
             LogLevel.Warning,
             expFailureEndMessage);
+        return Task.CompletedTask;
     }
 
     [Theory]
     [MemberData(nameof(GetTemplates))]
-    public async Task Define_Failure_ShouldLogInputAndFailureOutput(ILoggingMessageTemplate template)
+    public Task Define_Failure_ShouldLogInputAndFailureOutput(ILoggingMessageTemplate template)
     {
         // Arrange
-        LoggingBehavior<Request, Unit> sut = GetSut(template);
+        LoggingBehavior<Request, Unit> sut = new();
         DateTimeOffset expFirstTime = DateTimeOffset.Now;
 
         Request request = new();
@@ -143,10 +157,14 @@ public class LoggingBehaviorTests
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
+        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+
+        DependencyProvider dependencyProvider = new(provider);
+        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+
         // Act
-        Fin<Unit> result = await sut
-            .Define(request, EffMaybe<Unit>(() => expError))
-            .Run(Runtime.New());
+        Fin<Unit> result = sut.Define(request, liftEff<Unit>(() => expError))
+                              .Run(runtime, runtime.EnvIO);
 
         // Assert
         result.IsSucc.Should().BeFalse();
@@ -158,5 +176,6 @@ public class LoggingBehaviorTests
         _logger.Received(1).Log(
             LogLevel.Error,
             expFailureEndMessage);
+        return Task.CompletedTask;
     }
 }

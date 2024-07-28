@@ -21,7 +21,7 @@ public class ReflectionRunnerExtensionsTests
         var strategy = provider.GetRequiredService<IPublishingStrategy>();
 
         publisher.Should().BeOfType<ReflectionEventRunner>();
-        strategy.Should().BeOfType<AwaitInParallelStrategy>();
+        strategy.Should().BeOfType<AwaitForEachStrategy>();
     }
 
     [Fact]

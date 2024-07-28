@@ -3,6 +3,7 @@ using LanguageExt.Common;
 using VSlices.Base.Failures;
 using VSlices.Core;
 using VSlices.Core.Stream;
+using VSlices.CrossCutting.Pipeline;
 using static LanguageExt.Prelude;
 
 namespace VSlices.CrossCutting.StreamPipeline;
@@ -37,15 +38,15 @@ public abstract class AbstractStreamPipelineBehavior<TRequest, TResult> : IStrea
         => unitEff;
 
     /// <summary>
-    /// The next action, which might be another <see cref="IPipelineBehavior{TRequest, TResult}"/>
+    /// The next action, which might be another <see cref="IPipelineBehavior{TRequest,TResult}"/>
     /// or the final <see cref="IHandler{TRequest,TResult}"/>
     /// </summary>
     /// <remarks>
     /// <para>
-    /// If returns the expected value, the execution is followed by <see cref="AfterSuccessHandling"/>
+    /// If returns the expected value, the execution follow by <see cref="AfterSuccessHandling"/>
     /// </para>
     /// <para>
-    /// If not, the execution is followed by <see cref="AfterFailureHandling"/>
+    /// If not, the execution follow by <see cref="AfterFailureHandling"/>
     /// </para>
     /// </remarks>
     /// <param name="request">The intercepted request</param>

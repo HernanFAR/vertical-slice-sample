@@ -1,8 +1,8 @@
 ﻿using FluentAssertions;
 using LanguageExt;
-using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
+using VSlices.Core;
 using VSlices.Core.Builder;
 
 namespace VSlices.CrossCutting.Pipeline.UnitTests.Extensions;
@@ -16,7 +16,7 @@ public class FeatureBuilderExtensionsTests
     public class TestPipeline<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        public Aff<Runtime, TResult> Define(TRequest request, Aff<Runtime, TResult> next)
+        public Eff<HandlerRuntime, TResult> Define(TRequest request, Eff<HandlerRuntime, TResult> next)
         {
             return next;
         }

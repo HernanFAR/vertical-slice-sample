@@ -3,10 +3,12 @@ using System.Diagnostics;
 using FluentAssertions;
 using LanguageExt;
 using LanguageExt.Common;
-using LanguageExt.SysX.Live;
+using Microsoft.Extensions.DependencyInjection;
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Base.Failures;
+using VSlices.Core;
+using VSlices.Core.Traits;
 
 namespace VSlices.CrossCutting.Pipeline.UnitTests;
 
@@ -16,7 +18,7 @@ public class AbstractPipelineBehaviorTests
     public record Request : IFeature<Result>;
 
     [Fact]
-    public async Task BeforeHandleAsync_ShouldInterrumptExecution()
+    public Task BeforeHandleAsync_ShouldInterruptExecution()
     {
         Request request = new();
         NotFound failure = new("Testing");
@@ -25,14 +27,22 @@ public class AbstractPipelineBehaviorTests
         Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Eff<Result> next = Eff<Result>(() => throw new UnreachableException());
+        #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        Eff<Result> next = liftEff<Result>(async () => throw new UnreachableException());
+        #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
         pipelineMock.Setup(e => e.BeforeHandle(request))
-            .Returns(FailAff<Unit>(failure))
-            .Verifiable();
+                    .Returns(FailEff<Unit>(failure))
+                    .Verifiable();
 
-        Aff<Runtime, Result> resultEffect = pipeline.Define(request, next);
-        Fin<Result> result = await resultEffect.Run(Runtime.New());
+        Eff<HandlerRuntime, Result> effect = pipeline.Define(request, next);
+
+        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+
+        DependencyProvider dependencyProvider = new(provider);
+        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+
+        Fin<Result> result = effect.Run(runtime, runtime.EnvIO);
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -45,11 +55,11 @@ public class AbstractPipelineBehaviorTests
 
                 return unit;
             });
-
+        return Task.CompletedTask;
     }
 
     [Fact]
-    public async Task InHandle_ShouldReturnResult()
+    public Task InHandle_ShouldReturnResult()
     {
         Request request = new();
         Result expResult = new();
@@ -58,7 +68,7 @@ public class AbstractPipelineBehaviorTests
         Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Aff<Runtime, Result> next = SuccessAff(expResult);
+        Eff<HandlerRuntime, Result> next = SuccessEff(expResult);
 
         pipelineMock.Setup(e => e.BeforeHandle(request))
             .Verifiable();
@@ -71,8 +81,14 @@ public class AbstractPipelineBehaviorTests
             )
             .Verifiable();
 
-        Aff<Runtime, Result> effect = pipeline.Define(request, next);
-        Fin<Result> effectResult = await effect.Run(Runtime.New());
+        Eff<HandlerRuntime, Result> effect = pipeline.Define(request, next);
+
+        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+
+        DependencyProvider dependencyProvider = new(provider);
+        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+
+        Fin<Result> effectResult = effect.Run(runtime, runtime.EnvIO);
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -85,11 +101,11 @@ public class AbstractPipelineBehaviorTests
                 return unit;
             },
             _ => throw new UnreachableException());
-
+        return Task.CompletedTask;
     }
 
     [Fact]
-    public async Task InHandle_ShouldReturnFailure()
+    public Task InHandle_ShouldReturnFailure()
     {
         Request request = new();
         NotFound failure = new("Testing");
@@ -98,7 +114,7 @@ public class AbstractPipelineBehaviorTests
         Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Aff<Runtime, Result> next = FailAff<Runtime, Result>(failure);
+        Eff<HandlerRuntime, Result> next = FailEff<HandlerRuntime, Result>(failure);
 
         pipelineMock.Setup(e => e.BeforeHandle(request))
             .Verifiable();
@@ -111,8 +127,14 @@ public class AbstractPipelineBehaviorTests
             )
             .Verifiable();
 
-        Aff<Runtime, Result> effect = pipeline.Define(request, next);
-        Fin<Result> effectResult = await effect.Run(Runtime.New());
+        Eff<HandlerRuntime, Result> effect = pipeline.Define(request, next);
+
+        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+
+        DependencyProvider dependencyProvider = new(provider);
+        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+         
+        Fin<Result> effectResult = effect.Run(runtime, runtime.EnvIO);
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -125,6 +147,6 @@ public class AbstractPipelineBehaviorTests
 
                 return unit;
             });
-
+        return Task.CompletedTask;
     }
 }

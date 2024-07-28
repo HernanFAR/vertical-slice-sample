@@ -2,8 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using LanguageExt;
-using LanguageExt.Common;
-using LanguageExt.SysX.Live;
 using VSlices.Base;
 using VSlices.Core.Builder;
 
@@ -11,21 +9,21 @@ namespace VSlices.Core.UnitTests.Extensions;
 
 public class HandlerExtensionsTests
 {
-    public record Feature1 : IFeature<Unit>
-    { }
+    public record Feature1 : IFeature<Unit>;
+    
     public class Handler1 : IHandler<Feature1>
     {
-        public Aff<Runtime, Unit> Define(Feature1 request)
+        public Eff<HandlerRuntime, Unit> Define(Feature1 request)
         {
             throw new UnreachableException();
         }
     }
 
     public record Response2 { }
-    public record Feature2 : IFeature<Response2> { }
+    public record Feature2 : IFeature<Response2>;
     public class Handler2 : IHandler<Feature2, Response2>
     {
-        public Aff<Runtime, Response2> Define(Feature2 request)
+        public Eff<HandlerRuntime, Response2> Define(Feature2 request)
         {
             throw new UnreachableException();
         }

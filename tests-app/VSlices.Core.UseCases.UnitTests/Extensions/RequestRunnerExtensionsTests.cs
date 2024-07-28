@@ -1,6 +1,5 @@
 ﻿using FluentAssertions;
 using LanguageExt;
-using LanguageExt.SysX.Live;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace VSlices.Core.UseCases.UnitTests.Extensions;
@@ -9,12 +8,12 @@ public class RequestRunnerExtensionsTests
 {
     public class RequestRunner : IRequestRunner
     {
-        public ValueTask<Fin<TResult>> RunAsync<TResult>(IRequest<TResult> request, Runtime runtime)
+        public Fin<TResult1> Run<TResult1>(IRequest<TResult1> request, HandlerRuntime runtime)
         {
             throw new NotImplementedException();
         }
 
-        public ValueTask<Fin<TResult>> RunAsync<TResult>(IRequest<TResult> request, CancellationToken cancellationToken)
+        public Fin<TResult1> Run<TResult1>(IRequest<TResult1> request, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
