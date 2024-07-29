@@ -73,7 +73,11 @@ public class LoggingStreamBehaviorTests
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
-        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+        ServiceProvider provider = new ServiceCollection()
+                                   .AddSingleton<ILogger<Request>>(_logger)
+                                   .AddSingleton(TimeProvider.System)
+                                   .AddSingleton(template)
+                                   .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
         var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
@@ -109,7 +113,7 @@ public class LoggingStreamBehaviorTests
     {
         // Arrange
         LoggingStreamBehavior<Request, Response> sut = new();
-        DateTimeOffset expFirstTime = DateTimeOffset.Now;
+        DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
 
         Request request = new();
         Error expError = new NotFound("NotFound");
@@ -123,7 +127,11 @@ public class LoggingStreamBehaviorTests
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
-        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+        ServiceProvider provider = new ServiceCollection()
+                                   .AddSingleton<ILogger<Request>>(_logger)
+                                   .AddSingleton(TimeProvider.System)
+                                   .AddSingleton(template)
+                                   .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
         var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
@@ -152,7 +160,7 @@ public class LoggingStreamBehaviorTests
     {
         // Arrange
         LoggingStreamBehavior<Request, Response> sut = new();
-        DateTimeOffset expFirstTime = DateTimeOffset.Now;
+        DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
 
         Request request = new();
         Error expError = Error.New(new Exception("Unexpected error occurred"));
@@ -166,7 +174,11 @@ public class LoggingStreamBehaviorTests
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
-        ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
+        ServiceProvider provider = new ServiceCollection()
+                                   .AddSingleton<ILogger<Request>>(_logger)
+                                   .AddSingleton(TimeProvider.System)
+                                   .AddSingleton(template)
+                                   .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
         var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());

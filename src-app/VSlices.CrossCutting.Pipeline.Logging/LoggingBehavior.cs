@@ -39,14 +39,15 @@ public sealed class LoggingBehavior<TRequest, TResult> : AbstractPipelineBehavio
         from template in provide<ILoggingMessageTemplate>()
         from time in provide<TimeProvider>()
         from _ in liftEff(() =>
-                          {
-                              logger.LogInformation(template.SuccessEnd,
-                                                    time.GetUtcNow(), 
-                                                    typeof(TRequest).FullName, 
-                                                    request, result);
+        {
+            logger.LogInformation(template.SuccessEnd,
+                                  time.GetUtcNow(),
+                                  typeof(TRequest).FullName,
+                                  request,
+                                  result);
 
-                              return unit;
-                          })
+            return unit;
+        })
         from result_ in SuccessEff(result)
         select result_;
 
