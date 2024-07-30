@@ -32,7 +32,7 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     /// <returns>
     /// A <see cref="LanguageExt.Eff{TRuntime, TResult}"/> that represents the operation in lazy evaluation, which returns a <see cref="Unit" />
     /// </returns>
-    protected internal virtual Eff<HandlerRuntime, Unit> BeforeHandle(TRequest request) 
+    protected internal virtual Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request) 
         => unitEff;
 
     /// <summary>
@@ -52,7 +52,7 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     /// <returns>
     /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
-    protected internal virtual Eff<HandlerRuntime, TResult> InHandle(TRequest request, Eff<HandlerRuntime, TResult> next) => next;
+    protected internal virtual Eff<VSlicesRuntime, TResult> InHandle(TRequest request, Eff<VSlicesRuntime, TResult> next) => next;
 
     /// <summary>
     /// Executed after the next action if returns the expected value
@@ -62,7 +62,7 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     /// <returns>
     /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
-    protected internal virtual Eff<HandlerRuntime, TResult> AfterSuccessHandling(TRequest request, TResult result) => SuccessEff(result);
+    protected internal virtual Eff<VSlicesRuntime, TResult> AfterSuccessHandling(TRequest request, TResult result) => SuccessEff(result);
 
     /// <summary>
     /// Executed after the next action if not returns the expected value
@@ -72,17 +72,17 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     /// <returns>
     /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
-    protected internal virtual Eff<HandlerRuntime, TResult> AfterFailureHandling(TRequest request, Error result) 
-        => liftEff<HandlerRuntime, TResult>(_ => result); 
+    protected internal virtual Eff<VSlicesRuntime, TResult> AfterFailureHandling(TRequest request, Error result) 
+        => liftEff<VSlicesRuntime, TResult>(_ => result); 
 
     /// <inheritdoc />
-    public Eff<HandlerRuntime, TResult> Define(TRequest request, Eff<HandlerRuntime, TResult> next) =>
+    public Eff<VSlicesRuntime, TResult> Define(TRequest request, Eff<VSlicesRuntime, TResult> next) =>
         from handleResult in BeforeHandle(request)
                              .Match(Succ: _ => InHandle(request, next)
                                                .Match(Succ: result => AfterSuccessHandling(request, result),
                                                       Fail: error  => AfterFailureHandling(request, error))
                                                .Flatten(), 
-                                    Fail: FailEff<HandlerRuntime, TResult>)
+                                    Fail: FailEff<VSlicesRuntime, TResult>)
                              .Flatten()
         select handleResult;
 }

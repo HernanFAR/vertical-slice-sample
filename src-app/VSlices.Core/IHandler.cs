@@ -19,7 +19,7 @@ public interface IHandler<in TRequest, TResult>
     /// An <see cref="LanguageExt.Eff{TRuntime, TResult}"/> that represents the operation in lazy evaluation, which when ran
     /// returns a <typeparamref name="TResult"/>
     /// </returns>
-    Eff<HandlerRuntime, TResult> Define(TRequest request);
+    Eff<VSlicesRuntime, TResult> Define(TRequest request);
 }
 
 /// <summary>

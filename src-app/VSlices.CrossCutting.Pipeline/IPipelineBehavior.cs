@@ -26,5 +26,5 @@ public interface IPipelineBehavior<in TRequest, TResult> : IPipelineBehavior
     /// <returns>
     /// A <see cref="Eff{T, T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult"/>
     /// </returns>
-    Eff<HandlerRuntime, TResult> Define(TRequest request, Eff<HandlerRuntime, TResult> next);
+    Eff<VSlicesRuntime, TResult> Define(TRequest request, Eff<VSlicesRuntime, TResult> next);
 }

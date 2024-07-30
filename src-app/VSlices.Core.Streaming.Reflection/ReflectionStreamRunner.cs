@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using LanguageExt;
 using VSlices.Core.Stream.Internals;
-using VSlices.Core.Traits;
 
 namespace VSlices.Core.Stream;
 

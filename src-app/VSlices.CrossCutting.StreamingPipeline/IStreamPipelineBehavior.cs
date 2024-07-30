@@ -1,5 +1,5 @@
 ﻿using LanguageExt;
-using VSlices.Core;
+using VSlices.Base;
 using VSlices.Core.Stream;
 
 namespace VSlices.CrossCutting.StreamPipeline;
@@ -20,6 +20,6 @@ public interface IStreamPipelineBehavior<in TRequest, TResult>
     /// <returns>
     /// A <see cref="Eff{A,B}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult"/>
     /// </returns>
-    Eff<HandlerRuntime, IAsyncEnumerable<TResult>> Define(
-        TRequest request, Eff<HandlerRuntime, IAsyncEnumerable<TResult>> next);
+    Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> Define(
+        TRequest request, Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> next);
 }

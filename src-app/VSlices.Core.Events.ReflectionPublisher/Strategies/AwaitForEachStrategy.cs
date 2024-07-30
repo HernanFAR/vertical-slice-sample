@@ -1,5 +1,6 @@
 ﻿using LanguageExt;
 using LanguageExt.Common;
+using VSlices.Base;
 using static LanguageExt.Prelude;
 
 namespace VSlices.Core.Events.Strategies;
@@ -12,11 +13,11 @@ public sealed class AwaitForEachStrategy : IPublishingStrategy
     /// <summary>
     /// Handles the given handlers in parallel using for each.
     /// </summary>
-    public Fin<Unit> Handle(Eff<HandlerRuntime, Unit>[] delegates, HandlerRuntime runtime, CancellationToken cancellationToken)
+    public Fin<Unit> Handle(Eff<VSlicesRuntime, Unit>[] delegates, VSlicesRuntime runtime, CancellationToken cancellationToken)
     {
         List<Error> errors = new(delegates.Length);
 
-        foreach (Eff<HandlerRuntime, Unit> handlerDelegate in delegates)
+        foreach (Eff<VSlicesRuntime, Unit> handlerDelegate in delegates)
         {
             Fin<Unit> result = handlerDelegate.Run(runtime, cancellationToken);
 

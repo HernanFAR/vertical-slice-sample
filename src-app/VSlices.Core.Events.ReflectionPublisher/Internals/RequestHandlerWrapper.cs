@@ -24,14 +24,14 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
         IPublishingStrategy strategy, 
         CancellationToken cancellationToken)
     {
-        var runtime = serviceProvider.GetRequiredService<HandlerRuntime>();
+        var runtime = serviceProvider.GetRequiredService<VSlicesRuntime>();
         IEnumerable<IHandler<TRequest, Unit>> handlers = serviceProvider
             .GetServices<IHandler<TRequest, Unit>>();
 
-        Eff<HandlerRuntime, Unit>[] delegates =
+        Eff<VSlicesRuntime, Unit>[] delegates =
             handlers.Select(handler =>
                             {
-                                Eff<HandlerRuntime, Unit> handlerEffect =
+                                Eff<VSlicesRuntime, Unit> handlerEffect =
                                     handler.Define((TRequest)request);
 
                                 IEnumerable<IPipelineBehavior<TRequest, Unit>>
