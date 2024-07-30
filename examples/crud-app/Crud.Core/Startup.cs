@@ -12,7 +12,6 @@ global using Microsoft.AspNetCore.Routing;
 
 global using static VSlices.CorePrelude;
 global using static LanguageExt.Prelude;
-using VSlices.Core.Extensions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
