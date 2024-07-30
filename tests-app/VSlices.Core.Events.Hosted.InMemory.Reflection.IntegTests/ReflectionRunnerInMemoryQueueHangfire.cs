@@ -97,6 +97,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
     public async Task InMemoryEventFlow_AddedEventBeforeListeningStart_AlwaysUnitHandler()
     {
         ServiceProvider provider = new ServiceCollection()
+                                   .AddHandlerRuntime()
             .AddEventListener()
             .AddHangfireTaskListener(config => config.UseInMemoryStorage())
             .AddInMemoryEventQueue()
@@ -126,6 +127,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
     public async Task InMemoryEventFlow_AddedEventAfterListeningStart()
     {
         ServiceProvider provider = new ServiceCollection()
+                                   .AddHandlerRuntime()
             .AddEventListener()
             .AddHangfireTaskListener(config => config.UseInMemoryStorage())
             .AddInMemoryEventQueue()
@@ -157,6 +159,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
     public async Task InMemoryEventFlow_FirstRetry()
     {
         ServiceProvider provider = new ServiceCollection()
+                                   .AddHandlerRuntime()
             .AddEventListener()
             .AddHangfireTaskListener(config => config.UseInMemoryStorage())
             .AddInMemoryEventQueue()
@@ -189,6 +192,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
     public async Task InMemoryEventFlow_SecondRetry()
     {
         ServiceProvider provider = new ServiceCollection()
+                                   .AddHandlerRuntime()
             .AddEventListener()
             .AddHangfireTaskListener(config => config.UseInMemoryStorage())
             .AddInMemoryEventQueue()
@@ -224,6 +228,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
         Mock<ILogger<EventListenerBackgroundTask>>? loggerMock = Mock.Get(logger);
 
         ServiceProvider provider = new ServiceCollection()
+                                   .AddHandlerRuntime()
             .AddEventListener()
             .AddHangfireTaskListener(config => config.UseInMemoryStorage())
             .AddInMemoryEventQueue()

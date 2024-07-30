@@ -1,9 +1,9 @@
 ﻿using LanguageExt.Sys.Traits;
-using Microsoft.Extensions.DependencyInjection;
+using VSlices.Core;
 using VSlices.Core.Traits;
 using Implementations = LanguageExt.Sys.Live.Implementations;
 
-namespace VSlices.Core.Extensions;
+namespace Microsoft.Extensions.DependencyInjection;
 
 /// <summary>
 /// Extension methods to add <see cref="HandlerRuntime"/>

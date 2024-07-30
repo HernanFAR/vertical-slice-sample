@@ -99,13 +99,16 @@ public class ReflectionRunnerInMemoryQueueHosted
     public async Task InMemoryEventFlow_AddedEventBeforeListeningStart_AlwaysUnitHandler()
     {
         ServiceProvider provider = new ServiceCollection()
-            .AddEventListener()
-            .AddHostedTaskListener().AddInMemoryEventQueue()
-            .AddReflectionEventRunner()
-            .AddLogging()
-            .AddSingleton<AlwaysUnitHandler>()
-            .AddScoped<IHandler<AlwaysUnitEvent, Unit>>(s => s.GetRequiredService<AlwaysUnitHandler>())
-            .BuildServiceProvider();
+                                   .AddHandlerRuntime()
+                                   .AddEventListener()
+                                   .AddHostedTaskListener()
+                                   .AddInMemoryEventQueue()
+                                   .AddReflectionEventRunner()
+                                   .AddLogging()
+                                   .AddSingleton<AlwaysUnitHandler>()
+                                   .AddScoped<IHandler<AlwaysUnitEvent, Unit>>(s =>
+                                        s.GetRequiredService<AlwaysUnitHandler>())
+                                   .BuildServiceProvider();
 
         var backgroundEventListener = provider.GetRequiredService<IHostedService>();
         var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
@@ -124,13 +127,16 @@ public class ReflectionRunnerInMemoryQueueHosted
     public async Task InMemoryEventFlow_AddedEventAfterListeningStart()
     {
         ServiceProvider provider = new ServiceCollection()
-            .AddEventListener()
-            .AddHostedTaskListener().AddInMemoryEventQueue()
-            .AddReflectionEventRunner()
-            .AddLogging()
-            .AddSingleton<AlwaysUnitHandler>()
-            .AddScoped<IHandler<AlwaysUnitEvent, Unit>>(s => s.GetRequiredService<AlwaysUnitHandler>())
-            .BuildServiceProvider();
+                                   .AddHandlerRuntime()
+                                   .AddEventListener()
+                                   .AddHostedTaskListener()
+                                   .AddInMemoryEventQueue()
+                                   .AddReflectionEventRunner()
+                                   .AddLogging()
+                                   .AddSingleton<AlwaysUnitHandler>()
+                                   .AddScoped<IHandler<AlwaysUnitEvent, Unit>>(s => 
+                                        s.GetRequiredService<AlwaysUnitHandler>())
+                                   .BuildServiceProvider();
 
         var backgroundEventListener = provider.GetRequiredService<IHostedService>();
         var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
@@ -150,13 +156,16 @@ public class ReflectionRunnerInMemoryQueueHosted
     public async Task InMemoryEventFlow_FirstRetry()
     {
         ServiceProvider provider = new ServiceCollection()
-            .AddEventListener()
-            .AddHostedTaskListener().AddInMemoryEventQueue()
-            .AddReflectionEventRunner()
-            .AddLogging()
-            .AddSingleton<FirstFailureThenUnitHandler>()
-            .AddScoped<IHandler<FirstFailureThenUnitEvent, Unit>>(s => s.GetRequiredService<FirstFailureThenUnitHandler>())
-            .BuildServiceProvider();
+                                   .AddHandlerRuntime()
+                                   .AddEventListener()
+                                   .AddHostedTaskListener()
+                                   .AddInMemoryEventQueue()
+                                   .AddReflectionEventRunner()
+                                   .AddLogging()
+                                   .AddSingleton<FirstFailureThenUnitHandler>()
+                                   .AddScoped<IHandler<FirstFailureThenUnitEvent, Unit>>(s =>
+                                       s.GetRequiredService<FirstFailureThenUnitHandler>())
+                                   .BuildServiceProvider();
 
         var backgroundEventListener = provider.GetRequiredService<IHostedService>();
         var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
@@ -177,14 +186,16 @@ public class ReflectionRunnerInMemoryQueueHosted
     public async Task InMemoryEventFlow_SecondRetry()
     {
         ServiceProvider provider = new ServiceCollection()
-            .AddEventListener()
-            .AddHostedTaskListener()
-            .AddInMemoryEventQueue()
-            .AddReflectionEventRunner()
-            .AddLogging()
-            .AddSingleton<FirstAndSecondFailureThenUnitHandler>()
-            .AddScoped<IHandler<FirstAndSecondFailureThenUnitEvent, Unit>>(s => s.GetRequiredService<FirstAndSecondFailureThenUnitHandler>())
-            .BuildServiceProvider();
+                                   .AddHandlerRuntime()
+                                   .AddEventListener()
+                                   .AddHostedTaskListener()
+                                   .AddInMemoryEventQueue()
+                                   .AddReflectionEventRunner()
+                                   .AddLogging()
+                                   .AddSingleton<FirstAndSecondFailureThenUnitHandler>()
+                                   .AddScoped<IHandler<FirstAndSecondFailureThenUnitEvent, Unit>>(s =>
+                                            s.GetRequiredService<FirstAndSecondFailureThenUnitHandler>())
+                                   .BuildServiceProvider();
 
         var backgroundEventListener = provider.GetRequiredService<IHostedService>();
         var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
@@ -208,13 +219,15 @@ public class ReflectionRunnerInMemoryQueueHosted
         Mock<ILogger<EventListenerBackgroundTask>>? loggerMock = Mock.Get(logger);
 
         ServiceProvider provider = new ServiceCollection()
+                                   .AddHandlerRuntime()
             .AddEventListener()
             .AddHostedTaskListener()
             .AddInMemoryEventQueue()
             .AddReflectionEventRunner()
             .AddScoped(_ => logger)
             .AddSingleton<AlwaysFailureHandler>()
-            .AddScoped<IHandler<AlwaysFailureEvent, Unit>>(s => s.GetRequiredService<AlwaysFailureHandler>())
+            .AddScoped<IHandler<AlwaysFailureEvent, Unit>>(s => 
+                s.GetRequiredService<AlwaysFailureHandler>())
             .BuildServiceProvider();
 
         var backgroundEventListener = provider.GetRequiredService<IHostedService>();
