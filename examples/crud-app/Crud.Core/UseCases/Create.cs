@@ -6,6 +6,7 @@ using Crud.Domain.Services;
 using Crud.Domain.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
+using VSlices.Base;
 using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
 
 // ReSharper disable once CheckNamespace
@@ -60,7 +61,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
 internal sealed class Handler : IHandler<Command, Unit>
 {
-    public Eff<HandlerRuntime, Unit> Define(Command request) =>
+    public Eff<VSlicesRuntime, Unit> Define(Command request) =>
         from manager in provide<QuestionManager>()
         from _ in manager.Create(request.Text)
         select unit;
@@ -68,13 +69,13 @@ internal sealed class Handler : IHandler<Command, Unit>
 
 internal sealed class Validator : AbstractValidator<Command>
 {
-    private readonly HandlerRuntime _handlerRuntime;
+    private readonly VSlicesRuntime _VSlicesRuntime;
     private readonly IQuestionRepository _repository;
     private readonly ILogger<Validator> _logger;
 
-    public Validator(HandlerRuntime handlerRuntime, IQuestionRepository repository, ILogger<Validator> logger)
+    public Validator(VSlicesRuntime VSlicesRuntime, IQuestionRepository repository, ILogger<Validator> logger)
     {
-        _handlerRuntime = handlerRuntime;
+        _VSlicesRuntime = VSlicesRuntime;
         _repository     = repository;
         _logger         = logger;
 
@@ -86,7 +87,7 @@ internal sealed class Validator : AbstractValidator<Command>
                                           CancellationToken cancellationToken)
     {
         Fin<bool> result = _repository.Exists(name)
-                                      .Run(_handlerRuntime, cancellationToken);
+                                      .Run(_VSlicesRuntime, cancellationToken);
 
         return result.Match(exist => exist is false,
                             error =>

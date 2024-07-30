@@ -62,7 +62,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
 internal sealed class Handler : IHandler<Command>
 {
-    public Eff<HandlerRuntime, Unit> Define(Command request)
+    public Eff<VSlicesRuntime, Unit> Define(Command request)
     {
         return from token in cancelToken
                from repository in provide<IQuestionRepository>()
@@ -80,13 +80,13 @@ internal sealed class Handler : IHandler<Command>
 
 internal sealed class Validator : AbstractValidator<Command>
 {
-    private readonly HandlerRuntime _handlerRuntime;
+    private readonly VSlicesRuntime _VSlicesRuntime;
     private readonly IQuestionRepository _repository;
     private readonly ILogger<Validator> _logger;
 
-    public Validator(HandlerRuntime handlerRuntime, IQuestionRepository repository, ILogger<Validator> logger)
+    public Validator(VSlicesRuntime VSlicesRuntime, IQuestionRepository repository, ILogger<Validator> logger)
     {
-        _handlerRuntime = handlerRuntime;
+        _VSlicesRuntime = VSlicesRuntime;
         _repository = repository;
         _logger = logger;
 
@@ -99,7 +99,7 @@ internal sealed class Validator : AbstractValidator<Command>
                                           CancellationToken cancellationToken)
     {
         Fin<bool> result = _repository.Exists(command.Id, name)
-                                      .Run(_handlerRuntime, cancellationToken);
+                                      .Run(_VSlicesRuntime, cancellationToken);
 
         return result.Match(exist => exist is false,
                             error =>

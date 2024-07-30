@@ -10,7 +10,7 @@ public sealed class LoggingExceptionHandlerStreamPipeline<TRequest, TResult>
     : AbstractExceptionHandlingStreamBehavior<TRequest, TResult>
     where TRequest : IStream<TResult>
 {
-    protected override Eff<HandlerRuntime, IAsyncEnumerable<TResult>> Process(Exception ex, TRequest request) =>
+    protected override Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> Process(Exception ex, TRequest request) =>
         from logger in provide<ILogger<TRequest>>()
         from result in liftEff<IAsyncEnumerable<TResult>>(() =>
         {

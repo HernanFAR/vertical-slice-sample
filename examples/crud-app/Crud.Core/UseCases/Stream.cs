@@ -51,7 +51,7 @@ internal sealed class Handler(AppDbContext context) : IStreamHandler<Query, Ques
 {
     readonly AppDbContext _context = context;
 
-    public Eff<HandlerRuntime, IAsyncEnumerable<QuestionDto>> Define(Query request) =>
+    public Eff<VSlicesRuntime, IAsyncEnumerable<QuestionDto>> Define(Query request) =>
         from token in cancelToken
         from questions in liftEff(() => Yield(token))
         select questions;

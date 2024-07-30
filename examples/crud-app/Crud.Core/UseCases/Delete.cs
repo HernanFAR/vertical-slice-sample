@@ -49,7 +49,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
 internal sealed class Handler : IHandler<Command>
 {
-    public Eff<HandlerRuntime, Unit> Define(Command request) =>
+    public Eff<VSlicesRuntime, Unit> Define(Command request) =>
         from repository in provide<IQuestionRepository>()
         from manager in provide<QuestionManager>()
         from question in repository.Read(request.Id)

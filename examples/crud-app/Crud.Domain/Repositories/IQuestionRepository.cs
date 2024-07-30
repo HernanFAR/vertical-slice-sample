@@ -5,17 +5,17 @@ namespace Crud.Domain.Repositories;
 
 public interface IQuestionRepository
 {
-    Eff<HandlerRuntime, Unit> Create(Question question);
+    Eff<VSlicesRuntime, Unit> Create(Question question);
 
-    Eff<HandlerRuntime, Question> Read(QuestionId requestId);
+    Eff<VSlicesRuntime, Question> Read(QuestionId requestId);
 
-    Eff<HandlerRuntime, Unit> Update(Question question);
+    Eff<VSlicesRuntime, Unit> Update(Question question);
 
-    Eff<HandlerRuntime, bool> Exists(QuestionId id);
+    Eff<VSlicesRuntime, bool> Exists(QuestionId id);
 
-    Eff<HandlerRuntime, bool> Exists(QuestionId id, NonEmptyString name);
+    Eff<VSlicesRuntime, bool> Exists(QuestionId id, NonEmptyString name);
 
-    Eff<HandlerRuntime, bool> Exists(NonEmptyString text);
+    Eff<VSlicesRuntime, bool> Exists(NonEmptyString text);
 
-    Eff<HandlerRuntime, Unit> Delete(Question question);
+    Eff<VSlicesRuntime, Unit> Delete(Question question);
 }

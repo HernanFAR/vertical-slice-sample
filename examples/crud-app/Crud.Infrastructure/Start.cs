@@ -2,7 +2,7 @@
 global using LanguageExt.Common;
 
 global using static LanguageExt.Prelude;
-global using static VSlices.CorePrelude;
+global using static VSlices.VSlicesPrelude;
 
 using Crud.Domain.Repositories;
 using Crud.Infrastructure;

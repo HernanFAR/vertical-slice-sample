@@ -19,7 +19,7 @@ public sealed class QuestionMutatedDependencies : IFeatureDependencies
 internal sealed class Handler
     : IHandler<QuestionMutatedEvent>
 {
-    public Eff<HandlerRuntime, Unit> Define(QuestionMutatedEvent request) =>
+    public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent request) =>
         from repository in provide<IQuestionRepository>()
         from logger in provide<ILogger>()
         from question in repository

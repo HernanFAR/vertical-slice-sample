@@ -3,14 +3,14 @@ using Crud.Domain;
 using Crud.Domain.Repositories;
 using Crud.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
+using VSlices.Base;
 using VSlices.Base.Failures;
-using VSlices.Core;
 
 namespace Crud.Infrastructure;
 
 public sealed class EfQuestionRepository : IQuestionRepository
 {
-    public Eff<HandlerRuntime, Unit> Create(Question question) =>
+    public Eff<VSlicesRuntime, Unit> Create(Question question) =>
         from token in cancelToken
         from context in provide<AppDbContext>()
         from question_ in liftEff(() => new TQuestion
@@ -30,11 +30,11 @@ public sealed class EfQuestionRepository : IQuestionRepository
         select unit;
 
 
-    public Eff<HandlerRuntime, Question> Read(QuestionId questionId) =>
+    public Eff<VSlicesRuntime, Question> Read(QuestionId questionId) =>
         from question_ in ReadModel(questionId.Value)
         select new Question(new QuestionId(question_.Id), new NonEmptyString(question_.Text));
 
-    public Eff<HandlerRuntime, Unit> Update(Question question) =>
+    public Eff<VSlicesRuntime, Unit> Update(Question question) =>
         from token in cancelToken
         from context in provide<AppDbContext>()
         from question_ in ReadModel(question.Id.Value)
@@ -49,7 +49,7 @@ public sealed class EfQuestionRepository : IQuestionRepository
                           })
         select unit;
 
-    public Eff<HandlerRuntime, bool> Exists(QuestionId id) =>
+    public Eff<VSlicesRuntime, bool> Exists(QuestionId id) =>
         from token in cancelToken
         from context in provide<AppDbContext>()
         from exist in liftEff(() => context
@@ -57,7 +57,7 @@ public sealed class EfQuestionRepository : IQuestionRepository
                                     .AnyAsync(x => x.Id == id.Value, token))
         select exist;
 
-    public Eff<HandlerRuntime, bool> Exists(QuestionId id, NonEmptyString name) =>
+    public Eff<VSlicesRuntime, bool> Exists(QuestionId id, NonEmptyString name) =>
         from token in cancelToken
         from context in provide<AppDbContext>()
         from exist in liftEff(() => context
@@ -66,7 +66,7 @@ public sealed class EfQuestionRepository : IQuestionRepository
                                     .AnyAsync(x => x.Text == name.Value, token))
         select exist;
 
-    public Eff<HandlerRuntime, bool> Exists(NonEmptyString text) =>
+    public Eff<VSlicesRuntime, bool> Exists(NonEmptyString text) =>
         from token in cancelToken
         from context in provide<AppDbContext>()
         from exist in liftEff(() => context
@@ -74,7 +74,7 @@ public sealed class EfQuestionRepository : IQuestionRepository
                                     .AnyAsync(x => x.Text == text.Value, token))
         select exist;
 
-    public Eff<HandlerRuntime, Unit> Delete(Question question) =>
+    public Eff<VSlicesRuntime, Unit> Delete(Question question) =>
         from cancelToken in cancelToken
         from context in provide<AppDbContext>()
         from question_ in ReadModel(question.Id.Value)
@@ -88,7 +88,7 @@ public sealed class EfQuestionRepository : IQuestionRepository
                           })
         select unit;
 
-    private Eff<HandlerRuntime, TQuestion> ReadModel(Guid id) =>
+    private Eff<VSlicesRuntime, TQuestion> ReadModel(Guid id) =>
         from cancelToken in cancelToken
         from context in provide<AppDbContext>()
         from question in liftEff<TQuestion>(async () =>
