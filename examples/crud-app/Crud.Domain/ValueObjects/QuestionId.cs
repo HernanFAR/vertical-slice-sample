@@ -13,4 +13,8 @@ public sealed class QuestionId : NewType<QuestionId, Guid, QuestionId>,
         : base(info, context) { }
 
     public static bool True(Guid value) => value != Guid.Empty;
+
+    public static QuestionId Random() => new(Guid.NewGuid());
+
+    public static QuestionId From(Guid value) => new(value);
 }

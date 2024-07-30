@@ -34,7 +34,7 @@ public static class FeatureBuilderExtensions
     public static FeatureBuilder AddEndpoint(this FeatureBuilder featureBuilder,
         Type type)
     {
-        featureBuilder.Services.AddScoped(typeof(IEndpointDefinition), type);
+        featureBuilder.Services.AddSingleton(typeof(IEndpointDefinition), type);
 
         return featureBuilder;
     }

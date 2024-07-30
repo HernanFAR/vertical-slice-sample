@@ -17,7 +17,7 @@ public static class RequestRunnerExtensions
     public static IServiceCollection AddRequestRunner<T>(this IServiceCollection services)
         where T : IRequestRunner
     {
-        services.AddScoped(typeof(IRequestRunner), typeof(T));
+        services.AddSingleton(typeof(IRequestRunner), typeof(T));
 
         return services;
     }
