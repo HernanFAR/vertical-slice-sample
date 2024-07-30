@@ -47,20 +47,20 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class Handler(AppDbContext context) : IStreamHandler<Query, QuestionDto>
+internal sealed class Handler : IStreamHandler<Query, QuestionDto>
 {
-    readonly AppDbContext _context = context;
-
     public Eff<VSlicesRuntime, IAsyncEnumerable<QuestionDto>> Define(Query request) =>
         from token in cancelToken
-        from questions in liftEff(() => Yield(token))
+        from context in provide<AppDbContext>()
+        from questions in liftEff(() => Yield(context, token))
         select questions;
 
     public async IAsyncEnumerable<QuestionDto> Yield(
+        AppDbContext context,
         [EnumeratorCancellation] 
         CancellationToken cancellationToken)
     {
-        QuestionDto[] allQuestions = await _context.Questions
+        QuestionDto[] allQuestions = await context.Questions
             .Select(x => new QuestionDto(x.Id, x.Text))
             .ToArrayAsync(cancellationToken: cancellationToken);
 
