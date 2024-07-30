@@ -1,4 +1,6 @@
-﻿using Crud.Domain.ValueObjects;
+﻿global using static VSlices.VSlicesPrelude;
+
+using Crud.Domain.ValueObjects;
 
 namespace Crud.Domain;
 

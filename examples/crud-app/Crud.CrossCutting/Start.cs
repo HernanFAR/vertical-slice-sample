@@ -1,7 +1,8 @@
 ﻿global using LanguageExt;
 global using LanguageExt.Common;
+global using VSlices.Base;
 global using static LanguageExt.Prelude;
-global using static VSlices.CorePrelude;
+global using static VSlices.VSlicesPrelude;
 
 using Crud.CrossCutting;
 using Microsoft.EntityFrameworkCore;

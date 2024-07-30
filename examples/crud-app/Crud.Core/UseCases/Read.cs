@@ -50,7 +50,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
 internal sealed class Handler : IHandler<Query, ReadQuestionDto>
 {
-    public Eff<HandlerRuntime, ReadQuestionDto> Define(Query request) =>
+    public Eff<VSlicesRuntime, ReadQuestionDto> Define(Query request) =>
         from context in provide<AppDbContext>()
         from cancelToken in cancelToken
         from questions in liftEff(() => context

@@ -9,7 +9,7 @@ namespace Crud.CrossCutting.Pipelines;
 public sealed class LoggingExceptionHandlerPipeline<TRequest, TResult> : AbstractExceptionHandlingBehavior<TRequest, TResult>
     where TRequest : IFeature<TResult>
 {
-    protected override Eff<HandlerRuntime, TResult> Process(Exception ex, TRequest request) =>
+    protected override Eff<VSlicesRuntime, TResult> Process(Exception ex, TRequest request) =>
         from logger in provide<ILogger<TRequest>>()
         from result in liftEff<TResult>(() =>
         {

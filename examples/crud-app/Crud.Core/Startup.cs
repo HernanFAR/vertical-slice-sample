@@ -1,5 +1,6 @@
 ﻿global using LanguageExt;
 global using LanguageExt.Common;
+global using VSlices.Base;
 global using VSlices.Base.Failures;
 global using VSlices.Core;
 global using VSlices.Core.Builder;
@@ -10,7 +11,7 @@ global using Microsoft.AspNetCore.Http;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.AspNetCore.Routing;
 
-global using static VSlices.CorePrelude;
+global using static VSlices.VSlicesPrelude;
 global using static LanguageExt.Prelude;
 
 // ReSharper disable once CheckNamespace
@@ -20,7 +21,7 @@ public static class Startup
 {
     public static IServiceCollection AddCore(this IServiceCollection services) =>
         services.AddFeatureDependenciesFromAssemblyContaining<Anchor>()
-                .AddHandlerRuntime()
+                .AddVSlicesRuntime()
                 // Request
                 .AddReflectionRequestRunner()
                 // Streams
