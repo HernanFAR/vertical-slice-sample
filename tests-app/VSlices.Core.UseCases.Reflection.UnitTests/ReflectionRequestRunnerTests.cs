@@ -2,10 +2,10 @@ using FluentAssertions;
 using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
-using VSlices.Core.Traits;
+using VSlices.Base;
 using VSlices.CrossCutting.Pipeline;
 using static LanguageExt.Prelude;
-using static VSlices.CorePrelude;
+using static VSlices.VSlicesPrelude;
 
 namespace VSlices.Core.UseCases.Reflection.UnitTests;
 
@@ -22,7 +22,7 @@ public class ReflectionRequestRunnerTests
     public class PipelineBehaviorOne<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
-        public Eff<HandlerRuntime, TResponse> Define(TRequest request, Eff<HandlerRuntime, TResponse> next) =>
+        public Eff<VSlicesRuntime, TResponse> Define(TRequest request, Eff<VSlicesRuntime, TResponse> next) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -38,7 +38,7 @@ public class ReflectionRequestRunnerTests
     public class PipelineBehaviorTwo<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
         where TRequest : IRequest<TResponse>
     {
-        public Eff<HandlerRuntime, TResponse> Define(TRequest request, Eff<HandlerRuntime, TResponse> next) =>
+        public Eff<VSlicesRuntime, TResponse> Define(TRequest request, Eff<VSlicesRuntime, TResponse> next) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -53,7 +53,7 @@ public class ReflectionRequestRunnerTests
 
     public class ConcretePipelineBehaviorOne : IPipelineBehavior<RequestOne, Unit>
     {
-        public Eff<HandlerRuntime, Unit> Define(RequestOne request, Eff<HandlerRuntime, Unit> next) =>
+        public Eff<VSlicesRuntime, Unit> Define(RequestOne request, Eff<VSlicesRuntime, Unit> next) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -70,7 +70,7 @@ public class ReflectionRequestRunnerTests
 
     public class HandlerOne : IHandler<RequestOne, Unit>
     {        
-        public Eff<HandlerRuntime, Unit> Define(RequestOne requestOne) =>
+        public Eff<VSlicesRuntime, Unit> Define(RequestOne requestOne) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -86,7 +86,7 @@ public class ReflectionRequestRunnerTests
 
     public class HandlerTwo : IHandler<RequestTwo, Unit>
     {
-        public Eff<HandlerRuntime, Unit> Define(RequestTwo request) =>
+        public Eff<VSlicesRuntime, Unit> Define(RequestTwo request) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -103,7 +103,7 @@ public class ReflectionRequestRunnerTests
     {
         const int expCount = 1;
         var provider = new ServiceCollection()
-                       .AddHandlerRuntime()
+                       .AddVSlicesRuntime()
                        .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
                        .AddSingleton<Accumulator>()
@@ -128,7 +128,7 @@ public class ReflectionRequestRunnerTests
     {
         const int expCount = 2;
         var provider = new ServiceCollection()
-                       .AddHandlerRuntime()
+                       .AddVSlicesRuntime()
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
@@ -154,7 +154,7 @@ public class ReflectionRequestRunnerTests
     {
         const int expCount = 3;
         var provider = new ServiceCollection()
-                       .AddHandlerRuntime()
+                       .AddVSlicesRuntime()
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
                        .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
@@ -181,7 +181,7 @@ public class ReflectionRequestRunnerTests
     {
         const int expCount = 3;
         var provider = new ServiceCollection()
-                       .AddHandlerRuntime()
+                       .AddVSlicesRuntime()
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
                        .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
@@ -208,7 +208,7 @@ public class ReflectionRequestRunnerTests
     {
         const int expCount = 4;
         var provider = new ServiceCollection()
-                       .AddHandlerRuntime()
+                       .AddVSlicesRuntime()
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
                        .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
@@ -236,7 +236,7 @@ public class ReflectionRequestRunnerTests
     {
         const int expCount = 3;
         var provider = new ServiceCollection()
-                       .AddHandlerRuntime()
+                       .AddVSlicesRuntime()
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
                        .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))

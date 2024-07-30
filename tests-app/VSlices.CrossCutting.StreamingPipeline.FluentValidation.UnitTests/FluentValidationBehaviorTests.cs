@@ -6,9 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Base.Failures;
+using VSlices.Base.Traits;
 using VSlices.Core;
 using VSlices.Core.Stream;
-using VSlices.Core.Traits;
 
 namespace VSlices.CrossCutting.StreamPipeline.FluentValidation.UnitTests;
 
@@ -35,18 +35,18 @@ public class AbstractExceptionHandlingBehaviorTests
         FluentValidationStreamBehavior<Request, Result> pipeline = new();
         Request request = new(null!);
 
-        Eff<HandlerRuntime, IAsyncEnumerable<Result>> next =
-            lift<HandlerRuntime,
+        Eff<VSlicesRuntime, IAsyncEnumerable<Result>> next =
+            lift<VSlicesRuntime,
                  IAsyncEnumerable<Result>>(_ => throw new UnreachableException());
 
-        Eff<HandlerRuntime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
 
         ServiceProvider provider = new ServiceCollection()
             .AddTransient<IValidator<Request>, Validator>()
             .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider);
+        var runtime = VSlicesRuntime.New(dependencyProvider);
 
         Fin<IAsyncEnumerable<Result>> result = pipelineEffect.Run(runtime, default(CancellationToken));
 
@@ -77,16 +77,16 @@ public class AbstractExceptionHandlingBehaviorTests
         FluentValidationStreamBehavior<Request, Result> pipeline = new();
         Request request = new(expResultMessage);
 
-        Eff<HandlerRuntime, IAsyncEnumerable<Result>> next = liftEff(Yield);
+        Eff<VSlicesRuntime, IAsyncEnumerable<Result>> next = liftEff(Yield);
 
-        Eff<HandlerRuntime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, IAsyncEnumerable<Result>> pipelineEffect = pipeline.Define(request, next);
 
         ServiceProvider provider = new ServiceCollection()
             .AddTransient<IValidator<Request>, Validator>()
             .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider);
+        var runtime = VSlicesRuntime.New(dependencyProvider);
         
         Fin<IAsyncEnumerable<Result>> pipelineResult = pipelineEffect.Run(runtime, default(CancellationToken));
 

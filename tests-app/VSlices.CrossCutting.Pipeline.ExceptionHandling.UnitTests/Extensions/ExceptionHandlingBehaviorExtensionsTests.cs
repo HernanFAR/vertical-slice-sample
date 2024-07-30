@@ -19,7 +19,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
     public class TestPipeline1<TRequest, TResult> : AbstractExceptionHandlingBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        protected internal override Eff<HandlerRuntime, TResult> Process(Exception ex, TRequest request)
+        protected internal override Eff<VSlicesRuntime, TResult> Process(Exception ex, TRequest request)
         {
             throw new UnreachableException();
         }
@@ -28,7 +28,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
     public class TestPipeline2<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        public Eff<HandlerRuntime, TResult> Define(TRequest request, Eff<HandlerRuntime, TResult> next)
+        public Eff<VSlicesRuntime, TResult> Define(TRequest request, Eff<VSlicesRuntime, TResult> next)
         {
             throw new UnreachableException();
         }

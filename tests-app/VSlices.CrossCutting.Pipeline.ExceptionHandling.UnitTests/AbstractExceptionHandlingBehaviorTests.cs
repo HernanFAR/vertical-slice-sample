@@ -6,8 +6,7 @@ using LanguageExt;
 using LanguageExt.Common;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base.Failures;
-using VSlices.Core;
-using VSlices.Core.Traits;
+using VSlices.Base.Traits;
 using static LanguageExt.Prelude;
 
 namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests;
@@ -27,13 +26,15 @@ public class AbstractExceptionHandlingBehaviorTests
         Mock<AbstractExceptionHandlingBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Eff<HandlerRuntime, Result> next = liftEff<HandlerRuntime, Result>(async _ => throw expEx);
+        #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+        Eff<VSlicesRuntime, Result> next = liftEff<VSlicesRuntime, Result>(async _ => throw expEx);
+        #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
         pipelineMock.Setup(e => e.BeforeHandle(request))
-            .Verifiable();
+                    .Verifiable();
 
         pipelineMock.Setup(e => e.Process(expEx, request))
-            .Returns(liftEff<HandlerRuntime, Result>(_ => new ServerError("Internal server error").AsError()))
+            .Returns(liftEff<VSlicesRuntime, Result>(_ => new ServerError("Internal server error").AsError()))
             .Verifiable();
 
         pipelineMock.Setup(e => e.InHandle(request, next))
@@ -43,12 +44,12 @@ public class AbstractExceptionHandlingBehaviorTests
                 request, It.Is<Error>(e => e.Message == "Internal server error")))
             .Verifiable();
 
-        Eff<HandlerRuntime, Result> pipelineEffect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, Result> pipelineEffect = pipeline.Define(request, next);
 
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider);
+        var runtime = VSlicesRuntime.New(dependencyProvider);
 
         Fin<Result> effectResult = pipelineEffect.Run(runtime, default(CancellationToken));
 

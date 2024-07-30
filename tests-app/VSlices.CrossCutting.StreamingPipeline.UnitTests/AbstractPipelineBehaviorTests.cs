@@ -6,10 +6,11 @@ using Moq;
 using System.Diagnostics;
 using LanguageExt.Pipes;
 using Microsoft.Extensions.DependencyInjection;
+using VSlices.Base;
 using VSlices.Base.Failures;
 using VSlices.Core;
 using VSlices.Core.Stream;
-using VSlices.Core.Traits;
+using VSlices.Base.Traits;
 using static LanguageExt.Prelude;
 
 namespace VSlices.CrossCutting.StreamPipeline.UnitTests;
@@ -35,12 +36,12 @@ public class AbstractStreamPipelineBehaviorTests
                     .Returns(FailEff<Unit>(failure))
                     .Verifiable();
 
-        Eff<HandlerRuntime, IAsyncEnumerable<Result>> effect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, IAsyncEnumerable<Result>> effect = pipeline.Define(request, next);
 
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider);
+        var                runtime            = VSlicesRuntime.New(dependencyProvider);
 
         Fin<IAsyncEnumerable<Result>> effectResult = effect.Run(runtime, default(CancellationToken));
 
@@ -67,7 +68,7 @@ public class AbstractStreamPipelineBehaviorTests
         Mock<AbstractStreamPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Eff<HandlerRuntime, IAsyncEnumerable<Result>> next = liftEff(Yield);
+        Eff<VSlicesRuntime, IAsyncEnumerable<Result>> next = liftEff(Yield);
 
         pipelineMock.Setup(e => e.BeforeHandle(request))
             .Verifiable();
@@ -80,12 +81,12 @@ public class AbstractStreamPipelineBehaviorTests
             )
             .Verifiable();
 
-        Eff<HandlerRuntime, IAsyncEnumerable<Result>> effect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, IAsyncEnumerable<Result>> effect = pipeline.Define(request, next);
 
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider);
+        var runtime = VSlicesRuntime.New(dependencyProvider);
 
         Fin<IAsyncEnumerable<Result>> effectResult = effect.Run(runtime, default(CancellationToken));
 
@@ -123,7 +124,7 @@ public class AbstractStreamPipelineBehaviorTests
         Mock<AbstractStreamPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Eff<HandlerRuntime, IAsyncEnumerable<Result>> next = FailEff<HandlerRuntime, IAsyncEnumerable<Result>>(failure);
+        Eff<VSlicesRuntime, IAsyncEnumerable<Result>> next = FailEff<VSlicesRuntime, IAsyncEnumerable<Result>>(failure);
 
         pipelineMock.Setup(e => e.BeforeHandle(request))
             .Verifiable();
@@ -136,13 +137,13 @@ public class AbstractStreamPipelineBehaviorTests
             )
             .Verifiable();
 
-        Eff<HandlerRuntime, IAsyncEnumerable<Result>> effect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, IAsyncEnumerable<Result>> effect = pipeline.Define(request, next);
 
 
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider);
+        var runtime = VSlicesRuntime.New(dependencyProvider);
 
         Fin<IAsyncEnumerable<Result>> effectResult = effect.Run(runtime, default(CancellationToken));
 

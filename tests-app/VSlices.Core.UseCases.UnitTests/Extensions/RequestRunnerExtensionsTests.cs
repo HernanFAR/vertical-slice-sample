@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
+using VSlices.Base;
 
 namespace VSlices.Core.UseCases.UnitTests.Extensions;
 
@@ -8,7 +9,7 @@ public class RequestRunnerExtensionsTests
 {
     public class RequestRunner : IRequestRunner
     {
-        public Fin<TResult1> Run<TResult1>(IRequest<TResult1> request, HandlerRuntime runtime)
+        public Fin<TResult1> Run<TResult1>(IRequest<TResult1> request, VSlicesRuntime runtime)
         {
             throw new NotImplementedException();
         }

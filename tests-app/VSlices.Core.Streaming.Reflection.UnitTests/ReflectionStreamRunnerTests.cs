@@ -3,10 +3,10 @@ using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using VSlices.Core.Traits;
+using VSlices.Base;
 using VSlices.CrossCutting.StreamPipeline;
 using static LanguageExt.Prelude;
-using static VSlices.CorePrelude;
+using static VSlices.VSlicesPrelude;
 
 namespace VSlices.Core.Stream.Reflection.UnitTests;
 
@@ -23,9 +23,9 @@ public class ReflectionStreamRunnerTests
     public class PipelineBehaviorOne<TRequest, TResult> : IStreamPipelineBehavior<TRequest, TResult>
         where TRequest : IStream<TResult>
     {
-        public Eff<HandlerRuntime, IAsyncEnumerable<TResult>> Define(
+        public Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> Define(
             TRequest request,
-            Eff<HandlerRuntime, IAsyncEnumerable<TResult>> next) =>
+            Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> next) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -48,9 +48,9 @@ public class ReflectionStreamRunnerTests
             _accumulator = accumulator;
         }
 
-        public Eff<HandlerRuntime, IAsyncEnumerable<TResult>> Define(
+        public Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> Define(
             TRequest request,
-            Eff<HandlerRuntime, IAsyncEnumerable<TResult>> next) =>
+            Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> next) =>
             from _ in liftEff(() =>
             {
                 _accumulator.Count += 1;
@@ -71,9 +71,9 @@ public class ReflectionStreamRunnerTests
             _accumulator = accumulator;
         }
 
-        public Eff<HandlerRuntime, IAsyncEnumerable<Response>> Define(
+        public Eff<VSlicesRuntime, IAsyncEnumerable<Response>> Define(
             Request request,
-            Eff<HandlerRuntime, IAsyncEnumerable<Response>> next) =>
+            Eff<VSlicesRuntime, IAsyncEnumerable<Response>> next) =>
             from _ in liftEff(() =>
             {
                 _accumulator.Count += 1;
@@ -97,7 +97,7 @@ public class ReflectionStreamRunnerTests
             _accumulator = accumulator;
         }
 
-        public Eff<HandlerRuntime, IAsyncEnumerable<Response>> Define(Request request) =>
+        public Eff<VSlicesRuntime, IAsyncEnumerable<Response>> Define(Request request) =>
             from token in cancelToken
             from _ in liftEff(() =>
                 {
@@ -137,7 +137,7 @@ public class ReflectionStreamRunnerTests
         services.AddSingleton<Accumulator>();
 
         ServiceProvider provider  = services
-                                    .AddHandlerRuntime()
+                                    .AddVSlicesRuntime()
                                     .BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
@@ -175,7 +175,7 @@ public class ReflectionStreamRunnerTests
         services.AddSingleton<Accumulator>();
 
         ServiceProvider provider = services
-                                   .AddHandlerRuntime()
+                                   .AddVSlicesRuntime()
                                    .BuildServiceProvider();
 
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
@@ -206,7 +206,7 @@ public class ReflectionStreamRunnerTests
     {
         const int expCount = 3;
         var provider = new ServiceCollection()
-                       .AddHandlerRuntime()
+                       .AddVSlicesRuntime()
                        .AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IStreamPipelineBehavior<Request, Response>),
                                      typeof(ConcretePipelineBehaviorOne))
@@ -242,7 +242,7 @@ public class ReflectionStreamRunnerTests
     {
         const int expCount = 3;
         var provider = new ServiceCollection()
-                       .AddHandlerRuntime()
+                       .AddVSlicesRuntime()
                        .AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
                        .AddTransient<IStreamHandler<Request, Response>, Handler>()
@@ -278,7 +278,7 @@ public class ReflectionStreamRunnerTests
     {
         const int expCount = 4;
         var provider = new ServiceCollection()
-                       .AddHandlerRuntime()
+                       .AddVSlicesRuntime()
                        .AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
                        .AddTransient(typeof(IStreamPipelineBehavior<Request, Response>),

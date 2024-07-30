@@ -6,8 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Base.Failures;
+using VSlices.Base.Traits;
 using VSlices.Core;
-using VSlices.Core.Traits;
 
 namespace VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests;
 
@@ -35,10 +35,10 @@ public class AbstractExceptionHandlingBehaviorTests
         Request request = new(null!);
 
         #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-        Eff<HandlerRuntime, RequestResult> next = liftEff<HandlerRuntime, RequestResult>(async _ => throw new UnreachableException());
+        Eff<VSlicesRuntime, RequestResult> next = liftEff<VSlicesRuntime, RequestResult>(async _ => throw new UnreachableException());
         #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
-        Eff<HandlerRuntime, RequestResult> pipelineEffect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, RequestResult> pipelineEffect = pipeline.Define(request, next);
 
 
         ServiceProvider provider = new ServiceCollection()
@@ -46,7 +46,7 @@ public class AbstractExceptionHandlingBehaviorTests
             .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider);
+        var runtime = VSlicesRuntime.New(dependencyProvider);
 
         Fin<RequestResult> pipelineResult = pipelineEffect.Run(runtime, EnvIO.New());
 

@@ -5,9 +5,10 @@ using LanguageExt.Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using VSlices.Base;
 using VSlices.Base.Failures;
 using VSlices.Core;
-using VSlices.Core.Traits;
+using VSlices.Base.Traits;
 using VSlices.Core.UseCases;
 using VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
 using VSlices.CrossCutting.Pipeline.Logging.UnitTests.Extensions;
@@ -78,7 +79,7 @@ public class LoggingBehaviorTests
                                    .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider);
+        var                runtime            = VSlicesRuntime.New(dependencyProvider);
 
         // Act
         Fin<Unit> result = sut.Define(request, SuccessEff(unit))
@@ -118,14 +119,14 @@ public class LoggingBehaviorTests
             .Returns(expFirstTime);
 
         ServiceProvider provider = new ServiceCollection()
-                                   .AddHandlerRuntime()
+                                   .AddVSlicesRuntime()
                                    .AddSingleton<ILogger<Request>>(_logger)
                                    .AddSingleton(_timeProvider)
                                    .AddSingleton(template)
                                    .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider);
+        var                runtime            = VSlicesRuntime.New(dependencyProvider);
 
         // Act
         Fin<Unit> result = sut.Define(request, liftEff<Unit>(() => expError))
@@ -171,7 +172,7 @@ public class LoggingBehaviorTests
                                    .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider);
+        var                runtime            = VSlicesRuntime.New(dependencyProvider);
 
         // Act
         Fin<Unit> result = sut.Define(request, liftEff<Unit>(() => expError))

@@ -16,7 +16,7 @@ public class FeatureBuilderExtensionsTests
     public class TestPipeline<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
-        public Eff<HandlerRuntime, TResult> Define(TRequest request, Eff<HandlerRuntime, TResult> next)
+        public Eff<VSlicesRuntime, TResult> Define(TRequest request, Eff<VSlicesRuntime, TResult> next)
         {
             return next;
         }
