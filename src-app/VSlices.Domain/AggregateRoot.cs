@@ -4,7 +4,7 @@ namespace VSlices.Domain;
 
 /// <inheritdoc cref="IEntity{TKey}" />
 public abstract class AggregateRoot<TKey> : Entity<TKey>, IAggregateRoot<TKey>
-    where TKey : struct, IEquatable<TKey>
+    where TKey : class, IEquatable<TKey>
 {
     /// <summary>
     /// Empty constructor to use in serialization scenarios

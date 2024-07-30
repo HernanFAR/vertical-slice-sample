@@ -1,6 +1,7 @@
 ﻿using VSlices.Domain.Interfaces;
 
-namespace VSlices.Domain.Abstractions;
+// ReSharper disable once CheckNamespace
+namespace VSlices.Domain;
 
 /// <summary>
 /// A static class that contains abstractions for classes that can't implement <see cref="Entity{TKey}"/>.
@@ -14,13 +15,13 @@ public static class EntityExtensions
     /// <param name="this">Entity</param>
     /// <returns>String representation of the instance</returns>
     public static string EntityToString<TKey>(this IEntity<TKey> @this)
-        where TKey : struct, IEquatable<TKey>
+        where TKey : class, IEquatable<TKey>
     {
         return $"[{@this.GetType().Name} | {string.Join(", ", @this.Id.ToString())}]";
     }
 
     public static bool EntityEquals<TKey>(this IEntity<TKey>? @this, IEntity<TKey>? other)
-        where TKey : struct, IEquatable<TKey>
+        where TKey : class, IEquatable<TKey>
     {
         if (other is null || @this is null)
         {
