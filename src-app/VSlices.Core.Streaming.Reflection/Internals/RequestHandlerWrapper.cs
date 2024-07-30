@@ -33,7 +33,6 @@ internal class StreamRunnerWrapper<TRequest, TResult> : AbstractStreamRunnerWrap
                                                           IServiceProvider serviceProvider,
                                                           CancellationToken cancellationToken)
     {
-        var runtime = serviceProvider.GetRequiredService<VSlicesRuntime>();
         var handler = serviceProvider.GetRequiredService<IStreamHandler<TRequest, TResult>>();
 
         Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> handlerEffect = 
@@ -46,6 +45,9 @@ internal class StreamRunnerWrapper<TRequest, TResult> : AbstractStreamRunnerWrap
         Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> effectChain = 
             pipelines.Aggregate(handlerEffect, 
                                 (current, behavior) => behavior.Define((TRequest)request, current));
+
+        using var scope   = serviceProvider.CreateScope();
+        var       runtime = scope.ServiceProvider.GetRequiredService<VSlicesRuntime>();
 
         return effectChain.Run(runtime, cancellationToken);
     }

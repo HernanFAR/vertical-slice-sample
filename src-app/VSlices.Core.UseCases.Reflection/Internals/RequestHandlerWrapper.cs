@@ -35,8 +35,7 @@ internal class RequestRunnerWrapper<TRequest, TResponse> : AbstractRequestRunner
                                           IServiceProvider serviceProvider, 
                                           CancellationToken cancellationToken)
     {
-        var runtime = serviceProvider.GetRequiredService<VSlicesRuntime>();
-        var handler = serviceProvider.GetRequiredService<IHandler<TRequest, TResponse>>();
+        var       handler = serviceProvider.GetRequiredService<IHandler<TRequest, TResponse>>();
 
         Eff<VSlicesRuntime, TResponse> handlerEffect = handler.Define((TRequest)request);
 
@@ -47,6 +46,9 @@ internal class RequestRunnerWrapper<TRequest, TResponse> : AbstractRequestRunner
         Eff<VSlicesRuntime, TResponse> effectChain = pipelines
             .Aggregate(handlerEffect,
                        (next, behavior) => behavior.Define((TRequest)request, next));
+
+        using var scope   = serviceProvider.CreateScope();
+        var       runtime = scope.ServiceProvider.GetRequiredService<VSlicesRuntime>();
 
         return effectChain.Run(runtime, cancellationToken);
     }

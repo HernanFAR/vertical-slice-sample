@@ -14,7 +14,8 @@ namespace Microsoft.Extensions.DependencyInjection;
 public static class Start
 {
     public static IServiceCollection AddCrossCutting(this IServiceCollection services)
-        => services.AddDbContext<AppDbContext>((b) => b.UseSqlite("Data Source=app.db"))
+        => services.AddDbContext<AppDbContext>(b => b.UseSqlite("Data Source=app.db")
+                                                       .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking))
             .AddHostedTaskListener()
             .AddEndpointsApiExplorer()
             .AddSwaggerGen(e =>
