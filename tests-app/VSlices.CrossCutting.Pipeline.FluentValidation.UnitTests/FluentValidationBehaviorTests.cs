@@ -28,7 +28,7 @@ public class AbstractExceptionHandlingBehaviorTests
     }
 
     [Fact]
-    public async Task BeforeHandleAsync_ShouldInterruptExecution()
+    public Task BeforeHandleAsync_ShouldInterruptExecution()
     {
         const int expErrorCount = 1;
         FluentValidationBehavior<Request, RequestResult> pipeline = new();
@@ -46,7 +46,7 @@ public class AbstractExceptionHandlingBehaviorTests
             .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var runtime = HandlerRuntime.New(dependencyProvider);
 
         Fin<RequestResult> pipelineResult = pipelineEffect.Run(runtime, EnvIO.New());
 
@@ -64,5 +64,6 @@ public class AbstractExceptionHandlingBehaviorTests
                     return unit;
                 }
             );
+        return Task.CompletedTask;
     }
 }

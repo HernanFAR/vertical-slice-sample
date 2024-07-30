@@ -80,11 +80,11 @@ public class LoggingStreamBehaviorTests
                                    .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var                runtime            = HandlerRuntime.New(dependencyProvider);
 
         // Act
         Fin<IAsyncEnumerable<Response>> result = sut.Define(request, SuccessEff(Yield()))
-                                                    .Run(runtime, runtime.EnvIO);
+                                                    .Run(runtime, default(CancellationToken));
 
         // Assert
         result.IsSucc.Should().BeTrue();
@@ -134,12 +134,12 @@ public class LoggingStreamBehaviorTests
                                    .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var                runtime            = HandlerRuntime.New(dependencyProvider);
 
         // Act
         Fin<IAsyncEnumerable<Response>> result = sut
             .Define(request, liftEff<IAsyncEnumerable<Response>>(() => expError))
-            .Run(runtime, runtime.EnvIO);
+            .Run(runtime, default(CancellationToken));
 
         // Assert
         result.IsSucc.Should().BeFalse();
@@ -181,11 +181,11 @@ public class LoggingStreamBehaviorTests
                                    .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var                runtime            = HandlerRuntime.New(dependencyProvider);
 
         // Act
         Fin<IAsyncEnumerable<Response>> result = sut.Define(request, liftEff<IAsyncEnumerable<Response>>(() => expError))
-                                                    .Run(runtime, runtime.EnvIO);
+                                                    .Run(runtime, default(CancellationToken));
 
         // Assert
         result.IsSucc.Should().BeFalse();

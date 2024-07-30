@@ -23,7 +23,7 @@ public sealed class ReflectionEventRunner(
     private readonly IPublishingStrategy _strategy = strategy;
 
     /// <inheritdoc />
-    public Fin<Unit> Publish(IEvent request, HandlerRuntime runtime)
+    public Fin<Unit> Publish(IEvent request, CancellationToken cancellationToken = default)
     {
         AbstractHandlerWrapper handler = RequestHandlers.GetOrAdd(
             request.GetType(),
@@ -35,6 +35,6 @@ public sealed class ReflectionEventRunner(
                 return (AbstractHandlerWrapper)wrapper;
             });
 
-        return handler.Handle(request, runtime, _serviceProvider, _strategy);
+        return handler.Handle(request, _serviceProvider, _strategy, cancellationToken);
     }
 }

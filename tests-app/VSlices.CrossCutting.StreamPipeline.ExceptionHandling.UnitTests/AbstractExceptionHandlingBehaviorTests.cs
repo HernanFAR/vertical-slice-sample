@@ -49,9 +49,9 @@ public class AbstractExceptionHandlingStreamBehaviorTests
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var runtime = HandlerRuntime.New(dependencyProvider);
 
-        Fin<IAsyncEnumerable<Result>> pipelineResult = pipelineEffect.Run(runtime, runtime.EnvIO);
+        Fin<IAsyncEnumerable<Result>> pipelineResult = pipelineEffect.Run(runtime, default(CancellationToken));
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();

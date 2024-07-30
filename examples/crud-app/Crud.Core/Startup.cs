@@ -12,22 +12,24 @@ global using Microsoft.AspNetCore.Routing;
 
 global using static VSlices.CorePrelude;
 global using static LanguageExt.Prelude;
+using VSlices.Core.Extensions;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static class Startup
 {
-    public static IServiceCollection AddCore(this IServiceCollection services)
-        => services.AddFeatureDependenciesFromAssemblyContaining<Anchor>()
-            // Request
-            .AddReflectionRequestRunner()
-            // Streams
-            .AddReflectionStreamRunner()
-            // Events
-            .AddReflectionEventRunner()
-            .AddInMemoryEventQueue()
-            .AddEventListener();
+    public static IServiceCollection AddCore(this IServiceCollection services) =>
+        services.AddFeatureDependenciesFromAssemblyContaining<Anchor>()
+                .AddHandlerRuntime()
+                // Request
+                .AddReflectionRequestRunner()
+                // Streams
+                .AddReflectionStreamRunner()
+                // Events
+                .AddReflectionEventRunner()
+                .AddInMemoryEventQueue()
+                .AddEventListener();
 }
 
 internal sealed class Anchor;

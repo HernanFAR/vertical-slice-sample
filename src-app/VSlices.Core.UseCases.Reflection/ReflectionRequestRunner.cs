@@ -16,7 +16,7 @@ public class ReflectionRequestRunner(IServiceProvider serviceProvider) : IReques
     private readonly IServiceProvider _serviceProvider = serviceProvider;
 
     /// <inheritdoc />
-    public Fin<TResponse> Run<TResponse>(IRequest<TResponse> request, HandlerRuntime runtime)
+    public Fin<TResponse> Run<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken)
     {
         var handler = (AbstractRequestRunnerWrapper<TResponse>)RequestHandlers
             .GetOrAdd(request.GetType(), 
@@ -29,16 +29,6 @@ public class ReflectionRequestRunner(IServiceProvider serviceProvider) : IReques
                     return (AbstractRequestRunnerWrapper)wrapper;
                 });
 
-        return handler.Handle(request, runtime, _serviceProvider);
-    }
-
-    /// <inheritdoc />
-    public Fin<TResult> Run<TResult>(IRequest<TResult> request,
-                                     CancellationToken cancellationToken = default)
-    {
-        DependencyProvider dependencyProvider = new(_serviceProvider);
-        var                envIo              = EnvIO.New(token: cancellationToken);
-
-        return Run(request, HandlerRuntime.New(dependencyProvider, envIo));
+        return handler.Handle(request, _serviceProvider, cancellationToken);
     }
 }

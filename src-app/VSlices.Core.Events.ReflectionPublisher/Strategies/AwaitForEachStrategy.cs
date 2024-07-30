@@ -12,16 +12,13 @@ public sealed class AwaitForEachStrategy : IPublishingStrategy
     /// <summary>
     /// Handles the given handlers in parallel using for each.
     /// </summary>
-    /// <param name="delegates">Request Handlers</param>
-    /// <param name="runtime">Execution runtime</param>
-    /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    public Fin<Unit> Handle(Eff<HandlerRuntime, Unit>[] delegates, HandlerRuntime runtime)
+    public Fin<Unit> Handle(Eff<HandlerRuntime, Unit>[] delegates, HandlerRuntime runtime, CancellationToken cancellationToken)
     {
         List<Error> errors = new(delegates.Length);
 
         foreach (Eff<HandlerRuntime, Unit> handlerDelegate in delegates)
         {
-            Fin<Unit> result = handlerDelegate.Run(runtime, runtime.EnvIO);
+            Fin<Unit> result = handlerDelegate.Run(runtime, cancellationToken);
 
             result.IfFail(errors.Add);
         }

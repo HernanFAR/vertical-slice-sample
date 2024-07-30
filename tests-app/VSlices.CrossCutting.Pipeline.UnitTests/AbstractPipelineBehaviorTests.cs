@@ -40,9 +40,9 @@ public class AbstractPipelineBehaviorTests
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var runtime = HandlerRuntime.New(dependencyProvider);
 
-        Fin<Result> result = effect.Run(runtime, runtime.EnvIO);
+        Fin<Result> result = effect.Run(runtime, default(CancellationToken));
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -86,9 +86,9 @@ public class AbstractPipelineBehaviorTests
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var runtime = HandlerRuntime.New(dependencyProvider);
 
-        Fin<Result> effectResult = effect.Run(runtime, runtime.EnvIO);
+        Fin<Result> effectResult = effect.Run(runtime, default(CancellationToken));
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -132,11 +132,11 @@ public class AbstractPipelineBehaviorTests
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var runtime = HandlerRuntime.New(dependencyProvider);
 
-        var         result_      = liftEff<HandlerRuntime, Result>(_ => failure).Run(runtime, runtime.EnvIO);
+        var         result_      = liftEff<HandlerRuntime, Result>(_ => failure).Run(runtime, default(CancellationToken));
 
-        Fin<Result> effectResult = effect.Run(runtime, runtime.EnvIO);
+        Fin<Result> effectResult = effect.Run(runtime, default(CancellationToken));
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();

@@ -9,8 +9,7 @@ namespace VSlices.Core;
 /// Handler runtime implementation
 /// </summary>
 public sealed class HandlerRuntime
-    : HasIO<HandlerRuntime>,
-      Has<Eff<HandlerRuntime>, DependencyProvider>,
+    : Has<Eff<HandlerRuntime>, DependencyProvider>,
       Has<Eff<HandlerRuntime>, FileIO>,
       Has<Eff<HandlerRuntime>, DirectoryIO>
 {
@@ -18,25 +17,14 @@ public sealed class HandlerRuntime
     private readonly FileIO _fileIo;
     private readonly DirectoryIO _directoryIo;
 
-    private HandlerRuntime(DependencyProvider dependencyProvider, 
-                           EnvIO envIo, 
+    private HandlerRuntime(DependencyProvider dependencyProvider,
                            FileIO fileIo,
                            DirectoryIO directoryIo)
     {
         _dependencyProvider = dependencyProvider;
         _fileIo             = fileIo;
         _directoryIo        = directoryIo;
-        EnvIO               = envIo;
     }
-
-    /// <inheritdoc />
-    public HandlerRuntime WithIO(EnvIO envIO)
-    {
-        return new HandlerRuntime(_dependencyProvider, envIO, _fileIo, _directoryIo);
-    }
-
-    /// <inheritdoc />
-    public EnvIO EnvIO { get; }
 
     K<Eff<HandlerRuntime>, DependencyProvider>
         Has<Eff<HandlerRuntime>, DependencyProvider>.Trait =>
@@ -44,28 +32,22 @@ public sealed class HandlerRuntime
 
     K<Eff<HandlerRuntime>, FileIO>
         Has<Eff<HandlerRuntime>, FileIO>.Trait =>
-        liftEff((HandlerRuntime _) => Implementations.FileIO.Default);
+        liftEff((HandlerRuntime _) => _fileIo);
 
     K<Eff<HandlerRuntime>, DirectoryIO>
         Has<Eff<HandlerRuntime>, DirectoryIO>.Trait =>
-        liftEff((HandlerRuntime _) => Implementations.DirectoryIO.Default);
+        liftEff((HandlerRuntime _) => _directoryIo);
 
     /// <summary>
     /// Creates a <see cref="HandlerRuntime"/> by specifying all the dependencies
     /// </summary>
-    public static HandlerRuntime New(DependencyProvider dependencyProvider,
-                              EnvIO envIo,
-                              FileIO fileIo,
-                              DirectoryIO directoryIo)
-        => new(dependencyProvider, envIo, fileIo, directoryIo);
+    public static HandlerRuntime New(DependencyProvider dependencyProvider, FileIO fileIo, DirectoryIO directoryIo)
+        => new(dependencyProvider,  fileIo, directoryIo);
 
     /// <summary>
     /// Creates a <see cref="HandlerRuntime"/> by specifying all the dependencies
     /// </summary>
-    public static HandlerRuntime New(DependencyProvider dependencyProvider,
-                                     EnvIO envIo)
-        => new(dependencyProvider, envIo, 
-               Implementations.FileIO.Default, 
-               Implementations.DirectoryIO.Default); 
+    public static HandlerRuntime New(DependencyProvider dependencyProvider)
+        => new(dependencyProvider, Implementations.FileIO.Default, Implementations.DirectoryIO.Default); 
 
 }

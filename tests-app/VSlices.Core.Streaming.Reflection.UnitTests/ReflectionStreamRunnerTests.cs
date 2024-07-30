@@ -137,12 +137,11 @@ public class ReflectionStreamRunnerTests
         services.AddSingleton<Accumulator>();
 
         ServiceProvider    provider           = services.BuildServiceProvider();
-        DependencyProvider dependencyProvider = new(provider);
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request());
 
         await result.Match(
             async enumeration =>
@@ -174,12 +173,11 @@ public class ReflectionStreamRunnerTests
         services.AddSingleton<Accumulator>();
 
         ServiceProvider    provider           = services.BuildServiceProvider();
-        DependencyProvider dependencyProvider = new(provider);
 
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request());
 
         await result.Match(
             async enumeration =>
@@ -211,13 +209,12 @@ public class ReflectionStreamRunnerTests
         services.AddTransient<IStreamRunner, ReflectionStreamRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider    provider           = services.BuildServiceProvider();
-        DependencyProvider dependencyProvider = new(provider);
+        ServiceProvider provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request());
 
         await result.Match(
             async enumeration =>
@@ -249,12 +246,11 @@ public class ReflectionStreamRunnerTests
         services.AddSingleton<Accumulator>();
 
         ServiceProvider    provider           = services.BuildServiceProvider();
-        DependencyProvider dependencyProvider = new(provider);
 
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request());
 
         await result.Match(
             async enumeration =>
@@ -288,12 +284,11 @@ public class ReflectionStreamRunnerTests
         services.AddSingleton<Accumulator>();
 
         ServiceProvider    provider           = services.BuildServiceProvider();
-        DependencyProvider dependencyProvider = new(provider);
 
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
 
-        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        Fin<IAsyncEnumerable<Response>> result = sender.Run(new Request());
 
         await result.Match(
             async enumeration =>

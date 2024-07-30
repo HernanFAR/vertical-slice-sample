@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using VSlices.Core;
 using VSlices.Core.Builder;
 
@@ -95,7 +96,7 @@ public static class FeatureDependencyExtensions
         var defineDependenciesMethod = type.GetMethod(nameof(IFeatureDependencies.DefineDependencies));
 
         defineDependenciesMethod!.Invoke(null, new object?[] { new FeatureBuilder(services) });
-
+        
         return services;
     }
 }

@@ -29,7 +29,7 @@ public class AbstractExceptionHandlingBehaviorTests
     }
 
     [Fact]
-    public async Task BeforeHandleAsync_ShouldInterruptExecution()
+    public Task BeforeHandleAsync_ShouldInterruptExecution()
     {
         const int expErrorCount = 1;
         FluentValidationStreamBehavior<Request, Result> pipeline = new();
@@ -46,9 +46,9 @@ public class AbstractExceptionHandlingBehaviorTests
             .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var runtime = HandlerRuntime.New(dependencyProvider);
 
-        Fin<IAsyncEnumerable<Result>> result = pipelineEffect.Run(runtime);
+        Fin<IAsyncEnumerable<Result>> result = pipelineEffect.Run(runtime, default(CancellationToken));
 
         result
             .Match(Succ: _ => throw new UnreachableException(),
@@ -67,6 +67,7 @@ public class AbstractExceptionHandlingBehaviorTests
 
                        return unit;
                    });
+        return Task.CompletedTask;
     }
 
     [Fact]
@@ -85,9 +86,9 @@ public class AbstractExceptionHandlingBehaviorTests
             .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var runtime = HandlerRuntime.New(dependencyProvider);
         
-        Fin<IAsyncEnumerable<Result>> pipelineResult = pipelineEffect.Run(runtime);
+        Fin<IAsyncEnumerable<Result>> pipelineResult = pipelineEffect.Run(runtime, default(CancellationToken));
 
         await pipelineResult
             .Match(async enumeration =>
