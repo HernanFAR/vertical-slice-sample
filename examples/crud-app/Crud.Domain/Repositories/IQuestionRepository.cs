@@ -13,6 +13,8 @@ public interface IQuestionRepository
 
     Eff<HandlerRuntime, bool> Exists(QuestionId id);
 
+    Eff<HandlerRuntime, bool> Exists(QuestionId id, NonEmptyString name);
+
     Eff<HandlerRuntime, bool> Exists(NonEmptyString text);
 
     Eff<HandlerRuntime, Unit> Delete(Question question);

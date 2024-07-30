@@ -27,7 +27,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     public void Define(IEndpointRouteBuilder builder)
     {
         builder.MapMethods(Path, new[] { HttpMethods.Head }, Handler)
-            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithName("ExistsQuestion");
     }
@@ -42,7 +42,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
         return runner
             .Run(query, cancellationToken)
-            .MatchResult(_ => TypedResults.NoContent());
+            .MatchResult(TypedResults.NoContent());
     }
 }
 
