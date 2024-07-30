@@ -12,7 +12,7 @@ public class EventExtensionsTests
 {
     public class EventRunner : IEventRunner
     {
-        public Fin<Unit> Publish(IEvent @event, HandlerRuntime runtime)
+        public Fin<Unit> Publish(IEvent @event, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

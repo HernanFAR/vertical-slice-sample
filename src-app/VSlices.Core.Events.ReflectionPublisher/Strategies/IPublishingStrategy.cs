@@ -11,5 +11,5 @@ public interface IPublishingStrategy
     /// Handles the execution of the <see cref="IHandler{TRequest,TResponse}"/>'s related
     /// to the event.
     /// </summary>
-    Fin<Unit> Handle(Eff<HandlerRuntime, Unit>[] delegates, HandlerRuntime runtime);
+    Fin<Unit> Handle(Eff<HandlerRuntime, Unit>[] delegates, HandlerRuntime runtime, CancellationToken cancellationToken);
 }

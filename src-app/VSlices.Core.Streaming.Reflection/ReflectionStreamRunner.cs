@@ -26,8 +26,7 @@ public class ReflectionStreamRunner : IStreamRunner
     }
 
     /// <inheritdoc />
-    public Fin<IAsyncEnumerable<TResult>> Run<TResult>(IStream<TResult> request, 
-                                                       HandlerRuntime runtime)
+    public Fin<IAsyncEnumerable<TResult>> Run<TResult>(IStream<TResult> request, CancellationToken cancellationToken = default)
     {
         var handler = (AbstractStreamRunnerWrapper<TResult>)RequestHandlers
             .GetOrAdd(request.GetType(), 
@@ -40,16 +39,6 @@ public class ReflectionStreamRunner : IStreamRunner
                     return (AbstractStreamRunnerWrapper)wrapper;
                 });
 
-        return handler.Handle(request, runtime, _serviceProvider);
-    }
-
-    /// <inheritdoc />
-    public Fin<IAsyncEnumerable<TResult>> Run<TResult>(IStream<TResult> request, 
-                                                       CancellationToken cancellationToken = default)
-    {
-        DependencyProvider dependencyProvider = new(_serviceProvider);
-        var                envIo              = EnvIO.New(token: cancellationToken);
-
-        return Run(request, HandlerRuntime.New(dependencyProvider, envIo));
+        return handler.Handle(request, _serviceProvider, cancellationToken);
     }
 }

@@ -99,7 +99,7 @@ internal sealed class Validator : AbstractValidator<Command>
                                           CancellationToken cancellationToken)
     {
         Fin<bool> result = _repository.Exists(command.Id, name)
-                                      .Run(_handlerRuntime, _handlerRuntime.EnvIO);
+                                      .Run(_handlerRuntime, cancellationToken);
 
         return result.Match(exist => exist is false,
                             error =>

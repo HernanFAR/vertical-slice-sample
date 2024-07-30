@@ -40,9 +40,9 @@ public class AbstractStreamPipelineBehaviorTests
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var                runtime            = HandlerRuntime.New(dependencyProvider);
 
-        Fin<IAsyncEnumerable<Result>> effectResult = effect.Run(runtime);
+        Fin<IAsyncEnumerable<Result>> effectResult = effect.Run(runtime, default(CancellationToken));
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -85,9 +85,9 @@ public class AbstractStreamPipelineBehaviorTests
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var runtime = HandlerRuntime.New(dependencyProvider);
 
-        Fin<IAsyncEnumerable<Result>> effectResult = effect.Run(runtime);
+        Fin<IAsyncEnumerable<Result>> effectResult = effect.Run(runtime, default(CancellationToken));
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();
@@ -142,9 +142,9 @@ public class AbstractStreamPipelineBehaviorTests
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var runtime = HandlerRuntime.New(dependencyProvider);
 
-        Fin<IAsyncEnumerable<Result>> effectResult = effect.Run(runtime);
+        Fin<IAsyncEnumerable<Result>> effectResult = effect.Run(runtime, default(CancellationToken));
 
         pipelineMock.Verify();
         pipelineMock.VerifyNoOtherCalls();

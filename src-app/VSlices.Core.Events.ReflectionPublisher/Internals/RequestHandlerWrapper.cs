@@ -10,9 +10,9 @@ internal abstract class AbstractHandlerWrapper
 {
     public abstract Fin<Unit> Handle(
         IFeature<Unit> request,
-        HandlerRuntime runtime,
         IServiceProvider serviceProvider,
-        IPublishingStrategy strategy);
+        IPublishingStrategy strategy,
+        CancellationToken cancellationToken);
 }
 
 internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
@@ -20,10 +20,11 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
 {
     public override Fin<Unit> Handle(
         IFeature<Unit> request,
-        HandlerRuntime runtime,
         IServiceProvider serviceProvider,
-        IPublishingStrategy strategy)
+        IPublishingStrategy strategy, 
+        CancellationToken cancellationToken)
     {
+        var runtime = serviceProvider.GetRequiredService<HandlerRuntime>();
         IEnumerable<IHandler<TRequest, Unit>> handlers = serviceProvider
             .GetServices<IHandler<TRequest, Unit>>();
 
@@ -46,8 +47,7 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
                             })
                     .ToArray();
 
-        var result =  strategy.Handle(delegates, runtime);
+        return strategy.Handle(delegates, runtime, cancellationToken);
 
-        return result;
     }
 }

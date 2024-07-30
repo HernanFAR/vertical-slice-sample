@@ -150,8 +150,7 @@ public class ReflectionEventRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
-        DependencyProvider dependencyProvider = new(provider);
-        publisher.Publish(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        publisher.Publish(new RequestOne(), default);
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("EventHandlerOne_");
@@ -178,8 +177,7 @@ public class ReflectionEventRunnerTests
 
         var stopwatch = Stopwatch.StartNew();
 
-        DependencyProvider dependencyProvider = new(provider);
-        publisher.Publish(new RequestThree(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        publisher.Publish(new RequestThree(), default);
 
         stopwatch.Stop();
 
@@ -211,8 +209,7 @@ public class ReflectionEventRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
-        DependencyProvider dependencyProvider = new(provider);
-        publisher.Publish(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        publisher.Publish(new RequestOne(), default);
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_EventHandlerOne_");
@@ -238,8 +235,7 @@ public class ReflectionEventRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
-        DependencyProvider dependencyProvider = new(provider);
-        publisher.Publish(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        publisher.Publish(new RequestOne(), default);
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_ConcretePipelineOne_EventHandlerOne_");
@@ -263,8 +259,7 @@ public class ReflectionEventRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
-        DependencyProvider dependencyProvider = new(provider);
-        publisher.Publish(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        publisher.Publish(new RequestOne(), default);
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_OpenPipelineTwo_EventHandlerOne_");
@@ -289,8 +284,7 @@ public class ReflectionEventRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
-        DependencyProvider dependencyProvider = new(provider);
-        publisher.Publish(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        publisher.Publish(new RequestOne(), default);
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_OpenPipelineTwo_ConcretePipelineOne_EventHandlerOne_");
@@ -316,8 +310,7 @@ public class ReflectionEventRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
-        DependencyProvider dependencyProvider = new(provider);
-        publisher.Publish(new RequestTwo(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        publisher.Publish(new RequestTwo(), default);
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_OpenPipelineTwo_EventHandlerTwo_");

@@ -99,7 +99,7 @@ public class ReflectionRequestRunnerTests
     }
 
     [Fact]
-    public async Task Sender_Should_CallHandler()
+    public Task Sender_Should_CallHandler()
     {
         const int expCount = 1;
         ServiceCollection services = new();
@@ -114,7 +114,7 @@ public class ReflectionRequestRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        Fin<Unit> effectResult = sender.Run(new RequestOne(), default);
 
         _ = effectResult.Match(
             _ => unit,
@@ -122,11 +122,11 @@ public class ReflectionRequestRunnerTests
 
         accumulator.Str.Should().Be("HandlerOne_");
         accumulator.Count.Should().Be(expCount);
-
+        return Task.CompletedTask;
     }
 
     [Fact]
-    public async Task Sender_Should_CallHandlerAndOpenPipeline()
+    public Task Sender_Should_CallHandlerAndOpenPipeline()
     {
         const int expCount = 2;
         ServiceCollection services = new();
@@ -142,7 +142,7 @@ public class ReflectionRequestRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        Fin<Unit> effectResult = sender.Run(new RequestOne(), default);
 
         _ = effectResult.Match(
             _ => unit,
@@ -150,11 +150,11 @@ public class ReflectionRequestRunnerTests
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_HandlerOne_");
-
+        return Task.CompletedTask;
     }
 
     [Fact]
-    public async Task Sender_Should_CallHandlerAndOpenPipelineAndClosedPipeline()
+    public Task Sender_Should_CallHandlerAndOpenPipelineAndClosedPipeline()
     {
         const int expCount = 3;
         ServiceCollection services = new();
@@ -171,7 +171,7 @@ public class ReflectionRequestRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        Fin<Unit> effectResult = sender.Run(new RequestOne(), default);
 
         _ = effectResult.Match(
             _ => unit,
@@ -179,10 +179,11 @@ public class ReflectionRequestRunnerTests
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_ConcretePipelineOne_HandlerOne_");
+        return Task.CompletedTask;
     }
 
     [Fact]
-    public async Task Sender_Should_CallHandlerAndTwoOpenPipeline()
+    public Task Sender_Should_CallHandlerAndTwoOpenPipeline()
     {
         const int expCount = 3;
         ServiceCollection services = new();
@@ -199,7 +200,7 @@ public class ReflectionRequestRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        Fin<Unit> effectResult = sender.Run(new RequestOne(), default);
 
         _ = effectResult.Match(
             _ => unit,
@@ -207,11 +208,11 @@ public class ReflectionRequestRunnerTests
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_OpenPipelineTwo_HandlerOne_");
-
+        return Task.CompletedTask;
     }
 
     [Fact]
-    public async Task Sender_Should_CallHandlerAndTwoOpenPipelineAndOneClosedPipeline()
+    public Task Sender_Should_CallHandlerAndTwoOpenPipelineAndOneClosedPipeline()
     {
         const int expCount = 4;
         ServiceCollection services = new();
@@ -229,7 +230,7 @@ public class ReflectionRequestRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        Fin<Unit> effectResult = sender.Run(new RequestOne(), default);
         
         _ = effectResult.Match(
             _ => unit,
@@ -237,11 +238,11 @@ public class ReflectionRequestRunnerTests
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_OpenPipelineTwo_ConcretePipelineOne_HandlerOne_");
-
+        return Task.CompletedTask;
     }
 
     [Fact]
-    public async Task Sender_Should_CallHandlerAndTwoOpenPipelineAndNoneClosedPipeline()
+    public Task Sender_Should_CallHandlerAndTwoOpenPipelineAndNoneClosedPipeline()
     {
         const int expCount = 3;
         ServiceCollection services = new();
@@ -260,7 +261,7 @@ public class ReflectionRequestRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestTwo(), HandlerRuntime.New(dependencyProvider, EnvIO.New()));
+        Fin<Unit> effectResult = sender.Run(new RequestTwo(), default);
 
         _ = effectResult.Match(
             _ => unit,
@@ -268,6 +269,6 @@ public class ReflectionRequestRunnerTests
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_OpenPipelineTwo_EventHandlerTwo_");
-
+        return Task.CompletedTask;
     }
 }

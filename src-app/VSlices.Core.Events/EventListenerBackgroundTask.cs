@@ -33,10 +33,6 @@ public sealed class EventListenerBackgroundTask(
     /// <inheritdoc />
     public async ValueTask ExecuteAsync(CancellationToken cancellationToken)
     {
-        DependencyProvider dependencyProvider = new(_serviceProvider);
-        var                envIo              = EnvIO.New(token: cancellationToken);
-        var                runtime            = HandlerRuntime.New(dependencyProvider, envIo);
-
         while (!cancellationToken.IsCancellationRequested)
         {
             await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
@@ -50,7 +46,7 @@ public sealed class EventListenerBackgroundTask(
             {
                 try
                 {
-                    Fin<Unit> result = publisher.Publish(workItem, runtime);
+                    Fin<Unit> result = publisher.Publish(workItem, cancellationToken);
 
                     _ = result.IfFail(error => throw error);
 

@@ -78,11 +78,11 @@ public class LoggingBehaviorTests
                                    .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var                runtime            = HandlerRuntime.New(dependencyProvider);
 
         // Act
         Fin<Unit> result = sut.Define(request, SuccessEff(unit))
-                              .Run(runtime, runtime.EnvIO);
+                              .Run(runtime, default(CancellationToken));
 
         // Assert
         result.IsSucc.Should().BeTrue();
@@ -124,11 +124,11 @@ public class LoggingBehaviorTests
                                    .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var                runtime            = HandlerRuntime.New(dependencyProvider);
 
         // Act
         Fin<Unit> result = sut.Define(request, liftEff<Unit>(() => expError))
-                              .Run(runtime, runtime.EnvIO);
+                              .Run(runtime, default(CancellationToken));
 
         // Assert
         result.IsSucc.Should().BeFalse();
@@ -170,11 +170,11 @@ public class LoggingBehaviorTests
                                    .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider, EnvIO.New());
+        var                runtime            = HandlerRuntime.New(dependencyProvider);
 
         // Act
         Fin<Unit> result = sut.Define(request, liftEff<Unit>(() => expError))
-                              .Run(runtime, runtime.EnvIO);
+                              .Run(runtime, default(CancellationToken));
 
         // Assert
         result.IsSucc.Should().BeFalse();

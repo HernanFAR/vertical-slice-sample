@@ -57,6 +57,15 @@ public sealed class EfQuestionRepository : IQuestionRepository
                                     .AnyAsync(x => x.Id == id.Value, token))
         select exist;
 
+    public Eff<HandlerRuntime, bool> Exists(QuestionId id, NonEmptyString name) =>
+        from token in cancelToken
+        from context in provide<AppDbContext>()
+        from exist in liftEff(() => context
+                                    .Questions
+                                    .Where(e => e.Id != id.Value)
+                                    .AnyAsync(x => x.Text == name.Value, token))
+        select exist;
+
     public Eff<HandlerRuntime, bool> Exists(NonEmptyString text) =>
         from token in cancelToken
         from context in provide<AppDbContext>()
