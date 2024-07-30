@@ -136,7 +136,9 @@ public class ReflectionStreamRunnerTests
         services.AddTransient<IStreamRunner, ReflectionStreamRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider    provider           = services.BuildServiceProvider();
+        ServiceProvider provider  = services
+                                    .AddHandlerRuntime()
+                                    .BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
@@ -172,7 +174,9 @@ public class ReflectionStreamRunnerTests
         services.AddTransient<IStreamRunner, ReflectionStreamRunner>();
         services.AddSingleton<Accumulator>();
 
-        ServiceProvider    provider           = services.BuildServiceProvider();
+        ServiceProvider provider = services
+                                   .AddHandlerRuntime()
+                                   .BuildServiceProvider();
 
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
@@ -201,15 +205,15 @@ public class ReflectionStreamRunnerTests
     public async Task Sender_Should_CallHandlerAndOpenPipelineAndClosedPipeline()
     {
         const int expCount = 3;
-        ServiceCollection services = new();
-
-        services.AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient(typeof(IStreamPipelineBehavior<Request, Response>), typeof(ConcretePipelineBehaviorOne));
-        services.AddTransient<IStreamHandler<Request, Response>, Handler>();
-        services.AddTransient<IStreamRunner, ReflectionStreamRunner>();
-        services.AddSingleton<Accumulator>();
-
-        ServiceProvider provider = services.BuildServiceProvider();
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(IStreamPipelineBehavior<Request, Response>),
+                                     typeof(ConcretePipelineBehaviorOne))
+                       .AddTransient<IStreamHandler<Request, Response>, Handler>()
+                       .AddTransient<IStreamRunner, ReflectionStreamRunner>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
@@ -237,15 +241,14 @@ public class ReflectionStreamRunnerTests
     public async Task Sender_Should_CallHandlerAndTwoOpenPipeline()
     {
         const int expCount = 3;
-        ServiceCollection services = new();
-
-        services.AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>));
-        services.AddTransient<IStreamHandler<Request, Response>, Handler>();
-        services.AddTransient<IStreamRunner, ReflectionStreamRunner>();
-        services.AddSingleton<Accumulator>();
-
-        ServiceProvider    provider           = services.BuildServiceProvider();
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
+                       .AddTransient<IStreamHandler<Request, Response>, Handler>()
+                       .AddTransient<IStreamRunner, ReflectionStreamRunner>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();
@@ -274,16 +277,16 @@ public class ReflectionStreamRunnerTests
     public async Task Sender_Should_CallHandlerAndTwoOpenPipelineAndOneClosedPipeline()
     {
         const int expCount = 4;
-        ServiceCollection services = new();
-
-        services.AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>));
-        services.AddTransient(typeof(IStreamPipelineBehavior<Request, Response>), typeof(ConcretePipelineBehaviorOne));
-        services.AddTransient<IStreamHandler<Request, Response>, Handler>();
-        services.AddTransient<IStreamRunner, ReflectionStreamRunner>();
-        services.AddSingleton<Accumulator>();
-
-        ServiceProvider    provider           = services.BuildServiceProvider();
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(IStreamPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
+                       .AddTransient(typeof(IStreamPipelineBehavior<Request, Response>),
+                                     typeof(ConcretePipelineBehaviorOne))
+                       .AddTransient<IStreamHandler<Request, Response>, Handler>()
+                       .AddTransient<IStreamRunner, ReflectionStreamRunner>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
         Accumulator accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IStreamRunner>();

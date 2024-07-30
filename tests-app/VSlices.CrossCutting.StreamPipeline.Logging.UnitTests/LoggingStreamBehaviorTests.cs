@@ -75,7 +75,7 @@ public class LoggingStreamBehaviorTests
 
         ServiceProvider provider = new ServiceCollection()
                                    .AddSingleton<ILogger<Request>>(_logger)
-                                   .AddSingleton(TimeProvider.System)
+                                   .AddSingleton(_timeProvider)
                                    .AddSingleton(template)
                                    .BuildServiceProvider();
 
@@ -129,7 +129,7 @@ public class LoggingStreamBehaviorTests
 
         ServiceProvider provider = new ServiceCollection()
                                    .AddSingleton<ILogger<Request>>(_logger)
-                                   .AddSingleton(TimeProvider.System)
+                                   .AddSingleton(_timeProvider)
                                    .AddSingleton(template)
                                    .BuildServiceProvider();
 
@@ -176,7 +176,7 @@ public class LoggingStreamBehaviorTests
 
         ServiceProvider provider = new ServiceCollection()
                                    .AddSingleton<ILogger<Request>>(_logger)
-                                   .AddSingleton(TimeProvider.System)
+                                   .AddSingleton(_timeProvider)
                                    .AddSingleton(template)
                                    .BuildServiceProvider();
 

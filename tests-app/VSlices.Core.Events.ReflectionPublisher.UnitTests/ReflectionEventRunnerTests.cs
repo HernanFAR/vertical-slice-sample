@@ -139,14 +139,14 @@ public class ReflectionEventRunnerTests
     public Task Publisher_Should_CallOneHandler()
     {
         const int expCount = 1;
-        var services = new ServiceCollection();
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IEventRunner, ReflectionEventRunner>()
+                       .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
-        services.AddTransient<IHandler<RequestOne, Unit>, HandlerOne>();
-        services.AddTransient<IEventRunner, ReflectionEventRunner>();
-        services.AddScoped<IPublishingStrategy, AwaitForEachStrategy>();
-        services.AddSingleton<Accumulator>();
-
-        var provider = services.BuildServiceProvider();
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
@@ -161,18 +161,19 @@ public class ReflectionEventRunnerTests
     [InlineData(typeof(AwaitForEachStrategy), 2999)]
     public Task Publisher_Should_CallManyHandler(Type strategyType, int time)
     {
-        var services = new ServiceCollection();
         var strategy = (IPublishingStrategy)Activator.CreateInstance(strategyType)!;
 
-        services.AddScoped<RequestThreeHandlerA>();
-        services.AddScoped<IHandler<RequestThree, Unit>>(s => s.GetRequiredService<RequestThreeHandlerA>());
-        services.AddScoped<RequestThreeHandlerB>();
-        services.AddScoped<IHandler<RequestThree, Unit>>(s => s.GetRequiredService<RequestThreeHandlerB>());
-        services.AddScoped<IEventRunner, ReflectionEventRunner>();
-        services.AddSingleton<Accumulator>();
-        services.AddScoped(_ => strategy);
+        var provider = new ServiceCollection()
+            .AddHandlerRuntime()
+            .AddScoped<RequestThreeHandlerA>()
+            .AddScoped<IHandler<RequestThree, Unit>>(s => s.GetRequiredService<RequestThreeHandlerA>())
+            .AddScoped<RequestThreeHandlerB>()
+            .AddScoped<IHandler<RequestThree, Unit>>(s => s.GetRequiredService<RequestThreeHandlerB>())
+            .AddScoped<IEventRunner, ReflectionEventRunner>()
+            .AddSingleton<Accumulator>()
+            .AddScoped(_ => strategy)
+            .BuildServiceProvider();
 
-        var provider = services.BuildServiceProvider();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
         var stopwatch = Stopwatch.StartNew();
@@ -197,15 +198,15 @@ public class ReflectionEventRunnerTests
     public Task Publisher_Should_CallHandlerAndOpenPipeline()
     {
         const int expCount = 2;
-        var services = new ServiceCollection();
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddScoped<IEventRunner, ReflectionEventRunner>()
+                       .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient<IHandler<RequestOne, Unit>, HandlerOne>();
-        services.AddScoped<IEventRunner, ReflectionEventRunner>();
-        services.AddScoped<IPublishingStrategy, AwaitForEachStrategy>();
-        services.AddSingleton<Accumulator>();
-
-        var provider = services.BuildServiceProvider();
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
@@ -221,17 +222,16 @@ public class ReflectionEventRunnerTests
     public Task Publisher_Should_CallHandlerAndOpenPipelineAndClosedPipeline()
     {
         const int expCount = 3;
-        var services = new ServiceCollection();
-
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne));
-        services.AddTransient<IHandler<RequestOne, Unit>, HandlerOne>();
-        services.AddTransient<IEventRunner, ReflectionEventRunner>();
-        services.AddScoped<IEventRunner, ReflectionEventRunner>();
-        services.AddScoped<IPublishingStrategy, AwaitForEachStrategy>();
-        services.AddSingleton<Accumulator>();
-
-        ServiceProvider provider = services.BuildServiceProvider();
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
+                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IEventRunner, ReflectionEventRunner>()
+                       .AddScoped<IEventRunner, ReflectionEventRunner>()
+                       .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
@@ -246,16 +246,17 @@ public class ReflectionEventRunnerTests
     public Task Publisher_Should_CallHandlerAndTwoOpenPipeline()
     {
         const int expCount = 3;
-        var services = new ServiceCollection();
 
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>));
-        services.AddTransient<IHandler<RequestOne, Unit>, HandlerOne>();
-        services.AddScoped<IEventRunner, ReflectionEventRunner>();
-        services.AddScoped<IPublishingStrategy, AwaitForEachStrategy>();
-        services.AddSingleton<Accumulator>();
+        ServiceProvider provider = new ServiceCollection()
+                                   .AddHandlerRuntime()
+                                   .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                                   .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
+                                   .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                                   .AddScoped<IEventRunner, ReflectionEventRunner>()
+                                   .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
+                                   .AddSingleton<Accumulator>()
+                                   .BuildServiceProvider();
 
-        ServiceProvider provider = services.BuildServiceProvider();
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
@@ -270,17 +271,17 @@ public class ReflectionEventRunnerTests
     public Task Publisher_Should_CallHandlerAndTwoOpenPipelineAndOneClosedPipeline()
     {
         const int expCount = 4;
-        var services = new ServiceCollection();
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
+                       .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
+                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddScoped<IEventRunner, ReflectionEventRunner>()
+                       .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>));
-        services.AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne));
-        services.AddTransient<IHandler<RequestOne, Unit>, HandlerOne>();
-        services.AddScoped<IEventRunner, ReflectionEventRunner>();
-        services.AddScoped<IPublishingStrategy, AwaitForEachStrategy>();
-        services.AddSingleton<Accumulator>();
-
-        var provider = services.BuildServiceProvider();
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
@@ -295,18 +296,19 @@ public class ReflectionEventRunnerTests
     public Task Publisher_Should_CallHandlerAndTwoOpenPipelineAndNoneClosedPipeline()
     {
         const int expCount = 3;
-        var services = new ServiceCollection();
 
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>));
-        services.AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne));
-        services.AddTransient<IHandler<RequestOne, Unit>, HandlerOne>();
-        services.AddTransient<IHandler<RequestTwo, Unit>, HandlerTwo>();
-        services.AddScoped<IEventRunner, ReflectionEventRunner>();
-        services.AddScoped<IPublishingStrategy, AwaitForEachStrategy>();
-        services.AddSingleton<Accumulator>();
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
+                       .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
+                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IHandler<RequestTwo, Unit>, HandlerTwo>()
+                       .AddScoped<IEventRunner, ReflectionEventRunner>()
+                       .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
-        ServiceProvider provider = services.BuildServiceProvider();
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 

@@ -102,19 +102,17 @@ public class ReflectionRequestRunnerTests
     public Task Sender_Should_CallHandler()
     {
         const int expCount = 1;
-        ServiceCollection services = new();
-
-        services.AddTransient<IHandler<RequestOne, Unit>, HandlerOne>();
-        services.AddTransient<IRequestRunner, ReflectionRequestRunner>();
-        services.AddSingleton<Accumulator>();
-
-        ServiceProvider    provider           = services.BuildServiceProvider();
-        DependencyProvider dependencyProvider = new(provider);
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IRequestRunner, ReflectionRequestRunner>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne(), default);
+        Fin<Unit> effectResult = sender.Run(new RequestOne());
 
         _ = effectResult.Match(
             _ => unit,
@@ -129,20 +127,18 @@ public class ReflectionRequestRunnerTests
     public Task Sender_Should_CallHandlerAndOpenPipeline()
     {
         const int expCount = 2;
-        ServiceCollection services = new();
-
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient<IHandler<RequestOne, Unit>, HandlerOne>();
-        services.AddTransient<IRequestRunner, ReflectionRequestRunner>();
-        services.AddSingleton<Accumulator>();
-
-        ServiceProvider    provider           = services.BuildServiceProvider();
-        DependencyProvider dependencyProvider = new(provider);
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IRequestRunner, ReflectionRequestRunner>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne(), default);
+        Fin<Unit> effectResult = sender.Run(new RequestOne());
 
         _ = effectResult.Match(
             _ => unit,
@@ -157,21 +153,19 @@ public class ReflectionRequestRunnerTests
     public Task Sender_Should_CallHandlerAndOpenPipelineAndClosedPipeline()
     {
         const int expCount = 3;
-        ServiceCollection services = new();
-
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne));
-        services.AddTransient<IHandler<RequestOne, Unit>, HandlerOne>();
-        services.AddTransient<IRequestRunner, ReflectionRequestRunner>();
-        services.AddSingleton<Accumulator>();
-
-        ServiceProvider    provider           = services.BuildServiceProvider();
-        DependencyProvider dependencyProvider = new(provider);
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
+                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IRequestRunner, ReflectionRequestRunner>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne(), default);
+        Fin<Unit> effectResult = sender.Run(new RequestOne());
 
         _ = effectResult.Match(
             _ => unit,
@@ -186,21 +180,19 @@ public class ReflectionRequestRunnerTests
     public Task Sender_Should_CallHandlerAndTwoOpenPipeline()
     {
         const int expCount = 3;
-        ServiceCollection services = new();
-
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>));
-        services.AddTransient<IHandler<RequestOne, Unit>, HandlerOne>();
-        services.AddTransient<IRequestRunner, ReflectionRequestRunner>();
-        services.AddSingleton<Accumulator>();
-
-        ServiceProvider    provider           = services.BuildServiceProvider();
-        DependencyProvider dependencyProvider = new(provider);
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
+                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IRequestRunner, ReflectionRequestRunner>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne(), default);
+        Fin<Unit> effectResult = sender.Run(new RequestOne());
 
         _ = effectResult.Match(
             _ => unit,
@@ -215,22 +207,20 @@ public class ReflectionRequestRunnerTests
     public Task Sender_Should_CallHandlerAndTwoOpenPipelineAndOneClosedPipeline()
     {
         const int expCount = 4;
-        ServiceCollection services = new();
-
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>));
-        services.AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne));
-        services.AddTransient<IHandler<RequestOne, Unit>, HandlerOne>();
-        services.AddTransient<IRequestRunner, ReflectionRequestRunner>();
-        services.AddSingleton<Accumulator>();
-
-        ServiceProvider    provider           = services.BuildServiceProvider();
-        DependencyProvider dependencyProvider = new(provider);
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
+                       .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
+                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IRequestRunner, ReflectionRequestRunner>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne(), default);
+        Fin<Unit> effectResult = sender.Run(new RequestOne());
         
         _ = effectResult.Match(
             _ => unit,
@@ -245,23 +235,21 @@ public class ReflectionRequestRunnerTests
     public Task Sender_Should_CallHandlerAndTwoOpenPipelineAndNoneClosedPipeline()
     {
         const int expCount = 3;
-        ServiceCollection services = new();
-
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>));
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>));
-        services.AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne));
-        services.AddTransient<IHandler<RequestOne, Unit>, HandlerOne>();
-        services.AddTransient<IHandler<RequestTwo, Unit>, HandlerTwo>();
-        services.AddTransient<IRequestRunner, ReflectionRequestRunner>();
-        services.AddSingleton<Accumulator>();
-
-        ServiceProvider    provider           = services.BuildServiceProvider();
-        DependencyProvider dependencyProvider = new(provider);
+        var provider = new ServiceCollection()
+                       .AddHandlerRuntime()
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
+                       .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
+                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IHandler<RequestTwo, Unit>, HandlerTwo>()
+                       .AddTransient<IRequestRunner, ReflectionRequestRunner>()
+                       .AddSingleton<Accumulator>()
+                       .BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestTwo(), default);
+        Fin<Unit> effectResult = sender.Run(new RequestTwo());
 
         _ = effectResult.Match(
             _ => unit,

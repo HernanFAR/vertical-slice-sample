@@ -73,7 +73,7 @@ public class LoggingBehaviorTests
 
         ServiceProvider provider = new ServiceCollection()
                                    .AddSingleton<ILogger<Request>>(_logger)
-                                   .AddSingleton(TimeProvider.System)
+                                   .AddSingleton(_timeProvider)
                                    .AddSingleton(template)
                                    .BuildServiceProvider();
 
@@ -118,8 +118,9 @@ public class LoggingBehaviorTests
             .Returns(expFirstTime);
 
         ServiceProvider provider = new ServiceCollection()
+                                   .AddHandlerRuntime()
                                    .AddSingleton<ILogger<Request>>(_logger)
-                                   .AddSingleton(TimeProvider.System)
+                                   .AddSingleton(_timeProvider)
                                    .AddSingleton(template)
                                    .BuildServiceProvider();
 
@@ -165,7 +166,7 @@ public class LoggingBehaviorTests
 
         ServiceProvider provider = new ServiceCollection()
                                    .AddSingleton<ILogger<Request>>(_logger)
-                                   .AddSingleton(TimeProvider.System)
+                                   .AddSingleton(_timeProvider)
                                    .AddSingleton(template)
                                    .BuildServiceProvider();
 
