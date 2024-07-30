@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
+using VSlices.Base;
 using VSlices.Domain;
 using static LanguageExt.Prelude;
 
@@ -18,7 +19,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
-        public Eff<HandlerRuntime, Unit> Define(AlwaysUnitEvent request) =>
+        public Eff<VSlicesRuntime, Unit> Define(AlwaysUnitEvent request) =>
             from _ in liftEff(() =>
             {
                 HandledEvent.Set();
@@ -34,7 +35,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
         public bool First { get; set; } = true;
 
-        public Eff<HandlerRuntime, Unit> Define(FirstFailureThenUnitEvent request) =>
+        public Eff<VSlicesRuntime, Unit> Define(FirstFailureThenUnitEvent request) =>
             from _1 in liftEff(() =>
             {
                 if (First is false) return;
@@ -59,7 +60,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
         public bool Second { get; set; } = true;
 
-        public Eff<HandlerRuntime, Unit> Define(FirstAndSecondFailureThenUnitEvent request) =>
+        public Eff<VSlicesRuntime, Unit> Define(FirstAndSecondFailureThenUnitEvent request) =>
             from _1 in liftEff(() =>
             {
                 if (!First) return unit;
@@ -87,7 +88,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
     public class AlwaysFailureHandler : IHandler<AlwaysFailureEvent>
     {
-        public Eff<HandlerRuntime, Unit> Define(AlwaysFailureEvent request)
+        public Eff<VSlicesRuntime, Unit> Define(AlwaysFailureEvent request)
         {
             throw new Exception("Always failure");
         }
@@ -97,7 +98,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
     public async Task InMemoryEventFlow_AddedEventBeforeListeningStart_AlwaysUnitHandler()
     {
         ServiceProvider provider = new ServiceCollection()
-                                   .AddHandlerRuntime()
+                                   .AddVSlicesRuntime()
             .AddEventListener()
             .AddHangfireTaskListener(config => config.UseInMemoryStorage())
             .AddInMemoryEventQueue()
@@ -127,7 +128,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
     public async Task InMemoryEventFlow_AddedEventAfterListeningStart()
     {
         ServiceProvider provider = new ServiceCollection()
-                                   .AddHandlerRuntime()
+                                   .AddVSlicesRuntime()
             .AddEventListener()
             .AddHangfireTaskListener(config => config.UseInMemoryStorage())
             .AddInMemoryEventQueue()
@@ -159,7 +160,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
     public async Task InMemoryEventFlow_FirstRetry()
     {
         ServiceProvider provider = new ServiceCollection()
-                                   .AddHandlerRuntime()
+                                   .AddVSlicesRuntime()
             .AddEventListener()
             .AddHangfireTaskListener(config => config.UseInMemoryStorage())
             .AddInMemoryEventQueue()
@@ -192,7 +193,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
     public async Task InMemoryEventFlow_SecondRetry()
     {
         ServiceProvider provider = new ServiceCollection()
-                                   .AddHandlerRuntime()
+                                   .AddVSlicesRuntime()
             .AddEventListener()
             .AddHangfireTaskListener(config => config.UseInMemoryStorage())
             .AddInMemoryEventQueue()
@@ -228,7 +229,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
         Mock<ILogger<EventListenerBackgroundTask>>? loggerMock = Mock.Get(logger);
 
         ServiceProvider provider = new ServiceCollection()
-                                   .AddHandlerRuntime()
+                                   .AddVSlicesRuntime()
             .AddEventListener()
             .AddHangfireTaskListener(config => config.UseInMemoryStorage())
             .AddInMemoryEventQueue()

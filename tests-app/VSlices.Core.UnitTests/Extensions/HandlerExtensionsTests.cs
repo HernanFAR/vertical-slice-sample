@@ -13,7 +13,7 @@ public class HandlerExtensionsTests
     
     public class Handler1 : IHandler<Feature1>
     {
-        public Eff<HandlerRuntime, Unit> Define(Feature1 request)
+        public Eff<VSlicesRuntime, Unit> Define(Feature1 request)
         {
             throw new UnreachableException();
         }
@@ -23,7 +23,7 @@ public class HandlerExtensionsTests
     public record Feature2 : IFeature<Response2>;
     public class Handler2 : IHandler<Feature2, Response2>
     {
-        public Eff<HandlerRuntime, Response2> Define(Feature2 request)
+        public Eff<VSlicesRuntime, Response2> Define(Feature2 request)
         {
             throw new UnreachableException();
         }

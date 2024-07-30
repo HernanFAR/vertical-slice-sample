@@ -7,8 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Base.Failures;
-using VSlices.Core;
-using VSlices.Core.Traits;
+using VSlices.Base.Traits;
 
 namespace VSlices.CrossCutting.Pipeline.UnitTests;
 
@@ -35,12 +34,12 @@ public class AbstractPipelineBehaviorTests
                     .Returns(FailEff<Unit>(failure))
                     .Verifiable();
 
-        Eff<HandlerRuntime, Result> effect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, Result> effect = pipeline.Define(request, next);
 
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider);
+        var runtime = VSlicesRuntime.New(dependencyProvider);
 
         Fin<Result> result = effect.Run(runtime, default(CancellationToken));
 
@@ -68,7 +67,7 @@ public class AbstractPipelineBehaviorTests
         Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Eff<HandlerRuntime, Result> next = SuccessEff(expResult);
+        Eff<VSlicesRuntime, Result> next = SuccessEff(expResult);
 
         pipelineMock.Setup(e => e.BeforeHandle(request))
             .Verifiable();
@@ -81,12 +80,12 @@ public class AbstractPipelineBehaviorTests
             )
             .Verifiable();
 
-        Eff<HandlerRuntime, Result> effect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, Result> effect = pipeline.Define(request, next);
 
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider);
+        var runtime = VSlicesRuntime.New(dependencyProvider);
 
         Fin<Result> effectResult = effect.Run(runtime, default(CancellationToken));
 
@@ -114,7 +113,7 @@ public class AbstractPipelineBehaviorTests
         Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        Eff<HandlerRuntime, Result> next = FailEff<HandlerRuntime, Result>(failure);
+        Eff<VSlicesRuntime, Result> next = FailEff<VSlicesRuntime, Result>(failure);
 
         pipelineMock.Setup(e => e.BeforeHandle(request))
             .Verifiable();
@@ -127,14 +126,14 @@ public class AbstractPipelineBehaviorTests
             )
             .Verifiable();
 
-        Eff<HandlerRuntime, Result> effect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, Result> effect = pipeline.Define(request, next);
 
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = HandlerRuntime.New(dependencyProvider);
+        var runtime = VSlicesRuntime.New(dependencyProvider);
 
-        var         result_      = liftEff<HandlerRuntime, Result>(_ => failure).Run(runtime, default(CancellationToken));
+        var         result_      = liftEff<VSlicesRuntime, Result>(_ => failure).Run(runtime, default(CancellationToken));
 
         Fin<Result> effectResult = effect.Run(runtime, default(CancellationToken));
 

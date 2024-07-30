@@ -5,10 +5,11 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using System.Globalization;
 using Microsoft.Extensions.DependencyInjection;
+using VSlices.Base;
 using VSlices.Base.Failures;
 using VSlices.Core;
 using VSlices.Core.Stream;
-using VSlices.Core.Traits;
+using VSlices.Base.Traits;
 using VSlices.CrossCutting.StreamPipeline.Logging.MessageTemplates;
 using static LanguageExt.Prelude;
 
@@ -80,7 +81,7 @@ public class LoggingStreamBehaviorTests
                                    .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider);
+        var                runtime            = VSlicesRuntime.New(dependencyProvider);
 
         // Act
         Fin<IAsyncEnumerable<Response>> result = sut.Define(request, SuccessEff(Yield()))
@@ -134,7 +135,7 @@ public class LoggingStreamBehaviorTests
                                    .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider);
+        var                runtime            = VSlicesRuntime.New(dependencyProvider);
 
         // Act
         Fin<IAsyncEnumerable<Response>> result = sut
@@ -181,7 +182,7 @@ public class LoggingStreamBehaviorTests
                                    .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var                runtime            = HandlerRuntime.New(dependencyProvider);
+        var                runtime            = VSlicesRuntime.New(dependencyProvider);
 
         // Act
         Fin<IAsyncEnumerable<Response>> result = sut.Define(request, liftEff<IAsyncEnumerable<Response>>(() => expError))
