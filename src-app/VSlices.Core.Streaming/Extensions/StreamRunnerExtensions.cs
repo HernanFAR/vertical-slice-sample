@@ -17,7 +17,7 @@ public static class StreamRunnerExtensions
     public static IServiceCollection AddStreamRunner<T>(this IServiceCollection services)
         where T : IStreamRunner
     {
-        services.AddScoped(typeof(IStreamRunner), typeof(T));
+        services.AddSingleton(typeof(IStreamRunner), typeof(T));
 
         return services;
     }

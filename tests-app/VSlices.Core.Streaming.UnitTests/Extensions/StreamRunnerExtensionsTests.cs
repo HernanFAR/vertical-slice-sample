@@ -30,7 +30,7 @@ public class StreamRunnerExtensionsTests
         services
             .Where(e => e.ServiceType == typeof(IStreamRunner))
             .Where(e => e.ImplementationType == typeof(StreamRunner))
-            .Any(e => e.Lifetime == ServiceLifetime.Scoped)
+            .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
 
     }

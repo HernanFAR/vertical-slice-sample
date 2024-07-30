@@ -1,10 +1,10 @@
 ﻿using Crud.CrossCutting.Pipelines;
-using Crud.Domain.Repositories;
 using Crud.Domain.Services;
 using Crud.Domain.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
+using Crud.Domain.DataAccess;
 using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
 
 // ReSharper disable once CheckNamespace
@@ -69,7 +69,7 @@ internal sealed class Handler : IHandler<Command>
                from manager in provide<QuestionManager>()
                from exists in repository.Exists(request.Id)
                from _ in exists
-                             ? from question in repository.Read(request.Id)
+                             ? from question in repository.Get(request.Id)
                                from _1 in liftEff(() => question.UpdateState(request.Text))
                                from _2 in manager.Update(question)
                                select unit

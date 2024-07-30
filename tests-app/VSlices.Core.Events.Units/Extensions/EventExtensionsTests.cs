@@ -50,7 +50,7 @@ public class EventExtensionsTests
         services
             .Where(e => e.ServiceType == typeof(IEventRunner))
             .Where(e => e.ImplementationType == typeof(EventRunner))
-            .Any(e => e.Lifetime == ServiceLifetime.Scoped)
+            .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
 
     }

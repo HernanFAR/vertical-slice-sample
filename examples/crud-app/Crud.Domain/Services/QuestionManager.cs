@@ -1,5 +1,5 @@
-﻿using Crud.Domain.Events;
-using Crud.Domain.Repositories;
+﻿using Crud.Domain.DataAccess;
+using Crud.Domain.Events;
 using Crud.Domain.ValueObjects;
 using VSlices.Base;
 using VSlices.Core;
@@ -10,29 +10,33 @@ namespace Crud.Domain.Services;
 public sealed class QuestionManager
 {
     public Eff<VSlicesRuntime, Unit> Create(QuestionId id, NonEmptyString text)  =>
-        from question in liftEff(() => new Question(id, text))
-        from repository in provide<IQuestionRepository>()
-        from _1 in repository.Create(question)
-        from _2 in PublishEventCore(question.Id, EState.Created)
+        from question in liftEff(() => Question.Create(id, text))
+        from unitOfWork in provide<IAppUnitOfWork>()
+        from _1 in unitOfWork.Questions.Add(question)
+        from _2 in unitOfWork.SaveChanges()
+        from _3 in PublishEventCore(question.Id, EState.Created)
         select unit;
 
     public Eff<VSlicesRuntime, Unit> Create(NonEmptyString text) =>
         from question in liftEff(() => Question.Create(text))
-        from repository in provide<IQuestionRepository>()
-        from _1 in repository.Create(question)
-        from _2 in PublishEventCore(question.Id, EState.Created)
+        from unitOfWork in provide<IAppUnitOfWork>()
+        from _1 in unitOfWork.Questions.Add(question)
+        from _2 in unitOfWork.SaveChanges()
+        from _3 in PublishEventCore(question.Id, EState.Created)
         select unit;
 
     public Eff<VSlicesRuntime, Unit> Update(Question question) =>
-        from repository in provide<IQuestionRepository>()
-        from _1 in repository.Update(question)
-        from _2 in PublishEventCore(question.Id, EState.Updated)
+        from unitOfWork in provide<IAppUnitOfWork>()
+        from _1 in unitOfWork.Questions.Update(question)
+        from _2 in unitOfWork.SaveChanges()
+        from _3 in PublishEventCore(question.Id, EState.Updated)
         select unit;
 
     public Eff<VSlicesRuntime, Unit> Delete(Question question) =>
-        from repository in provide<IQuestionRepository>()
-        from _1 in repository.Delete(question)
-        from _2 in PublishEventCore(question.Id, EState.Removed)
+        from unitOfWork in provide<IAppUnitOfWork>()
+        from _1 in unitOfWork.Questions.Delete(question)
+        from _2 in unitOfWork.SaveChanges()
+        from _3 in PublishEventCore(question.Id, EState.Removed)
         select unit;
 
     private Eff<VSlicesRuntime, Unit> PublishEventCore(QuestionId id, EState state) =>

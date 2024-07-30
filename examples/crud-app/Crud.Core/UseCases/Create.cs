@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Crud.CrossCutting.Pipelines;
 using Crud.Domain;
-using Crud.Domain.Repositories;
+using Crud.Domain.DataAccess;
 using Crud.Domain.Services;
 using Crud.Domain.ValueObjects;
 using FluentValidation;

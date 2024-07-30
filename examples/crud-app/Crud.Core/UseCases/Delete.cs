@@ -1,5 +1,5 @@
 ﻿using Crud.CrossCutting.Pipelines;
-using Crud.Domain.Repositories;
+using Crud.Domain.DataAccess;
 using Crud.Domain.Services;
 using Crud.Domain.ValueObjects;
 
@@ -52,7 +52,7 @@ internal sealed class Handler : IHandler<Command>
     public Eff<VSlicesRuntime, Unit> Define(Command request) =>
         from repository in provide<IQuestionRepository>()
         from manager in provide<QuestionManager>()
-        from question in repository.Read(request.Id)
+        from question in repository.Get(request.Id)
         from _ in manager.Delete(question)
         select unit;
 

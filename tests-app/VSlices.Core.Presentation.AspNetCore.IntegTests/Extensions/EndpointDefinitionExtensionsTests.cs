@@ -53,7 +53,7 @@ public class EndpointDefinitionExtensionsTests
         featureBuilder.Services
             .Where(e => e.ServiceType == typeof(IEndpointDefinition))
             .Where(e => e.ImplementationType == typeof(EndpointDefinition))
-            .Any(e => e.Lifetime == ServiceLifetime.Scoped)
+            .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
 
     }

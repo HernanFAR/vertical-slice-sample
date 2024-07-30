@@ -24,7 +24,6 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
         IPublishingStrategy strategy, 
         CancellationToken cancellationToken)
     {
-        var runtime = serviceProvider.GetRequiredService<VSlicesRuntime>();
         IEnumerable<IHandler<TRequest, Unit>> handlers = serviceProvider
             .GetServices<IHandler<TRequest, Unit>>();
 
@@ -47,7 +46,7 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
                             })
                     .ToArray();
 
-        return strategy.Handle(delegates, runtime, cancellationToken);
+        return strategy.Handle(delegates, serviceProvider, cancellationToken);
 
     }
 }

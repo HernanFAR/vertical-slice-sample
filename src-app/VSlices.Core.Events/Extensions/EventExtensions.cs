@@ -38,7 +38,7 @@ public static class EventExtensions
             throw new InvalidOperationException($"{type.FullName} does not implement {typeof(IEventRunner).FullName}");
         }
 
-        return services.AddScoped(typeof(IEventRunner), type);
+        return services.AddSingleton(typeof(IEventRunner), type);
     }
 
     /// <summary>

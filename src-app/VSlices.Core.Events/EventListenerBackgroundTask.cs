@@ -34,9 +34,7 @@ public sealed class EventListenerBackgroundTask(
     {
         while (!cancellationToken.IsCancellationRequested)
         {
-            await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
-
-            var publisher = scope.ServiceProvider.GetRequiredService<IEventRunner>();
+            var publisher = _serviceProvider.GetRequiredService<IEventRunner>();
 
             IEvent workItem = await _eventQueue.DequeueAsync(cancellationToken);
             var retry = false;

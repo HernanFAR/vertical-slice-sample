@@ -1,16 +1,14 @@
 ﻿using Crud.Domain.ValueObjects;
+using VSlices.Domain;
 
 namespace Crud.Domain;
 
-public sealed class Question
+public sealed class Question : AggregateRoot<QuestionId>
 {
-    internal Question(QuestionId id, NonEmptyString text)
+    private Question(QuestionId id, NonEmptyString text) : base(id)
     {
-        Id = id;
         Text = text;
     }
-
-    public QuestionId Id { get; }
     
     public NonEmptyString Text { get; private set; }
 
@@ -21,8 +19,7 @@ public sealed class Question
         return unit;
     }
 
-    internal static Question Create(NonEmptyString text) 
-    {
-        return new Question(QuestionId.New(Guid.NewGuid()), text);
-    }
+    public static Question Create(NonEmptyString text) => Create(QuestionId.Random(), text);
+
+    public static Question Create(QuestionId id, NonEmptyString text) => new(id, text);
 }

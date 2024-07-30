@@ -30,7 +30,7 @@ public class RequestRunnerExtensionsTests
         services
             .Where(e => e.ServiceType == typeof(IRequestRunner))
             .Where(e => e.ImplementationType == typeof(RequestRunner))
-            .Any(e => e.Lifetime == ServiceLifetime.Scoped)
+            .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
 
     }
