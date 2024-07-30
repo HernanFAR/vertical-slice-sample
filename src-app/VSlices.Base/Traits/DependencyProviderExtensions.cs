@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace VSlices.Core.Traits;
+namespace VSlices.Base.Traits;
 
 /// <summary>
 /// Allows a runtime to provide dependencies

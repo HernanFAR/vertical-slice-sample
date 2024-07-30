@@ -2,6 +2,7 @@
 using VSlices.Base;
 using VSlices.Core.Presentation;
 
+// ReSharper disable once CheckNamespace
 namespace VSlices.Core.Builder;
 
 /// <summary>

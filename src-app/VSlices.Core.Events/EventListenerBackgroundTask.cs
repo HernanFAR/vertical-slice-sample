@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using VSlices.Core.Events.Configurations;
-using VSlices.Core.Traits;
 using VSlices.CrossCutting.BackgroundTaskListener;
 using VSlices.Domain.Interfaces;
 

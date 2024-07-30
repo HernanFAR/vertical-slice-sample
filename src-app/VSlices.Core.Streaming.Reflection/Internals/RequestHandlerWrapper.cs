@@ -1,6 +1,6 @@
 ﻿using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
-using System.Threading;
+using VSlices.Base;
 using VSlices.CrossCutting.StreamPipeline;
 
 namespace VSlices.Core.Stream.Internals;
@@ -33,17 +33,17 @@ internal class StreamRunnerWrapper<TRequest, TResult> : AbstractStreamRunnerWrap
                                                           IServiceProvider serviceProvider,
                                                           CancellationToken cancellationToken)
     {
-        var runtime = serviceProvider.GetRequiredService<HandlerRuntime>();
+        var runtime = serviceProvider.GetRequiredService<VSlicesRuntime>();
         var handler = serviceProvider.GetRequiredService<IStreamHandler<TRequest, TResult>>();
 
-        Eff<HandlerRuntime, IAsyncEnumerable<TResult>> handlerEffect = 
+        Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> handlerEffect = 
             handler.Define((TRequest)request);
 
         IEnumerable<IStreamPipelineBehavior<TRequest, TResult>> pipelines = serviceProvider
             .GetServices<IStreamPipelineBehavior<TRequest, TResult>>()
             .Reverse();
 
-        Eff<HandlerRuntime, IAsyncEnumerable<TResult>> effectChain = 
+        Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> effectChain = 
             pipelines.Aggregate(handlerEffect, 
                                 (current, behavior) => behavior.Define((TRequest)request, current));
 

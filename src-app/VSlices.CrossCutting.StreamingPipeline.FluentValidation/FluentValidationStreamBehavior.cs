@@ -2,10 +2,11 @@
 using FluentValidation.Results;
 using LanguageExt;
 using LanguageExt.Common;
+using VSlices.Base;
 using VSlices.Core;
 using VSlices.Core.Stream;
 using static LanguageExt.Prelude;
-using static VSlices.CorePrelude;
+using static VSlices.VSlicesPrelude;
 
 namespace VSlices.CrossCutting.StreamPipeline.FluentValidation;
 
@@ -18,7 +19,7 @@ public sealed class FluentValidationStreamBehavior<TRequest, TResult> : Abstract
     where TRequest : IStream<TResult>
 {
     /// <inheritdoc />
-    protected override Eff<HandlerRuntime, Unit> BeforeHandle(TRequest request) =>
+    protected override Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request) =>
         from validator in provide<IValidator<TRequest>>()
         from token in cancelToken
         from result in liftEff(async () => await validator.ValidateAsync(request, token))

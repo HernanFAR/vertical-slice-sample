@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
-using VSlices.Core.Traits;
 using VSlices.Core.UseCases.Internals;
 
 namespace VSlices.Core.UseCases;

@@ -35,16 +35,16 @@ internal class RequestRunnerWrapper<TRequest, TResponse> : AbstractRequestRunner
                                           IServiceProvider serviceProvider, 
                                           CancellationToken cancellationToken)
     {
-        var runtime = serviceProvider.GetRequiredService<HandlerRuntime>();
+        var runtime = serviceProvider.GetRequiredService<VSlicesRuntime>();
         var handler = serviceProvider.GetRequiredService<IHandler<TRequest, TResponse>>();
 
-        Eff<HandlerRuntime, TResponse> handlerEffect = handler.Define((TRequest)request);
+        Eff<VSlicesRuntime, TResponse> handlerEffect = handler.Define((TRequest)request);
 
         IEnumerable<IPipelineBehavior<TRequest, TResponse>> pipelines = serviceProvider
             .GetServices<IPipelineBehavior<TRequest, TResponse>>()
             .Reverse();
 
-        Eff<HandlerRuntime, TResponse> effectChain = pipelines
+        Eff<VSlicesRuntime, TResponse> effectChain = pipelines
             .Aggregate(handlerEffect,
                        (next, behavior) => behavior.Define((TRequest)request, next));
 

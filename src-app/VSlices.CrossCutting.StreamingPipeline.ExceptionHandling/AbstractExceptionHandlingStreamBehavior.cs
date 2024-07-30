@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using VSlices.Base;
 using VSlices.Core;
 using VSlices.Core.Stream;
 using static LanguageExt.Prelude;
@@ -14,8 +15,8 @@ public abstract class AbstractExceptionHandlingStreamBehavior<TRequest, TResult>
     where TRequest : IStream<TResult>
 {
     /// <inheritdoc />
-    protected override Eff<HandlerRuntime, IAsyncEnumerable<TResult>> InHandle(
-        TRequest request, Eff<HandlerRuntime, IAsyncEnumerable<TResult>> next) =>
+    protected override Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> InHandle(
+        TRequest request, Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> next) =>
         from result in next | catchM(e => e.IsExceptional,
                                      e => Process(e.ToException(), request))
         select result;
@@ -27,5 +28,5 @@ public abstract class AbstractExceptionHandlingStreamBehavior<TRequest, TResult>
     /// <param name="ex">The throw exception</param>
     /// <param name="request">The related request information</param>
     /// <returns>A <see cref="ValueTask"/> representing the processing of the exception</returns>
-    protected internal abstract Eff<HandlerRuntime, IAsyncEnumerable<TResult>> Process(Exception ex, TRequest request);
+    protected internal abstract Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> Process(Exception ex, TRequest request);
 }

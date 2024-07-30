@@ -1,11 +1,12 @@
 ﻿using LanguageExt;
 using LanguageExt.Common;
 using Microsoft.Extensions.Logging;
+using VSlices.Base;
 using VSlices.Core;
 using VSlices.Core.Stream;
 using VSlices.CrossCutting.StreamPipeline.Logging.MessageTemplates;
 using static LanguageExt.Prelude;
-using static VSlices.CorePrelude;
+using static VSlices.VSlicesPrelude;
 
 namespace VSlices.CrossCutting.StreamPipeline.Logging;
 
@@ -18,7 +19,7 @@ public sealed class LoggingStreamBehavior<TRequest, TResult> : AbstractStreamPip
     where TRequest : IStream<TResult>
 {
     /// <inheritdoc />
-    protected override Eff<HandlerRuntime, Unit> BeforeHandle(TRequest request) =>
+    protected override Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request) =>
         from logger in provide<ILogger<TRequest>>()
         from template in provide<ILoggingMessageTemplate>()
         from time in provide<TimeProvider>()
@@ -34,7 +35,7 @@ public sealed class LoggingStreamBehavior<TRequest, TResult> : AbstractStreamPip
         select unit;
 
     /// <inheritdoc />
-    protected override Eff<HandlerRuntime, IAsyncEnumerable<TResult>> AfterSuccessHandling(TRequest request, IAsyncEnumerable<TResult> result) =>
+    protected override Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> AfterSuccessHandling(TRequest request, IAsyncEnumerable<TResult> result) =>
         from logger in provide<ILogger<TRequest>>()
         from template in provide<ILoggingMessageTemplate>()
         from time in provide<TimeProvider>()
@@ -51,7 +52,7 @@ public sealed class LoggingStreamBehavior<TRequest, TResult> : AbstractStreamPip
         select result_;
 
     /// <inheritdoc />
-    protected override Eff<HandlerRuntime, IAsyncEnumerable<TResult>> AfterFailureHandling(TRequest request, Error result) =>
+    protected override Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> AfterFailureHandling(TRequest request, Error result) =>
         from logger in provide<ILogger<TRequest>>()
         from template in provide<ILoggingMessageTemplate>()
         from time in provide<TimeProvider>()

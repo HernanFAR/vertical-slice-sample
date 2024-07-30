@@ -3,7 +3,7 @@ using FluentValidation.Results;
 using LanguageExt;
 using LanguageExt.Common;
 using static LanguageExt.Prelude;
-using static VSlices.CorePrelude;
+using static VSlices.VSlicesPrelude;
 using VSlices.Base;
 using VSlices.Core;
 
@@ -18,7 +18,7 @@ public sealed class FluentValidationBehavior<TRequest, TResult> : AbstractPipeli
     where TRequest : IFeature<TResult>
 {
     /// <inheritdoc />
-    protected override Eff<HandlerRuntime, Unit> BeforeHandle(TRequest request) =>
+    protected override Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request) =>
         from validator in provide<IValidator<TRequest>>()
         from token in cancelToken
         from result in liftEff(async () => await validator.ValidateAsync(request, token))

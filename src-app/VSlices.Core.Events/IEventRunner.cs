@@ -11,6 +11,6 @@ public interface IEventRunner
     /// <summary>
     /// Asynchronously publishes an event to an event handler
     /// </summary>
-    Fin<Unit> Publish(IEvent @event, CancellationToken cancellationToken);
+    Fin<Unit> Publish(IEvent @event, CancellationToken cancellationToken = default);
 
 }

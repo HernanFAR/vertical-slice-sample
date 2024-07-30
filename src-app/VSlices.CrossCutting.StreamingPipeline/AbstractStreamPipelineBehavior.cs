@@ -1,5 +1,6 @@
 ﻿using LanguageExt;
 using LanguageExt.Common;
+using VSlices.Base;
 using VSlices.Base.Failures;
 using VSlices.Core;
 using VSlices.Core.Stream;
@@ -34,7 +35,7 @@ public abstract class AbstractStreamPipelineBehavior<TRequest, TResult> : IStrea
     /// <returns>
     /// A <see cref="LanguageExt.Eff{TRuntime, TResult}"/> that represents the operation in lazy evaluation, which returns a <see cref="Unit" />
     /// </returns>
-    protected internal virtual Eff<HandlerRuntime, Unit> BeforeHandle(TRequest request) 
+    protected internal virtual Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request) 
         => unitEff;
 
     /// <summary>
@@ -54,8 +55,8 @@ public abstract class AbstractStreamPipelineBehavior<TRequest, TResult> : IStrea
     /// <returns>
     /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
-    protected internal virtual Eff<HandlerRuntime, IAsyncEnumerable<TResult>> InHandle(
-        TRequest request, Eff<HandlerRuntime, IAsyncEnumerable<TResult>> next) => next;
+    protected internal virtual Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> InHandle(
+        TRequest request, Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> next) => next;
 
     /// <summary>
     /// Executed after the next action if returns the expected value
@@ -65,7 +66,7 @@ public abstract class AbstractStreamPipelineBehavior<TRequest, TResult> : IStrea
     /// <returns>
     /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
-    protected internal virtual Eff<HandlerRuntime, IAsyncEnumerable<TResult>> AfterSuccessHandling(
+    protected internal virtual Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> AfterSuccessHandling(
         TRequest request, IAsyncEnumerable<TResult> result) 
         => SuccessEff(result);
 
@@ -77,19 +78,19 @@ public abstract class AbstractStreamPipelineBehavior<TRequest, TResult> : IStrea
     /// <returns>
     /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
-    protected internal virtual Eff<HandlerRuntime, IAsyncEnumerable<TResult>> AfterFailureHandling(
+    protected internal virtual Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> AfterFailureHandling(
         TRequest request, Error result) 
         => FailEff<IAsyncEnumerable<TResult>>(result); 
 
     /// <inheritdoc />
-    public Eff<HandlerRuntime, IAsyncEnumerable<TResult>> Define(
-        TRequest request, Eff<HandlerRuntime, IAsyncEnumerable<TResult>> next) =>
+    public Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> Define(
+        TRequest request, Eff<VSlicesRuntime, IAsyncEnumerable<TResult>> next) =>
         from handleResult in BeforeHandle(request)
                              .Match(Succ: _ => InHandle(request, next)
                                                .Match(Succ: result => AfterSuccessHandling(request, result),
                                                       Fail: error => AfterFailureHandling(request, error))
                                                .Flatten(),
-                                    Fail: FailEff<HandlerRuntime, IAsyncEnumerable<TResult>>)
+                                    Fail: FailEff<VSlicesRuntime, IAsyncEnumerable<TResult>>)
                              .Flatten()
         select handleResult;
 }
