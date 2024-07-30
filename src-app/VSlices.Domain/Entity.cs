@@ -1,11 +1,10 @@
-﻿using VSlices.Domain.Abstractions;
-using VSlices.Domain.Interfaces;
+﻿using VSlices.Domain.Interfaces;
 
 namespace VSlices.Domain;
 
 /// <inheritdoc cref="IEntity{TKey}" />
 public abstract class Entity<TKey> : IEntity<TKey>
-    where TKey : struct, IEquatable<TKey>
+    where TKey : class, IEquatable<TKey>
 {
     /// <inheritdoc />
     public TKey Id { get; private set; }
