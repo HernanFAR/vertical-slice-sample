@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Crud.CrossCutting.Pipelines;
 using Crud.Domain;
+using Crud.Domain.Repositories;
 using Crud.Domain.Services;
 using Crud.Domain.ValueObjects;
 using FluentValidation;
+using Microsoft.Extensions.Logging;
 using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
 
 // ReSharper disable once CheckNamespace
@@ -52,7 +54,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
         return runner
             .Run(command, cancellationToken)
-            .MatchResult(_ => TypedResults.Created());
+            .MatchResult(TypedResults.Created());
     }
 }
 
@@ -66,9 +68,34 @@ internal sealed class Handler : IHandler<Command, Unit>
 
 internal sealed class Validator : AbstractValidator<Command>
 {
-    public Validator()
+    private readonly HandlerRuntime _handlerRuntime;
+    private readonly IQuestionRepository _repository;
+    private readonly ILogger<Validator> _logger;
+
+    public Validator(HandlerRuntime handlerRuntime, IQuestionRepository repository, ILogger<Validator> logger)
     {
+        _handlerRuntime = handlerRuntime;
+        _repository     = repository;
+        _logger         = logger;
+
         RuleFor(x => x.Text)
-            .NotEmpty();
+            .MustAsync(NotExistInDatabase).WithMessage("La pregunta ya existe en el sistema");
+    }
+
+    private Task<bool> NotExistInDatabase(NonEmptyString name,
+                                          CancellationToken cancellationToken)
+    {
+        Fin<bool> result = _repository.Exists(name)
+                                      .Run(_handlerRuntime, _handlerRuntime.EnvIO);
+
+        return result.Match(exist => exist is false,
+                            error =>
+                            {
+                                _logger.LogError("No se ha podido validar: {Error}.", error);
+
+                                return false;
+                            })
+                     .AsTask();
+
     }
 }

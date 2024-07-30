@@ -28,7 +28,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     public void Define(IEndpointRouteBuilder builder)
     {
         builder.MapDelete(Path, Handler)
-            .Produces(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound)
             .WithName("DeleteQuestion");
     }
@@ -43,7 +43,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
         return runner
             .Run(command, cancellationToken)
-            .MatchResult(TypedResults.Ok);
+            .MatchResult(TypedResults.NoContent());
     }
 }
 
