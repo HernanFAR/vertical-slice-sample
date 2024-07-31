@@ -24,7 +24,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\..\src-app\VSlices.Core.Streaming.Reflection\VSlices.Core.Stream.Reflection.csproj" />
 		<ProjectReference Include="..\..\src-app\VSlices.CrossCutting.StreamingPipeline\VSlices.CrossCutting.StreamPipeline.csproj" />
 	</ItemGroup>
 

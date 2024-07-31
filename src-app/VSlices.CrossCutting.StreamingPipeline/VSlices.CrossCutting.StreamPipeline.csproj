@@ -13,7 +13,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\VSlices.Base\VSlices.Base.csproj" />
-		<ProjectReference Include="..\VSlices.Core.Streaming\VSlices.Core.Stream.csproj" />
 		<ProjectReference Include="..\VSlices.Core\VSlices.Core.csproj" />
 		<ProjectReference Include="..\VSlices.CrossCutting.Pipeline\VSlices.CrossCutting.Pipeline.csproj" />
 	</ItemGroup>
