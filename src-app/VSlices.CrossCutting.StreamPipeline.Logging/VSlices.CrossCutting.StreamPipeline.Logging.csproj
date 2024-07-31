@@ -8,7 +8,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\VSlices.Core.Streaming\VSlices.Core.Stream.csproj" />
 	  <ProjectReference Include="..\VSlices.CrossCutting.StreamingPipeline\VSlices.CrossCutting.StreamPipeline.csproj" />
 	</ItemGroup>
 
