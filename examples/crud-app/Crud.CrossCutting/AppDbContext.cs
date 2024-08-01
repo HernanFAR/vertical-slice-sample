@@ -7,6 +7,8 @@ public sealed class AppDbContext(DbContextOptions<AppDbContext> options) : DbCon
 {
     public DbSet<TQuestion> Questions => Set<TQuestion>();
 
+    public DbSet<TCategory> Categories => Set<TCategory>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -26,6 +28,17 @@ public sealed class TQuestion
 
 }
 
+public sealed class TCategory
+{
+    public const string TableName = "Categories";
+    public const int TextMaxLength = 128;
+
+    public Guid Id { get; set; }
+
+    public string Text { get; set; } = string.Empty;
+
+}
+
 internal sealed class QuestionEntityTypeConfiguration : IEntityTypeConfiguration<TQuestion>
 {
     public void Configure(EntityTypeBuilder<TQuestion> builder)
@@ -33,6 +46,17 @@ internal sealed class QuestionEntityTypeConfiguration : IEntityTypeConfiguration
         builder.ToTable(TQuestion.TableName);
 
         builder.Property(x => x.Text).HasMaxLength(TQuestion.TextMaxLength);
+
+    }
+}
+
+internal sealed class CategoryEntityTypeConfiguration : IEntityTypeConfiguration<TCategory>
+{
+    public void Configure(EntityTypeBuilder<TCategory> builder)
+    {
+        builder.ToTable(TCategory.TableName);
+
+        builder.Property(x => x.Text).HasMaxLength(TCategory.TextMaxLength);
 
     }
 }

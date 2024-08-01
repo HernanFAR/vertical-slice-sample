@@ -1,10 +1,11 @@
 ﻿using Crud.CrossCutting.Pipelines;
-using Crud.Domain.Services;
+using Crud.Domain.Rules.Services;
 using Crud.Domain.ValueObjects;
+using Crud.Domain;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
-using Crud.Domain.DataAccess;
+using Crud.Domain.Rules.DataAccess;
 using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
 
 // ReSharper disable once CheckNamespace
@@ -62,31 +63,29 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
 internal sealed class Handler : IHandler<Command>
 {
-    public Eff<VSlicesRuntime, Unit> Define(Command request)
-    {
-        return from token in cancelToken
-               from repository in provide<IQuestionRepository>()
-               from manager in provide<QuestionManager>()
-               from exists in repository.Exists(request.Id)
-               from _ in exists
-                             ? from question in repository.Get(request.Id)
-                               from _1 in liftEff(() => question.UpdateState(request.Text))
-                               from _2 in manager.Update(question)
-                               select unit
-                             : manager.Create(request.Id, request.Text)
-               select unit;
-    }
+    public Eff<VSlicesRuntime, Unit> Define(Command request) =>
+        from token in cancelToken
+        from repository in provide<IQuestionRepository>()
+        from manager in provide<QuestionManager>()
+        from exists in repository.Exists(request.Id)
+        from _ in exists
+            ? from question in repository.Get(request.Id)
+              from _1 in liftEff(() => question.UpdateState(request.Text))
+              from _2 in manager.Update(question)
+              select unit
+            : manager.Create(request.Id, request.Text)
+        select unit;
 }
 
 internal sealed class Validator : AbstractValidator<Command>
 {
-    private readonly VSlicesRuntime _VSlicesRuntime;
+    private readonly VSlicesRuntime _runtime;
     private readonly IQuestionRepository _repository;
     private readonly ILogger<Validator> _logger;
 
-    public Validator(VSlicesRuntime VSlicesRuntime, IQuestionRepository repository, ILogger<Validator> logger)
+    public Validator(VSlicesRuntime runtime, IQuestionRepository repository, ILogger<Validator> logger)
     {
-        _VSlicesRuntime = VSlicesRuntime;
+        _runtime = runtime;
         _repository = repository;
         _logger = logger;
 
@@ -99,7 +98,7 @@ internal sealed class Validator : AbstractValidator<Command>
                                           CancellationToken cancellationToken)
     {
         Fin<bool> result = _repository.Exists(command.Id, name)
-                                      .Run(_VSlicesRuntime, cancellationToken);
+                                      .Run(_runtime, cancellationToken);
 
         return result.Match(exist => exist is false,
                             error =>

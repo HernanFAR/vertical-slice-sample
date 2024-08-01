@@ -13,7 +13,7 @@
     <ProjectReference Include="..\..\..\src-app\VSlices.Core.UseCases.Reflection\VSlices.Core.UseCases.Reflection.csproj" />
     <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware\VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware.csproj" />
     <ProjectReference Include="..\Crud.CrossCutting\Crud.CrossCutting.csproj" />
-    <ProjectReference Include="..\Crud.Domain\Crud.Domain.csproj" />
+    <ProjectReference Include="..\Crud.Domain.Rules\Crud.Domain.Rules.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Crud.CrossCutting.Pipelines;
 using Crud.Domain;
-using Crud.Domain.DataAccess;
-using Crud.Domain.Services;
+using Crud.Domain.Rules.DataAccess;
+using Crud.Domain.Rules.Services;
 using Crud.Domain.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
@@ -54,8 +54,8 @@ internal sealed class EndpointDefinition : IEndpointDefinition
         Command command = new(contract.Text.ToNonEmpty());
 
         return runner
-            .Run(command, cancellationToken)
-            .MatchResult(TypedResults.Created());
+               .Run(command, cancellationToken)
+               .MatchResult(TypedResults.Created());
     }
 }
 
