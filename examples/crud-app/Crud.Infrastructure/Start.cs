@@ -3,7 +3,7 @@ global using LanguageExt.Common;
 
 global using static LanguageExt.Prelude;
 global using static VSlices.VSlicesPrelude;
-using Crud.Domain.DataAccess;
+using Crud.Domain.Rules.DataAccess;
 using Crud.Infrastructure;
 
 // ReSharper disable once CheckNamespace

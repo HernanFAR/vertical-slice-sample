@@ -1,6 +1,6 @@
 ﻿using Crud.CrossCutting.Pipelines;
-using Crud.Domain.DataAccess;
-using Crud.Domain.Events;
+using Crud.Domain.Rules.DataAccess;
+using Crud.Domain.Rules.Events;
 using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace

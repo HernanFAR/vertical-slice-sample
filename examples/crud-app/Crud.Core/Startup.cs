@@ -24,8 +24,6 @@ public static class Startup
                 .AddVSlicesRuntime()
                 // Request
                 .AddReflectionRequestRunner()
-                // Streams
-                .AddReflectionStreamRunner()
                 // Events
                 .AddReflectionEventRunner()
                 .AddInMemoryEventQueue()
