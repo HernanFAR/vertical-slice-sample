@@ -36,7 +36,7 @@ internal sealed class QuestionRepository : EfCoreRepository<AppDbContext,
         question => question.Id == key.Value;
 
     public override QuestionType ToDomain(TQuestion projection) => 
-        new(QuestionId.From(projection.Id), projection.Text.ToNonEmpty());
+        new(QuestionId.New(projection.Id), CategoryType.Find(CategoryId.New(projection.CategoryId)), projection.Text.ToNonEmpty());
 
     public override TQuestion ToProjection(QuestionType root) => 
         new()

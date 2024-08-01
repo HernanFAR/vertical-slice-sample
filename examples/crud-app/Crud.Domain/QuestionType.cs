@@ -5,11 +5,14 @@ namespace Crud.Domain;
 
 public sealed class QuestionType : AggregateRoot<QuestionId>
 {
-    internal QuestionType(QuestionId id, NonEmptyString text) : base(id)
+    internal QuestionType(QuestionId id, CategoryType category, NonEmptyString text) : base(id)
     {
-        Text = text;
+        Category = category;
+        Text       = text;
     }
-    
+
+    public CategoryType Category { get; internal set; }
+
     public NonEmptyString Text { get; internal set; }
 
 }

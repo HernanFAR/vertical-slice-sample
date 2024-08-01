@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Extensions;
 using Crud.CrossCutting.Pipelines;
 using Crud.Domain;
 using Crud.Domain.Rules.DataAccess;
@@ -27,10 +28,12 @@ public sealed class CreateQuestionDependencies : IFeatureDependencies
 }
 
 public sealed record CreateQuestionContract(
+    [property: DenyDefaultValue(ErrorMessage = "La categoría es obligatoria")]
+    Guid CategoryId,
     [property: Required(ErrorMessage = "La pregunta es obligatorio")]
     string Text);
 
-internal sealed record Command(NonEmptyString Text) : IRequest<Unit>;
+internal sealed record Command(CategoryId CategoryId, NonEmptyString Text) : IRequest<Unit>;
 
 internal sealed class EndpointDefinition : IEndpointDefinition
 {
@@ -51,7 +54,8 @@ internal sealed class EndpointDefinition : IEndpointDefinition
         IRequestRunner runner,
         CancellationToken cancellationToken)
     {
-        Command command = new(contract.Text.ToNonEmpty());
+        Command command = new(CategoryId.New(contract.CategoryId),
+                              contract.Text.ToNonEmpty());
 
         return runner
                .Run(command, cancellationToken)
@@ -63,19 +67,19 @@ internal sealed class Handler : IHandler<Command, Unit>
 {
     public Eff<VSlicesRuntime, Unit> Define(Command request) =>
         from manager in provide<QuestionManager>()
-        from _ in manager.Create(request.Text)
+        from _ in manager.Create(request.CategoryId, request.Text)
         select unit;
 }
 
 internal sealed class Validator : AbstractValidator<Command>
 {
-    private readonly VSlicesRuntime _VSlicesRuntime;
+    private readonly VSlicesRuntime _runtime;
     private readonly IQuestionRepository _repository;
     private readonly ILogger<Validator> _logger;
 
-    public Validator(VSlicesRuntime VSlicesRuntime, IQuestionRepository repository, ILogger<Validator> logger)
+    public Validator(VSlicesRuntime runtime, IQuestionRepository repository, ILogger<Validator> logger)
     {
-        _VSlicesRuntime = VSlicesRuntime;
+        _runtime = runtime;
         _repository     = repository;
         _logger         = logger;
 
@@ -87,7 +91,7 @@ internal sealed class Validator : AbstractValidator<Command>
                                           CancellationToken cancellationToken)
     {
         Fin<bool> result = _repository.Exists(name)
-                                      .Run(_VSlicesRuntime, cancellationToken);
+                                      .Run(_runtime, cancellationToken);
 
         return result.Match(exist => exist is false,
                             error =>

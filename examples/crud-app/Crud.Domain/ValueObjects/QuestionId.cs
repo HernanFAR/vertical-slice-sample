@@ -16,5 +16,4 @@ public sealed class QuestionId : NewType<QuestionId, Guid, QuestionId>,
 
     public static QuestionId Random() => new(Guid.NewGuid());
 
-    public static QuestionId From(Guid value) => new(value);
 }

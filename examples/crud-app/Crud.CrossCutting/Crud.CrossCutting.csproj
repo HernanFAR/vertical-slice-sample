@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.ExceptionHandling\VSlices.CrossCutting.Pipeline.ExceptionHandling.csproj" />
     <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.FluentValidation\VSlices.CrossCutting.Pipeline.FluentValidation.csproj" />
     <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.Logging\VSlices.CrossCutting.Pipeline.Logging.csproj" />
+    <ProjectReference Include="..\Crud.Domain\Crud.Domain.csproj" />
   </ItemGroup>
 
 </Project>
