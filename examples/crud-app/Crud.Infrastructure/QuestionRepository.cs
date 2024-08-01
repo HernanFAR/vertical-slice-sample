@@ -42,6 +42,7 @@ internal sealed class QuestionRepository : EfCoreRepository<AppDbContext,
         new()
         {
             Id = root.Id.Value,
-            Text = root.Text.Value
+            Text = root.Text.Value,
+            CategoryId = root.Category.Id.Value
         };
 }

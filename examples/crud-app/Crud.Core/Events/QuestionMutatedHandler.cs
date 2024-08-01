@@ -21,26 +21,21 @@ internal sealed class Handler
 {
     public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent request) =>
         from repository in provide<IQuestionRepository>()
-        from logger in provide<ILogger>()
-        from question in repository
-                         .Get(request.Id)
-                         .Match(Succ: question => liftEff(() =>
-                                {
-                                    logger
-                                        .LogInformation("Se ha realizado un cambio en la tabla Questions, cambio de tipo: {State}, valores actuales: {Entity}",
-                                                        request.CurrentState.ToString(),
-                                                        question);
-
-                                    return unit;
-                                }),
-                                Fail: _ => liftEff(() =>
-                                {
-                                    logger
-                                        .LogInformation("Se ha realizado un cambio en la tabla Questions, cambio de " +
-                                                        "tipo: {State}, no se ha encontrado la entidad",
-                                                        request.CurrentState.ToString());
-
-                                    return unit;
-                                }))
+        from logger in provide<ILogger<QuestionMutatedEvent>>()
+        from optionalQuestion in repository.GetOrOptional(request.Id)
+        from _ in liftEff(() => optionalQuestion.BiIter(
+            Some: question =>
+            {
+                logger.LogInformation("Se ha realizado un cambio en la tabla Questions, cambio de " +
+                                      "tipo: {State}, valores actuales: {Entity}",
+                                      request.CurrentState.ToString(),
+                                      question);
+            },
+            None: _ =>
+            {
+                logger.LogInformation("Se ha realizado un cambio en la tabla Questions, cambio de " +
+                                      "tipo: {State}, no se ha encontrado la entidad",
+                                      request.CurrentState.ToString());
+            }))
         select unit;
 }

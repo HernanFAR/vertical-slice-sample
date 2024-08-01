@@ -3,7 +3,7 @@ using VSlices.Domain;
 
 namespace Crud.Domain;
 
-public sealed class CategoryType(CategoryId id, NonEmptyString name) : Maintainer<CategoryType, CategoryId>(id)
+public sealed class CategoryType(CategoryId id, NonEmptyString text) : Maintainer<CategoryType, CategoryId>(id)
 {
     public static CategoryType Life { get; } = new(CategoryId.New(new Guid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1)), 
                                                    "Life".ToNonEmpty());
@@ -35,6 +35,8 @@ public sealed class CategoryType(CategoryId id, NonEmptyString name) : Maintaine
     public static CategoryType Sports { get; } = new(CategoryId.New(new Guid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10)), 
                                                      "Sports".ToNonEmpty());
 
-    public NonEmptyString Name { get; } = name;
+    public static CategoryType[] All { get; } = [Life, Science, History, GeneralCulture, Math, Physics, Politics, Technology, Music, Sports];
+
+    public NonEmptyString Text { get; } = text;
 
 }
