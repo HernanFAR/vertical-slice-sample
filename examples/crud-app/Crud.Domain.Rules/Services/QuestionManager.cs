@@ -6,16 +6,16 @@ namespace Crud.Domain.Rules.Services;
 
 public sealed class QuestionManager
 {
-    public Eff<VSlicesRuntime, Unit> Create(QuestionId id, NonEmptyString text)  =>
-        from question in liftEff(() => Question.Create(id, text))
+    public Eff<VSlicesRuntime, Unit> Create(QuestionId id, CategoryId categoryId, NonEmptyString text)  =>
+        from question in liftEff(() => Question.Create(id, categoryId, text))
         from unitOfWork in provide<IAppUnitOfWork>()
         from _1 in unitOfWork.Questions.Add(question)
         from _2 in unitOfWork.SaveChanges()
         from _3 in PublishEventCore(question.Id, EState.Created)
         select unit;
 
-    public Eff<VSlicesRuntime, Unit> Create(NonEmptyString text) =>
-        from question in liftEff(() => Question.Create(text))
+    public Eff<VSlicesRuntime, Unit> Create(CategoryId categoryId, NonEmptyString text) =>
+        from question in liftEff(() => Question.Create(categoryId, text))
         from unitOfWork in provide<IAppUnitOfWork>()
         from _1 in unitOfWork.Questions.Add(question)
         from _2 in unitOfWork.SaveChanges()

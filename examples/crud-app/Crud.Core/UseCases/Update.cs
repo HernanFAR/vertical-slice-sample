@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using System.ComponentModel.DataAnnotations;
 using Crud.Domain.Rules.DataAccess;
 using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
+using System.ComponentModel.DataAnnotations.Extensions;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Update;
@@ -26,10 +27,12 @@ public sealed class UpdateQuestionDependencies : IFeatureDependencies
 }
 
 public sealed record UpdateQuestionContract(
+    [property: DenyDefaultValue(ErrorMessage = "La categoría es obligatoria")]
+    Guid CategoryId,
     [property: Required(ErrorMessage = "La pregunta es obligatoria")]
     string Text);
 
-internal sealed record Command(QuestionId Id, NonEmptyString Text) : IRequest<Unit>;
+internal sealed record Command(QuestionId Id, CategoryId CategoryId, NonEmptyString Text) : IRequest<Unit>;
 
 internal sealed class EndpointDefinition : IEndpointDefinition
 {
@@ -53,7 +56,9 @@ internal sealed class EndpointDefinition : IEndpointDefinition
         IRequestRunner runner,
         CancellationToken cancellationToken)
     {
-        Command command = new(new QuestionId(id), new NonEmptyString(contract.Text));
+        Command command = new(QuestionId.New(id), 
+                              CategoryId.New(contract.CategoryId), 
+                              NonEmptyString.New(contract.Text));
 
         return runner
             .Run(command, cancellationToken)
@@ -70,10 +75,10 @@ internal sealed class Handler : IHandler<Command>
         from exists in repository.Exists(request.Id)
         from _ in exists
             ? from question in repository.Get(request.Id)
-              from _1 in liftEff(() => question.UpdateState(request.Text))
+              from _1 in liftEff(() => question.UpdateState(request.CategoryId, request.Text))
               from _2 in manager.Update(question)
               select unit
-            : manager.Create(request.Id, request.Text)
+            : manager.Create(request.Id, request.CategoryId, request.Text)
         select unit;
 }
 

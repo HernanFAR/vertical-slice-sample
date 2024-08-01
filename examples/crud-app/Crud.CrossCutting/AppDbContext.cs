@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Crud.Domain;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Crud.CrossCutting;
@@ -24,7 +25,11 @@ public sealed class TQuestion
 
     public Guid Id { get; set; }
 
+    public Guid CategoryId { get; set; }
+
     public string Text { get; set; } = string.Empty;
+
+    public TCategory Category { get; set; } = default!;
 
 }
 
@@ -36,6 +41,8 @@ public sealed class TCategory
     public Guid Id { get; set; }
 
     public string Text { get; set; } = string.Empty;
+
+    public ICollection<TQuestion> Questions { get; set; } = default!;
 
 }
 
@@ -58,5 +65,11 @@ internal sealed class CategoryEntityTypeConfiguration : IEntityTypeConfiguration
 
         builder.Property(x => x.Text).HasMaxLength(TCategory.TextMaxLength);
 
+        builder.HasData(CategoryType.All
+                                    .Select(e => new TCategory
+                                    {
+                                        Id   = e.Id.Value,
+                                        Text = e.Text.Value
+                                    }));
     }
 }
