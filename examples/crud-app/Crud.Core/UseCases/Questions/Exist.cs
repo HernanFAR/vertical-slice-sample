@@ -1,25 +1,24 @@
 ﻿using Crud.CrossCutting.Pipelines;
 using Crud.Domain.Rules.DataAccess;
-using Crud.Domain.Rules.Services;
 using Crud.Domain.ValueObjects;
 
 // ReSharper disable once CheckNamespace
-namespace Crud.Core.UseCases.Delete;
+namespace Crud.Core.UseCases.Questions.Exists;
 
-public sealed class DeleteQuestionDependencies : IFeatureDependencies
+public sealed class ExistsQuestionDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
         featureBuilder
             .AddEndpoint<EndpointDefinition>()
-            .AddLoggingBehaviorFor<Command>()
+            .AddLoggingBehaviorFor<Query>()
                 .UsingSpanishTemplate()
-            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
+            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Query, Unit>>()
             .AddHandler<Handler>();
     }
 }
 
-internal sealed record Command(QuestionId Id) : IRequest<Unit>;
+internal sealed record Query(QuestionId Id) : IRequest;
 
 internal sealed class EndpointDefinition : IEndpointDefinition
 {
@@ -27,10 +26,11 @@ internal sealed class EndpointDefinition : IEndpointDefinition
 
     public void Define(IEndpointRouteBuilder builder)
     {
-        builder.MapDelete(Path, Handler)
+        builder.MapMethods(Path, new[] { HttpMethods.Head }, Handler)
             .Produces(StatusCodes.Status204NoContent)
             .ProducesProblem(StatusCodes.Status404NotFound)
-            .WithName("DeleteQuestion");
+            .WithName("ExistsQuestion")
+            .WithTags("Questions");
     }
 
     public IResult Handler(
@@ -39,21 +39,20 @@ internal sealed class EndpointDefinition : IEndpointDefinition
         IRequestRunner runner,
         CancellationToken cancellationToken)
     {
-        Command command = new(new QuestionId(id));
+        Query query = new(new QuestionId(id));
 
         return runner
-            .Run(command, cancellationToken)
+            .Run(query, cancellationToken)
             .MatchResult(TypedResults.NoContent());
     }
 }
 
-internal sealed class Handler : IHandler<Command>
+internal sealed class Handler : IHandler<Query>
 {
-    public Eff<VSlicesRuntime, Unit> Define(Command request) =>
+    public Eff<VSlicesRuntime, Unit> Define(Query request) =>
         from repository in provide<IQuestionRepository>()
-        from manager in provide<QuestionManager>()
-        from question in repository.Get(request.Id)
-        from _ in manager.Delete(question)
+        from exists in repository.Exists(request.Id)
+        from _ in guard(exists, new NotFound("No se ha encontrado la pregunta").AsError)
         select unit;
 
 }

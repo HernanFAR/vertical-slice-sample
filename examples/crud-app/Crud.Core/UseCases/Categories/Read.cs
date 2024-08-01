@@ -3,9 +3,9 @@ using Crud.CrossCutting.Pipelines;
 using Microsoft.EntityFrameworkCore;
 
 // ReSharper disable once CheckNamespace
-namespace Crud.Core.UseCases.Read;
+namespace Crud.Core.UseCases.Categories.Read;
 
-public sealed class ReadQuestionDependencies : IFeatureDependencies
+public sealed class ReadCategoriesDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
@@ -13,29 +13,30 @@ public sealed class ReadQuestionDependencies : IFeatureDependencies
             .AddEndpoint<EndpointDefinition>()
             .AddLoggingBehaviorFor<Query>()
                 .UsingSpanishTemplate()
-            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Query, ReadQuestionDto>>()
+            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Query, ReadCategoriesDto>>()
             .AddHandler<Handler>();
     }
 }
 
-public sealed record QuestionDto(Guid Id, string Text);
+public sealed record CategoryDto(Guid Id, string Text);
 
-public sealed record ReadQuestionDto(QuestionDto[] Questions);
+public sealed record ReadCategoriesDto(CategoryDto[] Categories);
 
-internal sealed record Query : IRequest<ReadQuestionDto>
+internal sealed record Query : IRequest<ReadCategoriesDto>
 {
     public static Query Instance { get; } = new();
 }
 
 internal sealed class EndpointDefinition : IEndpointDefinition
 {
-    public const string Path = "api/questions";
+    public const string Path = "api/categories";
 
     public void Define(IEndpointRouteBuilder builder)
     {
         builder.MapGet(Path, Handler)
             .Produces(StatusCodes.Status200OK)
-            .WithName("ReadQuestion");
+            .WithName("ReadCategories")
+            .WithTags("Categories");
     }
 
     public IResult Handler(
@@ -48,14 +49,14 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class Handler : IHandler<Query, ReadQuestionDto>
+internal sealed class Handler : IHandler<Query, ReadCategoriesDto>
 {
-    public Eff<VSlicesRuntime, ReadQuestionDto> Define(Query request) =>
+    public Eff<VSlicesRuntime, ReadCategoriesDto> Define(Query request) =>
         from context in provide<AppDbContext>()
         from cancelToken in cancelToken
         from questions in liftEff(() => context
-                                        .Questions
-                                        .Select(x => new QuestionDto(x.Id, x.Text))
+                                        .Categories
+                                        .Select(x => new CategoryDto(x.Id, x.Text))
                                         .ToArrayAsync(cancelToken))
-        select new ReadQuestionDto(questions);
+        select new ReadCategoriesDto(questions);
 }

@@ -1,18 +1,19 @@
-﻿using Crud.CrossCutting.Pipelines;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Extensions;
+using Crud.CrossCutting.Pipelines;
+using Crud.Domain;
+using Crud.Domain.Rules.DataAccess;
 using Crud.Domain.Rules.Services;
 using Crud.Domain.ValueObjects;
-using Crud.Domain;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations;
-using Crud.Domain.Rules.DataAccess;
+using VSlices.Base;
 using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
-using System.ComponentModel.DataAnnotations.Extensions;
 
 // ReSharper disable once CheckNamespace
-namespace Crud.Core.UseCases.Update;
+namespace Crud.Core.UseCases.Questions.Create;
 
-public sealed class UpdateQuestionDependencies : IFeatureDependencies
+public sealed class CreateQuestionDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
@@ -26,59 +27,48 @@ public sealed class UpdateQuestionDependencies : IFeatureDependencies
     }
 }
 
-public sealed record UpdateQuestionContract(
+public sealed record CreateQuestionContract(
     [property: DenyDefaultValue(ErrorMessage = "La categoría es obligatoria")]
     Guid CategoryId,
-    [property: Required(ErrorMessage = "La pregunta es obligatoria")]
+    [property: Required(ErrorMessage = "La pregunta es obligatorio")]
     string Text);
 
-internal sealed record Command(QuestionId Id, CategoryId CategoryId, NonEmptyString Text) : IRequest<Unit>;
+internal sealed record Command(CategoryId CategoryId, NonEmptyString Text) : IRequest<Unit>;
 
 internal sealed class EndpointDefinition : IEndpointDefinition
 {
-    public const string Path = "api/questions/{id:Guid}";
+    public const string Path = "api/questions";
 
     public void Define(IEndpointRouteBuilder builder)
     {
-        builder.MapPut(Path, Handler)
-            .Produces(StatusCodes.Status200OK)
-            .ProducesProblem(StatusCodes.Status404NotFound)
+        builder.MapPost(Path, Handler)
+            .Produces(StatusCodes.Status201Created)
             .ProducesValidationProblem(StatusCodes.Status422UnprocessableEntity)
-            .DataAnnotationsValidate<UpdateQuestionContract>()
-            .WithName("UpdateQuestion");
+            .DataAnnotationsValidate<CreateQuestionContract>()
+            .WithName("CreateQuestion")
+            .WithTags("Questions");
     }
 
     public IResult Handler(
         [FromBody]
-        UpdateQuestionContract contract,
-        [FromRoute]
-        Guid id,
+        CreateQuestionContract contract,
         IRequestRunner runner,
         CancellationToken cancellationToken)
     {
-        Command command = new(QuestionId.New(id), 
-                              CategoryId.New(contract.CategoryId), 
-                              NonEmptyString.New(contract.Text));
+        Command command = new(CategoryId.New(contract.CategoryId),
+                              contract.Text.ToNonEmpty());
 
         return runner
-            .Run(command, cancellationToken)
-            .MatchResult(TypedResults.Ok);
+               .Run(command, cancellationToken)
+               .MatchResult(TypedResults.Created());
     }
 }
 
-internal sealed class Handler : IHandler<Command>
+internal sealed class Handler : IHandler<Command, Unit>
 {
     public Eff<VSlicesRuntime, Unit> Define(Command request) =>
-        from token in cancelToken
-        from repository in provide<IQuestionRepository>()
         from manager in provide<QuestionManager>()
-        from exists in repository.Exists(request.Id)
-        from _ in exists
-            ? from question in repository.Get(request.Id)
-              from _1 in liftEff(() => question.UpdateState(request.CategoryId, request.Text))
-              from _2 in manager.Update(question)
-              select unit
-            : manager.Create(request.Id, request.CategoryId, request.Text)
+        from _ in manager.Create(request.CategoryId, request.Text)
         select unit;
 }
 
@@ -96,13 +86,15 @@ internal sealed class Validator : AbstractValidator<Command>
 
         RuleFor(x => x.Text)
             .MustAsync(NotExistInDatabase).WithMessage("La pregunta ya existe en el sistema");
+
+        RuleFor(x => x.CategoryId)
+            .Must(x => CategoryType.FindOrOption(x).IsSome).WithMessage("La categoría no existe");
     }
 
-    private Task<bool> NotExistInDatabase(Command command,
-                                          NonEmptyString name,
+    private Task<bool> NotExistInDatabase(NonEmptyString name,
                                           CancellationToken cancellationToken)
     {
-        Fin<bool> result = _repository.Exists(command.Id, name)
+        Fin<bool> result = _repository.Exists(name)
                                       .Run(_runtime, cancellationToken);
 
         return result.Match(exist => exist is false,
