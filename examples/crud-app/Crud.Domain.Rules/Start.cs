@@ -1,11 +1,12 @@
-﻿global using LanguageExt;
-global using LanguageExt.Common;
+﻿global using LanguageExt.Common;
 global using VSlices.Base;
+global using LanguageExt;
+global using Crud.Domain.ValueObjects;
 
 global using static LanguageExt.Prelude;
 global using static VSlices.VSlicesPrelude;
 
-using Crud.Domain.Services;
+using Crud.Domain.Rules.Services;
 
 // ReSharper disable once CheckNamespace
 namespace Microsoft.Extensions.DependencyInjection;

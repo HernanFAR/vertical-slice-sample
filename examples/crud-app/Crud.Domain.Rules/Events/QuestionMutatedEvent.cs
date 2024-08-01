@@ -1,7 +1,6 @@
-﻿using Crud.Domain.ValueObjects;
-using VSlices.Domain;
+﻿using VSlices.Domain;
 
-namespace Crud.Domain.Events;
+namespace Crud.Domain.Rules.Events;
 
 public enum EState
 {

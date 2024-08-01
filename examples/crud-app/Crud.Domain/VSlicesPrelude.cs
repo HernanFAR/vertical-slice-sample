@@ -1,4 +1,4 @@
-﻿global using static VSlices.VSlicesPrelude;
+﻿global using LanguageExt;
 
 using Crud.Domain.ValueObjects;
 
