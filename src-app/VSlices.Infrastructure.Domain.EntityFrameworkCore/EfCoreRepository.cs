@@ -19,19 +19,19 @@ public abstract class EfCoreRepository<TDbContext, TRoot, TKey, TProjection> : I
     where TProjection : class
 {
     /// <summary>
-    /// Provide a way to filter the projection using the <typeparamref name="TRoot"/> key
+    /// Provide a way to filter the projection using the <typeparamref name="TRoot"/> id
     /// </summary>
-    public abstract Expression<Func<TProjection, bool>> DomainKeySelector(TKey key);
+    protected abstract Expression<Func<TProjection, bool>> DomainKeySelector(TKey id);
 
     /// <summary>
     /// Provide a way to map the projection to the <typeparamref name="TRoot"/>
     /// </summary>
-    public abstract TRoot ToDomain(TProjection projection);
+    protected abstract TRoot ToDomain(TProjection projection);
 
     /// <summary>
     /// Provide a way to map the <typeparamref name="TRoot"/> to the projection
     /// </summary>
-    public abstract TProjection ToProjection(TRoot root);
+    protected abstract TProjection ToProjection(TRoot root);
 
     /// <inheritdoc />
     public Eff<VSlicesRuntime, TRoot> Get(TKey id) =>
