@@ -32,13 +32,13 @@ internal sealed class QuestionRepository : EfCoreRepository<AppDbContext,
                                     .AnyAsync(x => x.Text == text.Value, token))
         select exist;
 
-    public override Expression<Func<TQuestion, bool>> DomainKeySelector(QuestionId key) =>
-        question => question.Id == key.Value;
+    protected override Expression<Func<TQuestion, bool>> DomainKeySelector(QuestionId id) =>
+        question => question.Id == id.Value;
 
-    public override QuestionType ToDomain(TQuestion projection) => 
+    protected override QuestionType ToDomain(TQuestion projection) => 
         new(QuestionId.New(projection.Id), CategoryType.Find(CategoryId.New(projection.CategoryId)), projection.Text.ToNonEmpty());
 
-    public override TQuestion ToProjection(QuestionType root) => 
+    protected override TQuestion ToProjection(QuestionType root) => 
         new()
         {
             Id = root.Id.Value,
