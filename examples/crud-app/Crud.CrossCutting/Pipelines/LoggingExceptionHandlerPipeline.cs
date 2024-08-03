@@ -1,7 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using VSlices.Base;
-using VSlices.Base.Failures;
-using VSlices.Core;
 using VSlices.CrossCutting.Pipeline.ExceptionHandling;
 
 namespace Crud.CrossCutting.Pipelines;
@@ -15,7 +12,7 @@ public sealed class LoggingExceptionHandlerPipeline<TRequest, TResult> : Abstrac
         {
             logger.LogError(ex, "Hubo una excepción al momento de manejar {Request}.", request);
 
-            return new ServerError("Error de servidor interno").AsError();
+            return serverError("Error de servidor interno");
         })
         select result;
 }

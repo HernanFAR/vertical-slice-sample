@@ -54,7 +54,7 @@ internal sealed class Handler : IHandler<Command>
         from repository in provide<IQuestionRepository>()
         from manager in provide<QuestionManager>()
         from optionalQuestion in repository.GetOrOption(request.Id)
-        from question in optionalQuestion.ToEff(new NotFound("No se ha encontrado la pregunta"))
+        from question in optionalQuestion.ToEff(ExtensibleExpected.NotFound("No se ha encontrado la pregunta", []))
         from _ in manager.Delete(question)
         select unit;
 

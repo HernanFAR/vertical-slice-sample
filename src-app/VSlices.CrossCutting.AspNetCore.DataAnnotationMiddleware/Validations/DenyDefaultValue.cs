@@ -15,11 +15,13 @@ public class DenyDefaultValueAttribute : ValidationAttribute
     /// </summary>
     public DenyDefaultValueAttribute() { }
 
+    /// <inheritdoc />
     public override bool IsValid(object? value)
     {
         return IsValidCore(value, validationContext: null);
     }
 
+    /// <inheritdoc />
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         return IsValidCore(value, validationContext)

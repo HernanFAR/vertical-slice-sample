@@ -11,7 +11,6 @@ using VSlices.Core;
 using VSlices.Base.Traits;
 using VSlices.Core.UseCases;
 using VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
-using VSlices.CrossCutting.Pipeline.Logging.UnitTests.Extensions;
 using static LanguageExt.Prelude;
 
 namespace VSlices.CrossCutting.Pipeline.Logging.UnitTests;
@@ -107,13 +106,13 @@ public class LoggingBehaviorTests
         DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
 
         Request request = new();
-        Error expError = new NotFound("NotFound");
+        ExtensibleExpected exp = ExtensibleExpected.NotFound("NotFound", []);
 
         string expStartMessage = string.Format(template.Start,
             expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request);
 
         string expFailureEndMessage = string.Format(template.FailureEnd,
-            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request, expError);
+            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request, exp);
 
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
@@ -129,7 +128,7 @@ public class LoggingBehaviorTests
         var                runtime            = VSlicesRuntime.New(dependencyProvider);
 
         // Act
-        Fin<Unit> result = sut.Define(request, liftEff<Unit>(() => expError))
+        Fin<Unit> result = sut.Define(request, liftEff<Unit>(() => exp))
                               .Run(runtime, default(CancellationToken));
 
         // Assert

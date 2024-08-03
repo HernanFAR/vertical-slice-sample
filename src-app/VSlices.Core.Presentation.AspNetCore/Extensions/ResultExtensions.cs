@@ -18,7 +18,7 @@ public static class ResponseExtensions
     /// <typeparam name="TSuccess">Return type in success</typeparam>
     /// <param name="result">Result</param>
     /// <param name="Succ">Function to execute in success case</param>
-    /// <param name="Fail">Optional function to execute in failure case, defaults to convert ExtensibleExpectedError to ProblemDetails</param>
+    /// <param name="Fail">Optional function to execute in failure case, defaults to convert ExtensibleExpected to ProblemDetails</param>
     /// <returns>The <see cref="IResult"/> of the use case</returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     public static IResult MatchResult<TSuccess>(this Fin<TSuccess> result,
@@ -29,12 +29,12 @@ public static class ResponseExtensions
             error => Fail is not null
                 ? error switch
                 {
-                    ExtensibleExpectedError extensible => Fail(extensible),
+                    ExtensibleExpected extensible => Fail(extensible),
                     _ => TypedResults.Problem(statusCode: 500)
                 }
                 : error switch
                 {
-                    ExtensibleExpectedError extensible => TypedResults.Problem(extensible.ToProblemDetails()),
+                    ExtensibleExpected extensible => TypedResults.Problem(extensible.ToProblemDetails()),
                     _ => TypedResults.Problem(statusCode: 500)
                 });
     }
@@ -45,7 +45,7 @@ public static class ResponseExtensions
     /// <typeparam name="TSuccess">Return type in success</typeparam>
     /// <param name="result">Result</param>
     /// <param name="Succ">Function to execute in success case</param>
-    /// <param name="Fail">Optional function to execute in failure case, defaults to convert ExtensibleExpectedError to ProblemDetails</param>
+    /// <param name="Fail">Optional function to execute in failure case, defaults to convert ExtensibleExpected to ProblemDetails</param>
     /// <returns>The <see cref="IResult"/> of the use case</returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     public static IResult MatchResult<TSuccess>(this Fin<TSuccess> result,

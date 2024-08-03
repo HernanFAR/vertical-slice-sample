@@ -7,17 +7,19 @@ namespace VSlices.Domain;
 /// <summary>
 /// Base class for all maintainers
 /// </summary>
+/// <typeparam name="TMaintainer">Type reference to the maintainer to be used</typeparam>
+/// <typeparam name="TKey">Identifier type</typeparam>
 public abstract class Maintainer<TMaintainer, TKey>(TKey id)
     where TMaintainer : Maintainer<TMaintainer, TKey>
     where TKey : class, IEquatable<TKey>
 {
     /// <summary>
-    /// The identifier of the <see cref="TMaintainer"/>
+    /// The identifier of the <typeparamref name="TMaintainer"/>
     /// </summary>
     public TKey Id { get; } = id;
 
     /// <summary>
-    /// Finds an instance of <see cref="TMaintainer"/> using the specified <paramref name="id"/>
+    /// Finds an instance of <typeparamref name="TMaintainer"/> using the specified <paramref name="id"/>
     /// </summary>
     /// <remarks>
     /// If the <paramref name="id"/> is not found, the method will return <see langword="None"/>
@@ -35,7 +37,7 @@ public abstract class Maintainer<TMaintainer, TKey>(TKey id)
     }
 
     /// <summary>
-    /// Finds an instance of <see cref="TMaintainer"/> using the specified <paramref name="id"/>
+    /// Finds an instance of <typeparamref name="TMaintainer"/> using the specified <paramref name="id"/>
     /// </summary>
     /// <remarks>
     /// If the <paramref name="id"/> is not found, the method will throw an <see cref="InvalidOperationException"/>

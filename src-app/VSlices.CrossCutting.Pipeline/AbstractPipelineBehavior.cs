@@ -24,7 +24,7 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     /// If returns <see cref="Unit" /> it follows the usual flow
     /// </para>
     /// <para>
-    /// If returns an instance of <see cref="ExtensibleExpectedError" /> the pipeline execution
+    /// If returns an instance of <see cref="ExtensibleExpected" /> the pipeline execution
     /// terminates with that response.
     /// </para>
     /// </remarks>

@@ -22,7 +22,7 @@ public sealed class FluentValidationBehavior<TRequest, TResult> : AbstractPipeli
         from validator in provide<IValidator<TRequest>>()
         from token in cancelToken
         from result in liftEff(async () => await validator.ValidateAsync(request, token))
-        from _ in guard(result.IsValid, result.ToUnprocessable() as Error)
+        from _ in guard(result.IsValid, result.ToUnprocessable())
         select unit;
 
 }

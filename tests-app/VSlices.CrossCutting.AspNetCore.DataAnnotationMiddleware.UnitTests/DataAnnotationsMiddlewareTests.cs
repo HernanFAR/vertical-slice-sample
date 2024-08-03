@@ -10,7 +10,7 @@ public class DataAnnotationsMiddlewareTests
 {
     public sealed record Request(
         [property: Required(ErrorMessage = "Name is required")]
-        string Name, 
+        string? Name, 
         [property: Range(0, 100, ErrorMessage = "Age is not valid")]
         int Age);
     [Fact]

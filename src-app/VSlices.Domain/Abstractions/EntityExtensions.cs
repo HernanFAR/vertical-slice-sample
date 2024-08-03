@@ -20,6 +20,9 @@ public static class EntityExtensions
         return $"[{@this.GetType().Name} | {string.Join(", ", @this.Id.ToString())}]";
     }
 
+    /// <summary>
+    /// An abstraction that compares two <see cref="IEntity{TKey}"/> instances.
+    /// </summary>
     public static bool EntityEquals<TKey>(this IEntity<TKey>? @this, IEntity<TKey>? other)
         where TKey : class, IEquatable<TKey>
     {
@@ -45,5 +48,4 @@ public static class EntityExtensions
 
         return @this.Id.Equals(other.Id);
     }
-
 }
