@@ -55,11 +55,17 @@ public class AbstractExceptionHandlingBehaviorTests
                 _ => throw new UnreachableException(),
                 failure =>
                 {
-                    var unprocessable = failure.Should().BeOfType<Unprocessable>();
+                    var unprocessable = failure.Should().BeOfType<ExtensibleExpected>();
 
-                    unprocessable.Subject.Errors.Should().HaveCount(expErrorCount);
-                    unprocessable.Subject.Errors[0].Name.Should().Be(nameof(Request.Value));
-                    unprocessable.Subject.Errors[0].Detail.Should().Be(Validator.ValueEmptyMessage);
+                    unprocessable.Subject.Extensions["errors"]
+                                 .Should()
+                                 .BeOfType<Dictionary<string, string[]>>()
+                                 .Subject.Should()
+                                 .HaveCount(expErrorCount)
+                                 .And
+                                 .Subject[nameof(Request.Value)]
+                                 .Should()
+                                 .BeEquivalentTo(new[] { Validator.ValueEmptyMessage });
 
                     return unit;
                 }

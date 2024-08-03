@@ -13,9 +13,9 @@ namespace VSlices.Infrastructure.Domain.EntityFrameworkCore.IntegTests;
 
 public sealed class Fixture : IAsyncLifetime
 {
-    private MsSqlContainer _container;
-    private Context _context;
-    private IServiceProvider _provider;
+    private MsSqlContainer _container = default!;
+    private Context _context = default!;
+    private IServiceProvider _provider = default!;
 
     public Context Context => _context;
 

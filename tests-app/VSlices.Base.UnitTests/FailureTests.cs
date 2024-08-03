@@ -11,8 +11,9 @@ public class FailureTests
         const string expMessage = "Title";
         Dictionary<string, object?> expCustomExtensions = new() { { "key", "value" } };
 
-        ExtensibleExpectedError bus = new BadRequest(expMessage, expCustomExtensions);
+        ExtensibleExpected bus = ExtensibleExpected.BadRequest(expMessage, expCustomExtensions);
 
+        bus.Code.Should().Be(400);
         bus.Message.Should().Be(expMessage);
         bus.Extensions.Should().BeEquivalentTo(expCustomExtensions);
     }
@@ -23,8 +24,9 @@ public class FailureTests
         const string expMessage = "Title";
         Dictionary<string, object?> expCustomExtensions = new() { { "key", "value" } };
 
-        ExtensibleExpectedError bus = new Unauthenticated(expMessage, expCustomExtensions);
+        ExtensibleExpected bus = ExtensibleExpected.Unauthenticated(expMessage, expCustomExtensions);
 
+        bus.Code.Should().Be(401);
         bus.Message.Should().Be(expMessage);
         bus.Extensions.Should().BeEquivalentTo(expCustomExtensions);
     }
@@ -35,8 +37,9 @@ public class FailureTests
         const string expMessage = "Title";
         Dictionary<string, object?> expCustomExtensions = new() { { "key", "value" } };
 
-        ExtensibleExpectedError bus = new Forbidden(expMessage, expCustomExtensions);
+        ExtensibleExpected bus = ExtensibleExpected.Forbidden(expMessage, expCustomExtensions);
 
+        bus.Code.Should().Be(403);
         bus.Message.Should().Be(expMessage);
         bus.Extensions.Should().BeEquivalentTo(expCustomExtensions);
     }
@@ -47,8 +50,9 @@ public class FailureTests
         const string expMessage = "Title";
         Dictionary<string, object?> expCustomExtensions = new() { { "key", "value" } };
 
-        ExtensibleExpectedError bus = new NotFound(expMessage, expCustomExtensions);
+        ExtensibleExpected bus = ExtensibleExpected.NotFound(expMessage, expCustomExtensions);
 
+        bus.Code.Should().Be(404);
         bus.Message.Should().Be(expMessage);
         bus.Extensions.Should().BeEquivalentTo(expCustomExtensions);
     }
@@ -59,8 +63,9 @@ public class FailureTests
         const string expMessage = "Title";
         Dictionary<string, object?> expCustomExtensions = new() { { "key", "value" } };
 
-        ExtensibleExpectedError bus = new Conflict(expMessage, expCustomExtensions);
+        ExtensibleExpected bus = ExtensibleExpected.Conflict(expMessage, expCustomExtensions);
 
+        bus.Code.Should().Be(409);  
         bus.Message.Should().Be(expMessage);
         bus.Extensions.Should().BeEquivalentTo(expCustomExtensions);
     }
@@ -71,8 +76,9 @@ public class FailureTests
         const string expMessage = "Title";
         Dictionary<string, object?> expCustomExtensions = new() { { "key", "value" } };
 
-        ExtensibleExpectedError bus = new Gone(expMessage, expCustomExtensions);
+        ExtensibleExpected bus = ExtensibleExpected.Gone(expMessage, expCustomExtensions);
 
+        bus.Code.Should().Be(410);  
         bus.Message.Should().Be(expMessage);
         bus.Extensions.Should().BeEquivalentTo(expCustomExtensions);
     }
@@ -83,8 +89,9 @@ public class FailureTests
         const string expMessage = "Title";
         Dictionary<string, object?> expCustomExtensions = new() { { "key", "value" } };
 
-        ExtensibleExpectedError bus = new IAmTeapot(expMessage, expCustomExtensions);
+        ExtensibleExpected bus = ExtensibleExpected.IAmTeapot(expMessage, expCustomExtensions);
 
+        bus.Code.Should().Be(418);  
         bus.Message.Should().Be(expMessage);
         bus.Extensions.Should().BeEquivalentTo(expCustomExtensions);
     }
@@ -96,8 +103,9 @@ public class FailureTests
         ValidationDetail[] expDetails = new [] { new ValidationDetail("Name", "Detail") };
         Dictionary<string, object?> expCustomExtensions = new() { { "key", "value" } };
 
-        ExtensibleExpectedError bus = new Unprocessable(expMessage, expDetails, expCustomExtensions);
+        ExtensibleExpected bus = ExtensibleExpected.Unprocessable(expMessage, expDetails, expCustomExtensions);
 
+        bus.Code.Should().Be(422);  
         bus.Message.Should().Be(expMessage);
         bus.Extensions.Should().BeEquivalentTo(expCustomExtensions);
     }
@@ -108,8 +116,9 @@ public class FailureTests
         const string expMessage = "Title";
         Dictionary<string, object?> expCustomExtensions = new() { { "key", "value" } };
 
-        ExtensibleExpectedError bus = new Locked(expMessage, expCustomExtensions);
+        ExtensibleExpected bus = ExtensibleExpected.Locked(expMessage, expCustomExtensions);
 
+        bus.Code.Should().Be(423);  
         bus.Message.Should().Be(expMessage);
         bus.Extensions.Should().BeEquivalentTo(expCustomExtensions);
     }
@@ -120,8 +129,9 @@ public class FailureTests
         const string expMessage = "Title";
         Dictionary<string, object?> expCustomExtensions = new() { { "key", "value" } };
 
-        ExtensibleExpectedError bus = new FailedDependency(expMessage, expCustomExtensions);
+        ExtensibleExpected bus = ExtensibleExpected.FailedDependency(expMessage, expCustomExtensions);
 
+        bus.Code.Should().Be(424);  
         bus.Message.Should().Be(expMessage);
         bus.Extensions.Should().BeEquivalentTo(expCustomExtensions);
     }
@@ -132,8 +142,9 @@ public class FailureTests
         const string expMessage = "Title";
         Dictionary<string, object?> expCustomExtensions = new() { { "key", "value" } };
 
-        ExtensibleExpectedError bus = new TooEarly(expMessage, expCustomExtensions);
+        ExtensibleExpected bus = ExtensibleExpected.TooEarly(expMessage, expCustomExtensions);
 
+        bus.Code.Should().Be(425);  
         bus.Message.Should().Be(expMessage);
         bus.Extensions.Should().BeEquivalentTo(expCustomExtensions);
     }

@@ -34,7 +34,7 @@ public class AbstractExceptionHandlingBehaviorTests
                     .Verifiable();
 
         pipelineMock.Setup(e => e.Process(expEx, request))
-            .Returns(liftEff<VSlicesRuntime, Result>(_ => new ServerError("Internal server error").AsError()))
+            .Returns(liftEff<VSlicesRuntime, Result>(_ =>VSlicesPrelude.serverError("Internal server error")))
             .Verifiable();
 
         pipelineMock.Setup(e => e.InHandle(request, next))
@@ -59,8 +59,9 @@ public class AbstractExceptionHandlingBehaviorTests
         _ = effectResult.Match(_ => throw new UnreachableException(),
                                error =>
                                {
-                                   error.Should().BeOfType<ServerError>();
+                                   error.Code.Should().Be(500);
                                    error.Message.Should().Be("Internal server error");
+                                   error.Should().BeOfType<ExtensibleExpected>();
 
                                    return unit;
                                });

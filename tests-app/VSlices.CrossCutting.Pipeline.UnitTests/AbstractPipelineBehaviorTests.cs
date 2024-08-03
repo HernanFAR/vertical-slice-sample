@@ -20,7 +20,7 @@ public class AbstractPipelineBehaviorTests
     public Task BeforeHandleAsync_ShouldInterruptExecution()
     {
         Request request = new();
-        NotFound failure = new("Testing");
+        ExtensibleExpected failure = ExtensibleExpected.NotFound("Testing", []);
 
         var pipeline = Mock.Of<AbstractPipelineBehavior<Request, Result>>();
         Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
@@ -106,8 +106,8 @@ public class AbstractPipelineBehaviorTests
     [Fact]
     public Task InHandle_ShouldReturnFailure()
     {
-        Request request = new();
-        NotFound failure = new("Testing");
+        Request                         request = new();
+        ExtensibleExpected failure = ExtensibleExpected.NotFound("Testing", []);
 
         var pipeline = Mock.Of<AbstractPipelineBehavior<Request, Result>>();
         Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);

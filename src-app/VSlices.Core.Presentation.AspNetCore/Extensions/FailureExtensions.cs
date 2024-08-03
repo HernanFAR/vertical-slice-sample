@@ -5,17 +5,17 @@ using Microsoft.AspNetCore.Mvc;
 namespace VSlices.Base.Failures;
 
 /// <summary>
-/// <see cref="ExtensibleExpectedError"/> extensions to convert into <see cref="ProblemDetails"/>
+/// <see cref="ExtensibleExpected"/> extensions to convert into <see cref="ProblemDetails"/>
 /// </summary>
 public static class BusinessFailureExtensions
 {
     /// <summary>
-    /// Converts an <see cref="ExtensibleExpectedError"/> instance into a <see cref="ProblemDetails"/>
+    /// Converts an <see cref="ExtensibleExpected"/> instance into a <see cref="ProblemDetails"/>
     /// </summary>
     /// <param name="failure">Failure</param>
     /// <returns>ProblemDetails instance</returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
-    public static ProblemDetails ToProblemDetails(this ExtensibleExpectedError failure)
+    public static ProblemDetails ToProblemDetails(this ExtensibleExpected failure)
     {
         var problemDetails = new ProblemDetails
         {
@@ -27,21 +27,6 @@ public static class BusinessFailureExtensions
         {
             problemDetails.Extensions[key] = value;
         }
-
-        if (failure is not Unprocessable unprocessable)
-        {
-            return problemDetails;
-        }
-
-        problemDetails.Extensions["errors"] = unprocessable.Errors
-            .Select(x => x.Name)
-            .Distinct()
-            .ToDictionary(
-                propertyName => propertyName,
-                propertyName => unprocessable.Errors
-                    .Where(x => x.Name == propertyName)
-                    .Select(e => e.Detail)
-                    .ToArray());
 
         return problemDetails;
     }

@@ -41,7 +41,7 @@ public class ResponseExtensionsTests
     {
         const string expTitle = "Title";
 
-        Fin<Unit> oneOf = Fin<Unit>.Fail(new Failures.BadRequest(expTitle));
+        Fin<Unit> oneOf = Fin<Unit>.Fail(VSlicesPrelude.badRequest(expTitle));
 
         ProblemDetails result = oneOf.MatchResult(_ => throw new UnreachableException())
             .Should()
@@ -58,7 +58,7 @@ public class ResponseExtensionsTests
     {
         const string expTitle = "Title";
 
-        Fin<Unit> oneOf = Fin<Unit>.Fail(new Failures.Unauthenticated(expTitle));
+        Fin<Unit> oneOf = Fin<Unit>.Fail(VSlicesPrelude.unauthenticated(expTitle));
 
         ProblemDetails result = oneOf.MatchResult(_ => throw new UnreachableException())
             .Should()
@@ -75,7 +75,7 @@ public class ResponseExtensionsTests
     {
         const string expTitle = "Title";
 
-        Fin<Unit> oneOf = Fin<Unit>.Fail(new Failures.Forbidden(expTitle));
+        Fin<Unit> oneOf = Fin<Unit>.Fail(VSlicesPrelude.forbidden(expTitle));
 
         ProblemDetails result = oneOf.MatchResult(_ => throw new UnreachableException())
             .Should()
@@ -91,7 +91,7 @@ public class ResponseExtensionsTests
     {
         const string expTitle = "Title";
 
-        Fin<Unit> oneOf = Fin<Unit>.Fail(new Failures.NotFound(expTitle));
+        Fin<Unit> oneOf = Fin<Unit>.Fail(VSlicesPrelude.notFound(expTitle));
 
         ProblemDetails result = oneOf.MatchResult(_ => throw new UnreachableException())
             .Should()
@@ -107,7 +107,7 @@ public class ResponseExtensionsTests
     {
         const string expTitle = "Title";
 
-        Fin<Unit> oneOf = Fin<Unit>.Fail(new Failures.Conflict(expTitle));
+        Fin<Unit> oneOf = Fin<Unit>.Fail(VSlicesPrelude.conflict(expTitle));
 
         ProblemDetails result = oneOf.MatchResult(_ => throw new UnreachableException())
             .Should()
@@ -123,7 +123,7 @@ public class ResponseExtensionsTests
     {
         const string expTitle = "Title";
 
-        Fin<Unit> oneOf = Fin<Unit>.Fail(new Failures.Gone(expTitle));
+        Fin<Unit> oneOf = Fin<Unit>.Fail(VSlicesPrelude.gone(expTitle));
 
         ProblemDetails result = oneOf.MatchResult(_ => throw new UnreachableException())
             .Should()
@@ -139,7 +139,7 @@ public class ResponseExtensionsTests
     {
         const string expTitle = "Title";
 
-        Fin<Unit> oneOf = Fin<Unit>.Fail(new Failures.IAmTeapot(expTitle));
+        Fin<Unit> oneOf = Fin<Unit>.Fail(VSlicesPrelude.iAmTeaPot(expTitle));
 
         ProblemDetails result = oneOf.MatchResult(_ => throw new UnreachableException())
             .Should()
@@ -167,7 +167,7 @@ public class ResponseExtensionsTests
             new ValidationDetail(expErrorName2, expErrorDetail2_1)
         ];
 
-        Fin<Unit> oneOf = Fin<Unit>.Fail(new Failures.Unprocessable(expTitle, errors));
+        Fin<Unit> oneOf = Fin<Unit>.Fail(VSlicesPrelude.unprocessable(expTitle, errors));
 
         ProblemDetails result = oneOf.MatchResult(_ => throw new UnreachableException())
             .Should()
@@ -194,7 +194,7 @@ public class ResponseExtensionsTests
     {
         const string expTitle = "Title";
 
-        Fin<Unit> oneOf = Fin<Unit>.Fail(new Failures.Locked(expTitle));
+        Fin<Unit> oneOf = Fin<Unit>.Fail(VSlicesPrelude.locked(expTitle));
 
         ProblemDetails result = oneOf.MatchResult(_ => throw new UnreachableException())
             .Should()
@@ -211,7 +211,7 @@ public class ResponseExtensionsTests
     {
         const string expTitle = "Title";
 
-        Fin<Unit> oneOf = Fin<Unit>.Fail(new Failures.FailedDependency(expTitle));
+        Fin<Unit> oneOf = Fin<Unit>.Fail(VSlicesPrelude.failedDependency(expTitle));
 
         ProblemDetails result = oneOf.MatchResult(_ => throw new UnreachableException())
             .Should()
@@ -228,7 +228,7 @@ public class ResponseExtensionsTests
     {
         const string expTitle = "Title";
 
-        Fin<Unit> oneOf = Fin<Unit>.Fail(new Failures.TooEarly(expTitle));
+        Fin<Unit> oneOf = Fin<Unit>.Fail(VSlicesPrelude.tooEarly(expTitle));
 
         ProblemDetails result = oneOf.MatchResult(_ => throw new UnreachableException())
             .Should()

@@ -52,7 +52,7 @@ internal sealed class Handler : IHandler<Query>
     public Eff<VSlicesRuntime, Unit> Define(Query request) =>
         from repository in provide<IQuestionRepository>()
         from exists in repository.Exists(request.Id)
-        from _ in guard(exists, new NotFound("No se ha encontrado la pregunta").AsError)
+        from _ in guard(exists, notFound("No se ha encontrado la pregunta"))
         select unit;
 
 }
