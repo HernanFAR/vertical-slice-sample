@@ -19,7 +19,7 @@ public interface IRepository<TRoot, in TKey>
     /// <summary>
     /// Get an <see cref="Option{A}"/> of <see cref="IAggregateRoot{TKey}"/>
     /// </summary>
-    Eff<VSlicesRuntime, Option<TRoot>> GetOrOptional(TKey id);
+    Eff<VSlicesRuntime, Option<TRoot>> GetOrOption(TKey id);
 
     /// <summary>
     /// Adds a <see cref="IAggregateRoot{TKey}"/> to the repository
