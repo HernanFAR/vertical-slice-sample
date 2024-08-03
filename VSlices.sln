@@ -131,6 +131,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Infrastructure.Doma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crud.Domain.Rules", "examples\crud-app\Crud.Domain.Rules\Crud.Domain.Rules.csproj", "{CD9D7D38-30A8-42B2-8F9D-FF756186D10D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.Core.RecurringJob", "src-app\VSlices.Core.RecurringJob\VSlices.Core.RecurringJob.csproj", "{4AA892D1-50BC-462E-918C-AA55D5B9566B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -317,6 +319,10 @@ Global
 		{CD9D7D38-30A8-42B2-8F9D-FF756186D10D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD9D7D38-30A8-42B2-8F9D-FF756186D10D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD9D7D38-30A8-42B2-8F9D-FF756186D10D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AA892D1-50BC-462E-918C-AA55D5B9566B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AA892D1-50BC-462E-918C-AA55D5B9566B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AA892D1-50BC-462E-918C-AA55D5B9566B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AA892D1-50BC-462E-918C-AA55D5B9566B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -383,6 +389,7 @@ Global
 		{33D259D2-C6BB-44E9-ACE3-AC4F9CD1CE8E} = {5AF3B2BC-C727-4BA8-AD10-769FFDF9DA82}
 		{15B61A89-2663-4656-A7FD-46F5610F4E5A} = {3CDE8CD7-B0F6-4361-8FA1-A8F6B0E56DB4}
 		{CD9D7D38-30A8-42B2-8F9D-FF756186D10D} = {BA39B38C-5C3A-4534-9524-E42D9A501FC7}
+		{4AA892D1-50BC-462E-918C-AA55D5B9566B} = {A8929B0C-D991-43AF-AC46-3BBE69C3D788}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {653AE7A1-A4C4-42F2-9804-FE7E032C3E8C}

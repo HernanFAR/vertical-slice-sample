@@ -22,6 +22,8 @@ public static class Startup
     public static IServiceCollection AddCore(this IServiceCollection services) =>
         services.AddFeatureDependenciesFromAssemblyContaining<Anchor>()
                 .AddVSlicesRuntime()
+                // Recurring jobs
+                .AddRecurringJobListener()
                 // Request
                 .AddReflectionRequestRunner()
                 // Events
