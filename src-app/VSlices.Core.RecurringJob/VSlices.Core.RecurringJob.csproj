@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Cronos" Version="0.8.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VSlices.Core.UseCases\VSlices.Core.UseCases.csproj" />
+    <ProjectReference Include="..\VSlices.Core\VSlices.Core.csproj" />
+    <ProjectReference Include="..\VSlices.CrossCutting.BackgroundTaskListener\VSlices.CrossCutting.BackgroundTaskListener.csproj" />
+  </ItemGroup>
+
+</Project>

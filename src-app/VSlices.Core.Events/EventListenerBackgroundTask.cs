@@ -32,6 +32,8 @@ public sealed class EventListenerBackgroundTask(
     /// <inheritdoc />
     public async ValueTask ExecuteAsync(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Starting event listener... ");
+
         while (!cancellationToken.IsCancellationRequested)
         {
             var publisher = _serviceProvider.GetRequiredService<IEventRunner>();
