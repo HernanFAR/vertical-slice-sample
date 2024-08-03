@@ -22,7 +22,7 @@ internal sealed class Handler
     public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent request) =>
         from repository in provide<IQuestionRepository>()
         from logger in provide<ILogger<QuestionMutatedEvent>>()
-        from optionalQuestion in repository.GetOrOptional(request.Id)
+        from optionalQuestion in repository.GetOrOption(request.Id)
         from _ in liftEff(() => optionalQuestion.BiIter(
             Some: question =>
             {

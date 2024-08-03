@@ -48,7 +48,7 @@ public abstract class EfCoreRepository<TDbContext, TRoot, TKey, TProjection> : I
         select root;
 
     /// <inheritdoc />
-    public Eff<VSlicesRuntime, Option<TRoot>> GetOrOptional(TKey id) =>
+    public Eff<VSlicesRuntime, Option<TRoot>> GetOrOption(TKey id) =>
         from context in provide<TDbContext>()
         from token in cancelToken
         from root in liftEff(async () =>
