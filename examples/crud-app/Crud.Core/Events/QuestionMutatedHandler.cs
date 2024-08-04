@@ -11,13 +11,13 @@ public sealed class QuestionMutatedDependencies : IFeatureDependencies
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
         featureBuilder
-            .AddHandler<Handler>()
+            .AddHandler<RequestHandler>()
             .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<QuestionMutatedEvent, Unit>>();
     }
 }
 
-internal sealed class Handler
-    : IHandler<QuestionMutatedEvent>
+internal sealed class RequestHandler
+    : IRequestHandler<QuestionMutatedEvent>
 {
     public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent request) =>
         from repository in provide<IQuestionRepository>()

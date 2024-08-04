@@ -25,8 +25,8 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
         IPublishingStrategy strategy, 
         CancellationToken cancellationToken)
     {
-        IEnumerable<IHandler<TRequest, Unit>> handlers = serviceProvider
-            .GetServices<IHandler<TRequest, Unit>>();
+        IEnumerable<IRequestHandler<TRequest, Unit>> handlers = serviceProvider
+            .GetServices<IRequestHandler<TRequest, Unit>>();
 
         Eff<VSlicesRuntime, Unit>[] delegates =
             handlers.Select(handler =>

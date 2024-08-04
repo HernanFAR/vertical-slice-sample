@@ -24,7 +24,7 @@ public class RecurringJobTests
 
     public record Query : IRequest;
 
-    public class Handler : IHandler<Query>
+    public class RequestHandler : IRequestHandler<Query>
     {
         public Eff<VSlicesRuntime, Unit> Define(Query request) =>
             from accumulator in provide<Accumulator>()
@@ -63,7 +63,7 @@ public class RecurringJobTests
                        .AddLogging()
                        // Testing
                        .AddSingleton<Accumulator>()
-                       .AddTransient<IHandler<Query, Unit>, Handler>()
+                       .AddTransient<IRequestHandler<Query, Unit>, RequestHandler>()
                        .AddSingleton<IRecurringJobDefinition, RecurringJobListener>()
                        .AddRecurringJobListener()
                        .BuildServiceProvider();
@@ -98,7 +98,7 @@ public class RecurringJobTests
                                    .AddLogging()
                                    // Testing
                                    .AddSingleton<Accumulator>()
-                                   .AddTransient<IHandler<Query, Unit>, Handler>()
+                                   .AddTransient<IRequestHandler<Query, Unit>, RequestHandler>()
                                    .AddSingleton<IRecurringJobDefinition, RecurringJobListener>()
                                    .AddRecurringJobListener()
                                    .BuildServiceProvider();

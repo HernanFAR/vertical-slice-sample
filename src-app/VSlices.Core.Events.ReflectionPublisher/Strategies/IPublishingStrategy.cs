@@ -9,7 +9,7 @@ namespace VSlices.Core.Events.Strategies;
 public interface IPublishingStrategy
 {
     /// <summary>
-    /// Handles the execution of the <see cref="IHandler{TRequest,TResponse}"/>'s related
+    /// Handles the execution of the <see cref="IRequestHandler{TRequest,TResponse}"/>'s related
     /// to the event.
     /// </summary>
     Fin<Unit> Handle(Eff<VSlicesRuntime, Unit>[] delegates, IServiceProvider serviceProvider, CancellationToken cancellationToken);

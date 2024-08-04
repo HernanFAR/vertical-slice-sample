@@ -14,7 +14,7 @@ public sealed class ReadQuestionDependencies : IFeatureDependencies
             .AddLoggingBehaviorFor<Query>()
                 .UsingSpanishTemplate()
             .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Query, ReadQuestionsDto>>()
-            .AddHandler<Handler>();
+            .AddHandler<RequestHandler>();
     }
 }
 
@@ -49,7 +49,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class Handler : IHandler<Query, ReadQuestionsDto>
+internal sealed class RequestHandler : IRequestHandler<Query, ReadQuestionsDto>
 {
     public Eff<VSlicesRuntime, ReadQuestionsDto> Define(Query request) =>
         from context in provide<AppDbContext>()

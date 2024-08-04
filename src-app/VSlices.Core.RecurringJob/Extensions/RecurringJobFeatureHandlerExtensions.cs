@@ -5,7 +5,7 @@ using VSlices.Core.RecurringJob;
 namespace VSlices.Core.Builder;
 
 /// <summary>
-/// Recurring Job Feature Handler Extensions
+/// Recurring Job Feature RequestHandler Extensions
 /// </summary>
 public static class RecurringJobFeatureHandlerExtensions
 {

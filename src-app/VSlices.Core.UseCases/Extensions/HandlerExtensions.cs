@@ -7,12 +7,12 @@ namespace VSlices.Core.Builder;
 
 /// <summary>
 /// <see cref="FeatureBuilder" /> extensions to simplify <see cref="IFeature{TResult}" />'s 
-/// <see cref="IHandler{TRequest}" /> definitions
+/// <see cref="IRequestHandler{TRequest}" /> definitions
 /// </summary>
 public static class HandlerExtensions
 {
     /// <summary>
-    /// Adds <typeparamref name="T"/> as <see cref="IHandler{TRequest,TResult}"/> to the service collection.
+    /// Adds <typeparamref name="T"/> as <see cref="IRequestHandler{TRequest,TResult}"/> to the service collection.
     /// </summary>
     /// <typeparam name="T">The endpoint definition to add</typeparam>
     /// <param name="featureBuilder">Service collection</param>
@@ -21,7 +21,7 @@ public static class HandlerExtensions
         => featureBuilder.AddHandler(typeof(T));
 
     /// <summary>
-    /// Adds an the specified <see cref="Type"/> as <see cref="IHandler{TRequest,TResult}"/> to the service collection.
+    /// Adds an the specified <see cref="Type"/> as <see cref="IRequestHandler{TRequest,TResult}"/> to the service collection.
     /// </summary>
     /// <param name="featureBuilder">Service collection</param>
     /// <param name="handlerType">The endpoint definition to add</param>
@@ -32,9 +32,9 @@ public static class HandlerExtensions
     {
         var handlerInterface = handlerType.GetInterfaces()
             .Where(o => o.IsGenericType)
-            .SingleOrDefault(o => o.GetGenericTypeDefinition() == typeof(IHandler<,>))
+            .SingleOrDefault(o => o.GetGenericTypeDefinition() == typeof(IRequestHandler<,>))
             ?? throw new InvalidOperationException(
-                $"The type {handlerType.FullName} does not implement {typeof(IHandler<,>).FullName}");
+                $"The type {handlerType.FullName} does not implement {typeof(IRequestHandler<,>).FullName}");
 
         featureBuilder.Services.AddTransient(handlerInterface, handlerType);
 

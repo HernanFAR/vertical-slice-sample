@@ -16,26 +16,26 @@ internal abstract class AbstractRequestRunnerWrapper
 internal abstract class AbstractRequestRunnerWrapper<TResponse> : AbstractRequestRunnerWrapper
 {
     public abstract Fin<TResponse> Handle(
-        IFeature<TResponse> request,
+        IRequest<TResponse> request,
         IServiceProvider serviceProvider, 
         CancellationToken cancellationToken);
 }
 
 internal class RequestRunnerWrapper<TRequest, TResponse> : AbstractRequestRunnerWrapper<TResponse>
-    where TRequest : IFeature<TResponse>
+    where TRequest : IRequest<TResponse>
 {
     public override Fin<object?> Handle(object request, 
                                         IServiceProvider serviceProvider, 
                                         CancellationToken cancellationToken)
     {
-        return Handle((IFeature<TResponse>)request, serviceProvider, cancellationToken);
+        return Handle((IRequest<TResponse>)request, serviceProvider, cancellationToken);
     }
 
-    public override Fin<TResponse> Handle(IFeature<TResponse> request, 
+    public override Fin<TResponse> Handle(IRequest<TResponse> request, 
                                           IServiceProvider serviceProvider, 
                                           CancellationToken cancellationToken)
     {
-        var handler = serviceProvider.GetRequiredService<IHandler<TRequest, TResponse>>();
+        var handler = serviceProvider.GetRequiredService<IRequestHandler<TRequest, TResponse>>();
 
         Eff<VSlicesRuntime, TResponse> handlerEffect = handler.Define((TRequest)request);
 

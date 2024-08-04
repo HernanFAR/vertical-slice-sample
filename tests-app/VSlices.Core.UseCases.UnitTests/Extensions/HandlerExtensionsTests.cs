@@ -11,7 +11,7 @@ public class HandlerExtensionsTests
 {
     public record Feature1 : IFeature<Unit>;
     
-    public class Handler1 : IHandler<Feature1>
+    public class Handler1 : IRequestHandler<Feature1>
     {
         public Eff<VSlicesRuntime, Unit> Define(Feature1 request)
         {
@@ -21,7 +21,7 @@ public class HandlerExtensionsTests
 
     public record Response2 { }
     public record Feature2 : IFeature<Response2>;
-    public class Handler2 : IHandler<Feature2, Response2>
+    public class Handler2 : IRequestHandler<Feature2, Response2>
     {
         public Eff<VSlicesRuntime, Response2> Define(Feature2 request)
         {
@@ -43,12 +43,12 @@ public class HandlerExtensionsTests
         // Assert
         featureBuilder.Services
             .Where(e => e.ImplementationType == typeof(Handler1))
-            .Any(e => e.ServiceType == typeof(IHandler<Feature1, Unit>))
+            .Any(e => e.ServiceType == typeof(IRequestHandler<Feature1, Unit>))
             .Should().BeTrue();
 
         featureBuilder.Services
             .Where(e => e.ImplementationType == typeof(Handler2))
-            .Any(e => e.ServiceType == typeof(IHandler<Feature2, Response2>))
+            .Any(e => e.ServiceType == typeof(IRequestHandler<Feature2, Response2>))
             .Should().BeTrue();
 
     }
@@ -58,7 +58,7 @@ public class HandlerExtensionsTests
     {
         // Arrange
         var featureBuilder = new FeatureBuilder(new ServiceCollection());
-        var expMessage = $"The type {typeof(object).FullName} does not implement {typeof(IHandler<,>).FullName}";
+        var expMessage = $"The type {typeof(object).FullName} does not implement {typeof(IRequestHandler<,>).FullName}";
 
         // Act
         var act = () => featureBuilder.AddHandler<object>();

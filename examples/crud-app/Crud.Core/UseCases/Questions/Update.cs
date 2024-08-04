@@ -22,7 +22,7 @@ public sealed class UpdateQuestionDependencies : IFeatureDependencies
                 .UsingSpanishTemplate()
             .AddFluentValidationBehaviorUsing<Validator>()
             .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
-            .AddHandler<Handler>();
+            .AddHandler<RequestHandler>();
     }
 }
 
@@ -67,7 +67,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class Handler : IHandler<Command>
+internal sealed class RequestHandler : IRequestHandler<Command>
 {
     public Eff<VSlicesRuntime, Unit> Define(Command request) =>
         from token in cancelToken
