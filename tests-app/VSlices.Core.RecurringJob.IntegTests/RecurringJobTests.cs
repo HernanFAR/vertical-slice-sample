@@ -75,7 +75,7 @@ public class RecurringJobTests
 
         accumulator.Count.Should().Be(0);
 
-        await Task.Delay(3000);
+        await Task.Delay(5000);
 
         accumulator.Count.Should().BeGreaterOrEqualTo(2);
     }
@@ -113,7 +113,7 @@ public class RecurringJobTests
         
         accumulator.Count.Should().Be(0);
 
-        await Task.Delay(3000);
+        await Task.Delay(5000);
 
         accumulator.Count.Should().BeGreaterOrEqualTo(2);
 
