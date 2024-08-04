@@ -36,8 +36,8 @@ public class HandlerExtensionsTests
         var featureBuilder = new FeatureBuilder(new ServiceCollection());
 
         // Act
-        featureBuilder.AddHandler<Handler1>();
-        featureBuilder.AddHandler<Handler2>();
+        featureBuilder.AddRequestHandler<Handler1>();
+        featureBuilder.AddRequestHandler<Handler2>();
 
 
         // Assert
@@ -61,7 +61,7 @@ public class HandlerExtensionsTests
         var expMessage = $"The type {typeof(object).FullName} does not implement {typeof(IRequestHandler<,>).FullName}";
 
         // Act
-        var act = () => featureBuilder.AddHandler<object>();
+        var act = () => featureBuilder.AddRequestHandler<object>();
 
 
         // Assert

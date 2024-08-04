@@ -15,7 +15,7 @@ public sealed class DeleteQuestionDependencies : IFeatureDependencies
             .AddLoggingBehaviorFor<Command>()
                 .UsingSpanishTemplate()
             .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
-            .AddHandler<RequestHandler>();
+            .AddRequestHandler<RequestHandler>();
     }
 }
 

@@ -14,7 +14,7 @@ public sealed class ReadQuestionDependencies : IFeatureDependencies
             .AddLoggingBehaviorFor<Query>()
                 .UsingSpanishTemplate()
             .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Query, ReadQuestionsDto>>()
-            .AddHandler<RequestHandler>();
+            .AddRequestHandler<RequestHandler>();
     }
 }
 
