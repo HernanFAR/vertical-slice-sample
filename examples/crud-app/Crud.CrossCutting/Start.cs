@@ -5,6 +5,7 @@ global using static LanguageExt.Prelude;
 global using static VSlices.VSlicesPrelude;
 
 using Crud.CrossCutting;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
@@ -16,7 +17,7 @@ public static class Start
     public static IServiceCollection AddCrossCutting(this IServiceCollection services)
         => services.AddDbContext<AppDbContext>(b => b.UseSqlite("Data Source=app.db")
                                                      .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking))
-            .AddHostedTaskListener()
+            .AddHangfireTaskListener(conf => conf.UseInMemoryStorage())
             .AddEndpointsApiExplorer()
             .AddSwaggerGen(e =>
             {

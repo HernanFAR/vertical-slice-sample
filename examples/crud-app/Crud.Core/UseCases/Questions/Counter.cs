@@ -39,8 +39,11 @@ internal sealed class Handler : IHandler<Query>
     public Eff<VSlicesRuntime, Unit> Define(Query request) =>
         from context in provide<AppDbContext>()
         from logger in provide<ILogger<Handler>>()
+        from timeProvider in provide<TimeProvider>()
         from cancelToken in cancelToken
         from count in liftEff(() => context.Questions.CountAsync(cancelToken))
-        from _ in liftEff(() => logger.LogInformation("Total questions: {Count}.", count))
+        from _ in liftEff(() => logger.LogInformation("Total questions: {Count} at: {CurrentTime}.", 
+                                                      count, 
+                                                      timeProvider.GetUtcNow().UtcDateTime))
         select unit;
 }
