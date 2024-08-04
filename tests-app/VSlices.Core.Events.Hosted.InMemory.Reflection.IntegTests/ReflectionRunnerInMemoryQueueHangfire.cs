@@ -99,14 +99,14 @@ public class ReflectionRunnerInMemoryQueueHangfire
     {
         ServiceProvider provider = new ServiceCollection()
                                    .AddVSlicesRuntime()
-            .AddEventListener()
-            .AddHangfireTaskListener(config => config.UseInMemoryStorage())
-            .AddInMemoryEventQueue()
-            .AddReflectionEventRunner()
-            .AddLogging()
-            .AddSingleton<AlwaysUnitHandler>()
-            .AddScoped<IHandler<AlwaysUnitEvent, Unit>>(s => s.GetRequiredService<AlwaysUnitHandler>())
-            .BuildServiceProvider();
+                                   .AddEventListener()
+                                   .AddHangfireTaskListener(config => config.UseInMemoryStorage())
+                                   .AddInMemoryEventQueue()
+                                   .AddReflectionEventRunner()
+                                   .AddLogging()
+                                   .AddSingleton<AlwaysUnitHandler>()
+                                   .AddScoped<IHandler<AlwaysUnitEvent, Unit>>(s => s.GetRequiredService<AlwaysUnitHandler>())
+                                   .BuildServiceProvider();
 
         IEnumerable<IHostedService> backgroundEventListener = provider.GetServices<IHostedService>();
         InMemoryEventQueue eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
