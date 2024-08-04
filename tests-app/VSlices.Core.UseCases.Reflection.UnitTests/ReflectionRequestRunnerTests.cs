@@ -68,7 +68,7 @@ public class ReflectionRequestRunnerTests
 
     public record RequestOne : IRequest;
 
-    public class HandlerOne : IHandler<RequestOne, Unit>
+    public class RequestHandlerOne : IRequestHandler<RequestOne, Unit>
     {        
         public Eff<VSlicesRuntime, Unit> Define(RequestOne requestOne) =>
             from accumulator in provide<Accumulator>()
@@ -84,7 +84,7 @@ public class ReflectionRequestRunnerTests
 
     public record RequestTwo : IRequest<Unit>;
 
-    public class HandlerTwo : IHandler<RequestTwo, Unit>
+    public class RequestHandlerTwo : IRequestHandler<RequestTwo, Unit>
     {
         public Eff<VSlicesRuntime, Unit> Define(RequestTwo request) =>
             from accumulator in provide<Accumulator>()
@@ -104,7 +104,7 @@ public class ReflectionRequestRunnerTests
         const int expCount = 1;
         var provider = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
                        .AddSingleton<Accumulator>()
                        .BuildServiceProvider();
@@ -130,7 +130,7 @@ public class ReflectionRequestRunnerTests
         var provider = new ServiceCollection()
                        .AddVSlicesRuntime()
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
-                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
                        .AddSingleton<Accumulator>()
                        .BuildServiceProvider();
@@ -157,7 +157,7 @@ public class ReflectionRequestRunnerTests
                        .AddVSlicesRuntime()
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
                        .AddSingleton<Accumulator>()
                        .BuildServiceProvider();
@@ -184,7 +184,7 @@ public class ReflectionRequestRunnerTests
                        .AddVSlicesRuntime()
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
-                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
                        .AddSingleton<Accumulator>()
                        .BuildServiceProvider();
@@ -212,7 +212,7 @@ public class ReflectionRequestRunnerTests
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
                        .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
+                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
                        .AddSingleton<Accumulator>()
                        .BuildServiceProvider();
@@ -240,8 +240,8 @@ public class ReflectionRequestRunnerTests
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
                        .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IHandler<RequestOne, Unit>, HandlerOne>()
-                       .AddTransient<IHandler<RequestTwo, Unit>, HandlerTwo>()
+                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
+                       .AddTransient<IRequestHandler<RequestTwo, Unit>, RequestHandlerTwo>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
                        .AddSingleton<Accumulator>()
                        .BuildServiceProvider();

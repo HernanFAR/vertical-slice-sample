@@ -14,7 +14,7 @@ public sealed class ExistsQuestionDependencies : IFeatureDependencies
             .AddLoggingBehaviorFor<Query>()
                 .UsingSpanishTemplate()
             .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Query, Unit>>()
-            .AddHandler<Handler>();
+            .AddHandler<RequestHandler>();
     }
 }
 
@@ -47,7 +47,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class Handler : IHandler<Query>
+internal sealed class RequestHandler : IRequestHandler<Query>
 {
     public Eff<VSlicesRuntime, Unit> Define(Query request) =>
         from repository in provide<IQuestionRepository>()

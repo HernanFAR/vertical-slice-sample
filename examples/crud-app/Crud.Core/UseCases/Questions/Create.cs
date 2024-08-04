@@ -23,7 +23,7 @@ public sealed class CreateQuestionDependencies : IFeatureDependencies
                 .UsingSpanishTemplate()
             .AddFluentValidationBehaviorUsing<Validator>()
             .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
-            .AddHandler<Handler>();
+            .AddHandler<RequestHandler>();
     }
 }
 
@@ -64,7 +64,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class Handler : IHandler<Command, Unit>
+internal sealed class RequestHandler : IRequestHandler<Command, Unit>
 {
     public Eff<VSlicesRuntime, Unit> Define(Command request) =>
         from manager in provide<QuestionManager>()

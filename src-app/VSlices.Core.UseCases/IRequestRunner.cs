@@ -8,7 +8,7 @@ namespace VSlices.Core.UseCases;
 public interface IRequestRunner
 {
     /// <summary>
-    /// Asynchronously runs the <see cref="IHandler{TRequest,TResult}"/> effect associated to
+    /// Asynchronously runs the <see cref="IRequestHandler{TRequest,TResult}"/> effect associated to
     /// <see cref="IRequest{T}" />, using generated runtime with the specified cancellation token.
     /// </summary>
     /// <typeparam name="TResult">Expected response type</typeparam>

@@ -15,7 +15,7 @@ public sealed class DeleteQuestionDependencies : IFeatureDependencies
             .AddLoggingBehaviorFor<Command>()
                 .UsingSpanishTemplate()
             .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
-            .AddHandler<Handler>();
+            .AddHandler<RequestHandler>();
     }
 }
 
@@ -48,7 +48,7 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class Handler : IHandler<Command>
+internal sealed class RequestHandler : IRequestHandler<Command>
 {
     public Eff<VSlicesRuntime, Unit> Define(Command request) =>
         from repository in provide<IQuestionRepository>()
