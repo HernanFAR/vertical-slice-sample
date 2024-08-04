@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
 using VSlices.Core.Events.Strategies;
+using VSlices.Core.UseCases;
 using VSlices.CrossCutting.Pipeline;
 
 namespace VSlices.Core.Events.Internals;

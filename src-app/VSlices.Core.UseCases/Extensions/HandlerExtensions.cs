@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
+using VSlices.Core.UseCases;
 
 // ReSharper disable once CheckNamespace
 namespace VSlices.Core.Builder;
 
 /// <summary>
 /// <see cref="FeatureBuilder" /> extensions to simplify <see cref="IFeature{TResult}" />'s 
-/// <see cref="IHandler{TFeature, TResult}" /> definitions
+/// <see cref="IHandler{TRequest}" /> definitions
 /// </summary>
 public static class HandlerExtensions
 {

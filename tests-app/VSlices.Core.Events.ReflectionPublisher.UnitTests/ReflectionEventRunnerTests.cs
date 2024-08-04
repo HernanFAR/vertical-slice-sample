@@ -9,6 +9,7 @@ using VSlices.Core.Events.Strategies;
 using VSlices.CrossCutting.Pipeline;
 using VSlices.Domain;
 using VSlices.Base.Traits;
+using VSlices.Core.UseCases;
 
 // ReSharper disable once CheckNamespace
 namespace VSlices.Core.Events._ReflectionRunner.UnitTests;

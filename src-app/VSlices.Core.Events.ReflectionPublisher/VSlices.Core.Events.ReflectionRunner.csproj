@@ -10,6 +10,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\VSlices.Core.Events\VSlices.Core.Events.csproj" />
+		<ProjectReference Include="..\VSlices.Core.UseCases\VSlices.Core.UseCases.csproj" />
 		<ProjectReference Include="..\VSlices.CrossCutting.Pipeline\VSlices.CrossCutting.Pipeline.csproj" />
 	</ItemGroup>
 

@@ -6,6 +6,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using VSlices.Base;
+using VSlices.Core.UseCases;
 using VSlices.Domain;
 
 namespace VSlices.Core.Events.Hosted.InMemory.Reflection.IntegTests;
