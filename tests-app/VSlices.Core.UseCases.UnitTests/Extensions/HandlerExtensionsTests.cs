@@ -5,7 +5,7 @@ using LanguageExt;
 using VSlices.Base;
 using VSlices.Core.Builder;
 
-namespace VSlices.Core.UnitTests.Extensions;
+namespace VSlices.Core.UseCases.UnitTests.Extensions;
 
 public class HandlerExtensionsTests
 {

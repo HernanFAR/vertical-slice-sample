@@ -35,7 +35,7 @@ internal class RequestRunnerWrapper<TRequest, TResponse> : AbstractRequestRunner
                                           IServiceProvider serviceProvider, 
                                           CancellationToken cancellationToken)
     {
-        var       handler = serviceProvider.GetRequiredService<IHandler<TRequest, TResponse>>();
+        var handler = serviceProvider.GetRequiredService<IHandler<TRequest, TResponse>>();
 
         Eff<VSlicesRuntime, TResponse> handlerEffect = handler.Define((TRequest)request);
 

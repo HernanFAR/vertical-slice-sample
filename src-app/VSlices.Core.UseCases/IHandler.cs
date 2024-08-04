@@ -1,6 +1,7 @@
-﻿using VSlices.Base;
+﻿using LanguageExt;
+using VSlices.Base;
 
-namespace VSlices.Core;
+namespace VSlices.Core.UseCases;
 
 /// <summary>
 /// Defines asynchronous effect for a specific <see cref="IFeature{TResult}"/>
