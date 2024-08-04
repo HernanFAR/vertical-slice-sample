@@ -11,7 +11,7 @@ public sealed class CounterFeatureDependencies : IFeatureDependencies
 {
     public static void DefineDependencies(FeatureBuilder featureBuilder) =>
         featureBuilder.AddRecurringJob<RecurringJob>()
-                      .AddHandler<RequestHandler>();
+                      .AddRequestHandler<RequestHandler>();
 }
 
 internal sealed class RecurringJob(IRequestRunner runner) : IRecurringJobDefinition

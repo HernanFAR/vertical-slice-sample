@@ -23,7 +23,7 @@ public sealed class CreateQuestionDependencies : IFeatureDependencies
                 .UsingSpanishTemplate()
             .AddFluentValidationBehaviorUsing<Validator>()
             .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
-            .AddHandler<RequestHandler>();
+            .AddRequestHandler<RequestHandler>();
     }
 }
 

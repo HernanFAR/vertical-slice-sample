@@ -11,7 +11,7 @@ public sealed class QuestionMutatedDependencies : IFeatureDependencies
     public static void DefineDependencies(FeatureBuilder featureBuilder)
     {
         featureBuilder
-            .AddHandler<RequestHandler>()
+            .AddRequestHandler<RequestHandler>()
             .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<QuestionMutatedEvent, Unit>>();
     }
 }

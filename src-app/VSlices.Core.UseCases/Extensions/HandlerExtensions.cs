@@ -17,8 +17,8 @@ public static class HandlerExtensions
     /// <typeparam name="T">The endpoint definition to add</typeparam>
     /// <param name="featureBuilder">Service collection</param>
     /// <returns>Service collection</returns>
-    public static FeatureBuilder AddHandler<T>(this FeatureBuilder featureBuilder)
-        => featureBuilder.AddHandler(typeof(T));
+    public static FeatureBuilder AddRequestHandler<T>(this FeatureBuilder featureBuilder)
+        => featureBuilder.AddRequestHandler(typeof(T));
 
     /// <summary>
     /// Adds an the specified <see cref="Type"/> as <see cref="IRequestHandler{TRequest,TResult}"/> to the service collection.
@@ -27,7 +27,7 @@ public static class HandlerExtensions
     /// <param name="handlerType">The endpoint definition to add</param>
     /// <exception cref="InvalidOperationException"></exception>
     /// <returns>Service collection</returns>
-    public static FeatureBuilder AddHandler(this FeatureBuilder featureBuilder,
+    public static FeatureBuilder AddRequestHandler(this FeatureBuilder featureBuilder,
         Type handlerType)
     {
         var handlerInterface = handlerType.GetInterfaces()
