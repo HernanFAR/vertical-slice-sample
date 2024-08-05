@@ -2,24 +2,22 @@
 using Crud.Domain.Rules.DataAccess;
 using Crud.Domain.Rules.Services;
 using Crud.Domain.ValueObjects;
+using VSlices.Base.Builder;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Delete;
 
-public sealed class DeleteQuestionDependencies : IFeatureDependencies
-{
-    public static void DefineDependencies(FeatureBuilder featureBuilder)
-    {
-        featureBuilder
-            .AddEndpoint<EndpointDefinition>()
-            .AddLoggingBehaviorFor<Command>()
-                .UsingSpanishTemplate()
-            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
-            .AddRequestHandler<RequestHandler>();
-    }
-}
+public sealed record Command(QuestionId Id) : IRequest<Unit>;
 
-internal sealed record Command(QuestionId Id) : IRequest<Unit>;
+public sealed class DeleteQuestionDependencies : IFeatureDependencies<Command>
+{
+    public static void DefineDependencies(IFeatureStartBuilder<Command, Unit> feature) =>
+        feature.FromIntegration.With<EndpointDefinition>()
+               .Executing<RequestHandler>()
+               .AddBehaviors(chain => chain
+                                      .AddLogging().UsingSpanish()
+                                      .AddLoggingException().UsingSpanish());
+}
 
 internal sealed class EndpointDefinition : IEndpointDefinition
 {

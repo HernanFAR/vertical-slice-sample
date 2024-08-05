@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
+using VSlices.Base.Builder;
 using VSlices.Core.Builder;
 using VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
 
@@ -21,17 +22,17 @@ public class LoggingBehaviorExtensionsTests
     [Fact]
     public void AddLoggingBehaviorFor_ShouldRegisterInServiceContainer_DetailWithSpanishTemplate()
     {
-        FeatureBuilder builder = new(new ServiceCollection());
+        FeatureDefinition<,> definition = new(new ServiceCollection());
 
-        builder.AddLoggingBehaviorFor<Request>()
+        definition.AddLoggingBehaviorFor<Request>()
             .UsingSpanishTemplate();
 
-        builder.Services
+        definition.Services
             .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Result>))
             .Any(e => e.ImplementationType == typeof(LoggingBehavior<Request, Result>))
             .Should().BeTrue();
 
-        builder.Services
+        definition.Services
             .Where(e => e.ServiceType == typeof(ILoggingMessageTemplate))
             .Any(e => e.ImplementationType == typeof(SpanishLoggingMessageTemplate))
             .Should().BeTrue();
@@ -40,17 +41,17 @@ public class LoggingBehaviorExtensionsTests
     [Fact]
     public void AddLoggingBehaviorFor_ShouldRegisterInServiceContainer_DetailWithEnglishTemplate()
     {
-        FeatureBuilder builder = new(new ServiceCollection());
+        FeatureDefinition<,> definition = new(new ServiceCollection());
 
-        builder.AddLoggingBehaviorFor<Request>()
+        definition.AddLoggingBehaviorFor<Request>()
             .UsingEnglishTemplate();
 
-        builder.Services
+        definition.Services
             .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Result>))
             .Any(e => e.ImplementationType == typeof(LoggingBehavior<Request, Result>))
             .Should().BeTrue();
 
-        builder.Services
+        definition.Services
             .Where(e => e.ServiceType == typeof(ILoggingMessageTemplate))
             .Any(e => e.ImplementationType == typeof(EnglishLoggingMessageTemplate))
             .Should().BeTrue();
@@ -59,17 +60,17 @@ public class LoggingBehaviorExtensionsTests
     [Fact]
     public void AddLoggingBehaviorFor_ShouldRegisterInServiceContainer_DetailWithCustomTemplate()
     {
-        FeatureBuilder builder = new(new ServiceCollection());
+        FeatureDefinition<,> definition = new(new ServiceCollection());
 
-        builder.AddLoggingBehaviorFor<Request>()
+        definition.AddLoggingBehaviorFor<Request>()
             .UsingTemplate<CustomTemplate>();
 
-        builder.Services
+        definition.Services
             .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Result>))
             .Any(e => e.ImplementationType == typeof(LoggingBehavior<Request, Result>))
             .Should().BeTrue();
 
-        builder.Services
+        definition.Services
             .Where(e => e.ServiceType == typeof(ILoggingMessageTemplate))
             .Any(e => e.ImplementationType == typeof(CustomTemplate))
             .Should().BeTrue();
@@ -78,9 +79,9 @@ public class LoggingBehaviorExtensionsTests
     [Fact]
     public void AddLoggingBehaviorFor_ShouldThrowExceptoin()
     {
-        FeatureBuilder builder = new(new ServiceCollection());
+        FeatureDefinition<,> definition = new(new ServiceCollection());
 
-        Func<LoggingBehaviorBuilder> act = () => builder.AddLoggingBehaviorFor(typeof(object));
+        Func<LoggingBehaviorBuilder> act = () => definition.AddLoggingBehaviorFor(typeof(object));
 
         act.Should()
             .Throw<InvalidOperationException>()

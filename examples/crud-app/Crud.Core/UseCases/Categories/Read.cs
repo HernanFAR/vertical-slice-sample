@@ -1,31 +1,29 @@
 ﻿using Crud.CrossCutting;
 using Crud.CrossCutting.Pipelines;
 using Microsoft.EntityFrameworkCore;
+using VSlices.Base.Builder;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Categories.Read;
 
-public sealed class ReadCategoriesDependencies : IFeatureDependencies
+public sealed record Query : IRequest<ReadCategoriesDto>
 {
-    public static void DefineDependencies(FeatureBuilder featureBuilder)
-    {
-        featureBuilder
-            .AddEndpoint<EndpointDefinition>()
-            .AddLoggingBehaviorFor<Query>()
-                .UsingSpanishTemplate()
-            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Query, ReadCategoriesDto>>()
-            .AddRequestHandler<RequestHandler>();
-    }
+    public static Query Instance { get; } = new();
+}
+
+public sealed class ReadCategoriesDependencies : IFeatureDependencies<Query, ReadCategoriesDto>
+{
+    public static void DefineDependencies(IFeatureStartBuilder<Query, ReadCategoriesDto> feature) =>
+        feature.FromIntegration.With<EndpointDefinition>()
+               .Executing<RequestHandler>()
+               .AddBehaviors(chain => chain
+                                      .AddLogging().UsingSpanish()
+                                      .AddLoggingException().UsingSpanish());
 }
 
 public sealed record CategoryDto(Guid Id, string Text);
 
 public sealed record ReadCategoriesDto(CategoryDto[] Categories);
-
-internal sealed record Query : IRequest<ReadCategoriesDto>
-{
-    public static Query Instance { get; } = new();
-}
 
 internal sealed class EndpointDefinition : IEndpointDefinition
 {

@@ -1,65 +1,36 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
-using VSlices.Base;
-using VSlices.CrossCutting.Pipeline;
+using VSlices.Base.Builder;
 using VSlices.CrossCutting.Pipeline.FluentValidation;
 
 // ReSharper disable once CheckNamespace
 namespace VSlices.Core.Builder;
 
 /// <summary>
-/// <see cref="FeatureBuilder"/> extensions for <see cref="FluentValidationBehavior{TRequest, TResult}"/>
+/// <see cref="FeatureDefinition{TFeature,TResult}"/> extensions for <see cref="FluentValidationBehavior{TRequest, TResult}"/>
 /// </summary>
 public static class FluentValidationBehaviorExtensions
 {
     /// <summary>
-    /// Adds a concrete pipeline behavior to the service collection
+    /// Adds a fluent validation behavior in the pipeline execution related to this specific handler.
     /// </summary>
-    /// <param name="featureBuilder">Service Collection</param>
-    /// <param name="implValidatorType">Request to intercept with a <see cref="FluentValidationBehavior{TRequest, TResult}" /></param>
-    /// <returns>Service Collection</returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public static FeatureBuilder AddFluentValidationBehaviorUsing(this FeatureBuilder featureBuilder, Type implValidatorType)
+    public static BehaviorChain AddFluentValidationUsing<T>(this BehaviorChain handlerEffects)
+        where T : IValidator
     {
-        Type validatorType = implValidatorType
-             .GetInterfaces()
-             .Where(x => x.IsGenericType)
-             .SingleOrDefault(x => x.GetGenericTypeDefinition() == typeof(IValidator<>))
-             ?? throw new InvalidOperationException(
-                 $"{implValidatorType.FullName} does not implement {typeof(IValidator<>).FullName}");
+        Type implType = typeof(T); 
+        Type interfaceType = typeof(IValidator<>).MakeGenericType(handlerEffects.FeatureType);
 
-        Type requestType = validatorType.GetGenericArguments()[0];
+        bool isFeatureValidator = implType.GetInterfaces()
+                                          .Any(x => x == interfaceType);
 
-        Type implFeatureType = requestType
-           .GetInterfaces()
-           .Where(x => x.IsGenericType)
-           .SingleOrDefault(x => x.GetGenericTypeDefinition() == typeof(IFeature<>))
-           ?? throw new InvalidOperationException(
-               $"{requestType} does not implement {typeof(IFeature<>).FullName}");
+        if (isFeatureValidator is false)
+        {
+            throw new InvalidOperationException($"{implType.FullName} does not implement {interfaceType.FullName}");
+        }
 
-        featureBuilder.Services.AddTransient(validatorType, implValidatorType);
+        handlerEffects.Add(typeof(FluentValidationBehavior<,>))
+                 .Services.AddTransient(interfaceType, implType);
 
-        Type pipelineBehaviorType = typeof(IPipelineBehavior<,>)
-            .MakeGenericType(requestType, implFeatureType.GetGenericArguments()[0]);
-
-        Type fluentValidationBehaviorType = typeof(FluentValidationBehavior<,>)
-            .MakeGenericType(requestType, implFeatureType.GetGenericArguments()[0]);
-
-        featureBuilder.Services.AddTransient(pipelineBehaviorType, fluentValidationBehaviorType);
-
-        return featureBuilder;
-    }
-
-    /// <summary>
-    /// Adds a concrete pipeline behavior to the service collection
-    /// </summary>
-    /// <typeparam name="TValidator">Pipeline behavior type</typeparam>
-    /// <param name="services">Service Collection</param>
-    /// <returns>Service Collection</returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public static FeatureBuilder AddFluentValidationBehaviorUsing<TValidator>(this FeatureBuilder services)
-        where TValidator : IValidator
-    {
-        return services.AddFluentValidationBehaviorUsing(typeof(TValidator));
+        return handlerEffects;
     }
 }

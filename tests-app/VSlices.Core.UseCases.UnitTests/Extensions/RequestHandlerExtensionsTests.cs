@@ -7,9 +7,9 @@ using VSlices.Core.Builder;
 
 namespace VSlices.Core.UseCases.UnitTests.Extensions;
 
-public class HandlerExtensionsTests
+public class RequestHandlerExtensionsTests
 {
-    public record Feature1 : IFeature<Unit>;
+    public record Feature1 : IRequest<Unit>;
     
     public class Handler1 : IRequestHandler<Feature1>
     {
@@ -20,7 +20,7 @@ public class HandlerExtensionsTests
     }
 
     public record Response2 { }
-    public record Feature2 : IFeature<Response2>;
+    public record Feature2 : IRequest<Response2>;
     public class Handler2 : IRequestHandler<Feature2, Response2>
     {
         public Eff<VSlicesRuntime, Response2> Define(Feature2 request)

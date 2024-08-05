@@ -3,36 +3,35 @@ using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
 using VSlices.Core.Events.Strategies;
 using VSlices.Core.UseCases;
-using VSlices.CrossCutting.Pipeline;
+using VSlices.Domain.Interfaces;
 
 namespace VSlices.Core.Events.Internals;
 
 internal abstract class AbstractHandlerWrapper
 {
     public abstract Fin<Unit> Handle(
-        IFeature<Unit> request,
+        IEvent @event,
         IServiceProvider serviceProvider,
         IPublishingStrategy strategy,
         CancellationToken cancellationToken);
 }
 
 internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
-    where TRequest : IFeature<Unit>
+    where TRequest : IEvent
 {
     public override Fin<Unit> Handle(
-        IFeature<Unit> request,
+        IEvent @event,
         IServiceProvider serviceProvider,
         IPublishingStrategy strategy, 
         CancellationToken cancellationToken)
     {
-        IEnumerable<IRequestHandler<TRequest, Unit>> handlers = serviceProvider
-            .GetServices<IRequestHandler<TRequest, Unit>>();
+        IEnumerable<IEventHandler<TRequest>> handlers = serviceProvider.GetServices<IEventHandler<TRequest>>();
 
         Eff<VSlicesRuntime, Unit>[] delegates =
             handlers.Select(handler =>
                             {
                                 Eff<VSlicesRuntime, Unit> handlerEffect =
-                                    handler.Define((TRequest)request);
+                                    handler.Define((TRequest)@event);
 
                                 IEnumerable<IPipelineBehavior<TRequest, Unit>>
                                     pipelines = serviceProvider
@@ -41,7 +40,7 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
 
                                 return pipelines.Aggregate(handlerEffect,
                                                            (current, behavior) =>
-                                                               behavior.Define((TRequest)request,
+                                                               behavior.Define((TRequest)@event,
                                                                                current));
 
                             })

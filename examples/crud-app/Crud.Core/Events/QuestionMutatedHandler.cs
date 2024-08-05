@@ -2,22 +2,22 @@
 using Crud.Domain.Rules.DataAccess;
 using Crud.Domain.Rules.Events;
 using Microsoft.Extensions.Logging;
+using VSlices.Base.Builder;
+using VSlices.Core.Events;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.Events.Mutated;
 
-public sealed class QuestionMutatedDependencies : IFeatureDependencies
+public sealed class QuestionMutatedDependencies : IFeatureDependencies<QuestionMutatedEvent>
 {
-    public static void DefineDependencies(FeatureBuilder featureBuilder)
-    {
-        featureBuilder
-            .AddRequestHandler<RequestHandler>()
-            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<QuestionMutatedEvent, Unit>>();
-    }
+    public static void DefineDependencies(IFeatureStartBuilder<QuestionMutatedEvent, Unit> defineFeature) =>
+        defineFeature.Execute<RequestHandler>()
+                     .AddBehaviors(chain => chain
+                                            .AddLogging().UsingEnglish()
+                                            .AddLoggingException().UsingSpanish());
 }
 
-internal sealed class RequestHandler
-    : IRequestHandler<QuestionMutatedEvent>
+internal sealed class RequestHandler : IEventHandler<QuestionMutatedEvent>
 {
     public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent request) =>
         from repository in provide<IQuestionRepository>()

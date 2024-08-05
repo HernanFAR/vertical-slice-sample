@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using LanguageExt;
 using VSlices.Base;
+using VSlices.Base.Builder;
 using VSlices.Core;
 using VSlices.Core.Builder;
 
@@ -16,7 +17,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
 
     public record Request : IFeature<Result>;
     
-    public class TestPipeline1<TRequest, TResult> : AbstractExceptionHandlingBehavior<TRequest, TResult>
+    public class TestPipeline1<TRequest, TResult> : ExceptionHandlingBehavior<TRequest, TResult>
         where TRequest : IFeature<TResult>
     {
         protected internal override Eff<VSlicesRuntime, TResult> Process(Exception ex, TRequest request)
@@ -37,11 +38,11 @@ public class ExceptionHandlingBehaviorExtensionsTests
     [Fact]
     public void AddExceptionHandlingPipeline_ShouldRegisterInServiceContainer()
     {
-        FeatureBuilder builder = new(new ServiceCollection());
+        FeatureDefinition<,> definition = new(new ServiceCollection());
 
-        builder.AddExceptionHandlingBehavior<TestPipeline1<Request, Result>>();
+        definition.AddExceptionHandlingBehavior<TestPipeline1<Request, Result>>();
 
-        builder.Services
+        definition.Services
             .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Result>))
             .Any(e => e.ImplementationType == typeof(TestPipeline1<Request, Result>))
             .Should().BeTrue();
@@ -53,9 +54,9 @@ public class ExceptionHandlingBehaviorExtensionsTests
     {
         var expMessage = $"The type {typeof(FalsePipeline).FullName} does not implement {typeof(IPipelineBehavior<,>).FullName}";
         
-        FeatureBuilder builder = new(new ServiceCollection());
+        FeatureDefinition<,> definition = new(new ServiceCollection());
 
-        Func<FeatureBuilder> act = () => builder.AddExceptionHandlingBehavior<FalsePipeline>();
+        Func<FeatureDefinition<,>> act = () => definition.AddExceptionHandlingBehavior<FalsePipeline>();
 
         act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 
@@ -64,11 +65,11 @@ public class ExceptionHandlingBehaviorExtensionsTests
     [Fact]
     public void AddExceptionHandlingPipeline_ShouldThrowInvalidOperation_DetailDoesNotImplementExceptionHandlingBehavior()
     {
-        var expMessage = $"Type {typeof(TestPipeline2<Request, Result>).FullName} must inherit from {typeof(AbstractExceptionHandlingBehavior<,>).FullName}";
+        var expMessage = $"Type {typeof(TestPipeline2<Request, Result>).FullName} must inherit from {typeof(ExceptionHandlingBehavior<,>).FullName}";
 
-        FeatureBuilder builder = new(new ServiceCollection());
+        FeatureDefinition<,> definition = new(new ServiceCollection());
 
-        Func<FeatureBuilder> act = () => builder.AddExceptionHandlingBehavior<TestPipeline2<Request, Result>>();
+        Func<FeatureDefinition<,>> act = () => definition.AddExceptionHandlingBehavior<TestPipeline2<Request, Result>>();
 
         act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 

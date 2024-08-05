@@ -8,7 +8,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\VSlices.CrossCutting.Pipeline\VSlices.CrossCutting.Pipeline.csproj" />
+	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\VSlices.Base\VSlices.Base.csproj" />
 	</ItemGroup>
 
 </Project>

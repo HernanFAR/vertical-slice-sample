@@ -1,24 +1,24 @@
-﻿using Crud.CrossCutting.Pipelines;
+﻿using Crud.Core.UseCases.Questions.Counter;
+using Crud.CrossCutting.Pipelines;
 using Crud.Domain.Rules.DataAccess;
 using Crud.Domain.ValueObjects;
+using VSlices.Base.Builder;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Exists;
 
-public sealed class ExistsQuestionDependencies : IFeatureDependencies
+public sealed record Query(QuestionId Id) : IRequest;
+
+public sealed class ExistsQuestionDependencies : IFeatureDependencies<Query>
 {
-    public static void DefineDependencies(FeatureBuilder featureBuilder)
-    {
-        featureBuilder
-            .AddEndpoint<EndpointDefinition>()
-            .AddLoggingBehaviorFor<Query>()
-                .UsingSpanishTemplate()
-            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Query, Unit>>()
-            .AddRequestHandler<RequestHandler>();
-    }
+    public static void DefineDependencies(IFeatureStartBuilder<Query, Unit> feature) =>
+        feature.FromIntegration.With<RecurringJobDefinition>()
+               .Executing<RequestHandler>()
+               .AddBehaviors(chain => chain
+                                      .AddLogging().UsingSpanish()
+                                      .AddLoggingException().UsingSpanish());
 }
 
-internal sealed record Query(QuestionId Id) : IRequest;
 
 internal sealed class EndpointDefinition : IEndpointDefinition
 {

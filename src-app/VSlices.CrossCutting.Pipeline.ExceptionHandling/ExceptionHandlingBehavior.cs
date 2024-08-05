@@ -10,7 +10,7 @@ namespace VSlices.CrossCutting.Pipeline.ExceptionHandling;
 /// </summary>
 /// <typeparam name="TRequest">The intercepted request to handle</typeparam>
 /// <typeparam name="TResult">The expected successful result</typeparam>
-public abstract class AbstractExceptionHandlingBehavior<TRequest, TResult> : AbstractPipelineBehavior<TRequest, TResult>
+public abstract class ExceptionHandlingBehavior<TRequest, TResult> : AbstractPipelineBehavior<TRequest, TResult>
     where TRequest : IFeature<TResult>
 {
     /// <inheritdoc />

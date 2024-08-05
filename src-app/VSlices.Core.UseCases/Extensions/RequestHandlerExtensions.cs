@@ -9,7 +9,7 @@ namespace VSlices.Core.Builder;
 /// <see cref="FeatureBuilder" /> extensions to simplify <see cref="IFeature{TResult}" />'s 
 /// <see cref="IRequestHandler{TRequest}" /> definitions
 /// </summary>
-public static class HandlerExtensions
+public static class RequestHandlerExtensions
 {
     /// <summary>
     /// Adds <typeparamref name="T"/> as <see cref="IRequestHandler{TRequest,TResult}"/> to the service collection.

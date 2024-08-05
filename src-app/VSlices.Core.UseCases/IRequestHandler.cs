@@ -1,4 +1,5 @@
 ﻿using LanguageExt;
+using System.Reflection.Metadata;
 using VSlices.Base;
 
 namespace VSlices.Core.UseCases;
@@ -9,7 +10,7 @@ namespace VSlices.Core.UseCases;
 /// <remarks>If idempotency is necessary, the handler itself must ensure it</remarks>
 /// <typeparam name="TRequest">The request to handle</typeparam>
 /// <typeparam name="TResult">The expected result of the handler</typeparam>
-public interface IRequestHandler<in TRequest, TResult>
+public interface IRequestHandler<in TRequest, TResult> : IHandler<TRequest, TResult>
     where TRequest : IRequest<TResult>
 {
     /// <summary>
