@@ -18,7 +18,7 @@ public sealed class FluentValidationBehavior<TRequest, TResult> : AbstractPipeli
     where TRequest : IFeature<TResult>
 {
     /// <inheritdoc />
-    protected override Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request) =>
+    protected internal override Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request) =>
         from validator in provide<IValidator<TRequest>>()
         from token in cancelToken
         from result in liftEff(async () => await validator.ValidateAsync(request, token))

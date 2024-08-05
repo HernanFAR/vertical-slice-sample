@@ -8,23 +8,23 @@ using Crud.Domain.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using VSlices.Base;
+using VSlices.Base.Builder;
 using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Create;
 
-public sealed class CreateQuestionDependencies : IFeatureDependencies
+public sealed record Command(CategoryId CategoryId, NonEmptyString Text) : IRequest<Unit>;
+
+public sealed class CreateQuestionDependencies : IFeatureDependencies<Command, Unit>
 {
-    public static void DefineDependencies(FeatureBuilder featureBuilder)
-    {
-        featureBuilder
-            .AddEndpoint<EndpointDefinition>()
-            .AddLoggingBehaviorFor<Command>()
-                .UsingSpanishTemplate()
-            .AddFluentValidationBehaviorUsing<Validator>()
-            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
-            .AddRequestHandler<RequestHandler>();
-    }
+    public static void DefineDependencies(IFeatureStartBuilder<Command, Unit> feature) =>
+        feature.FromIntegration.With<EndpointDefinition>()
+               .Executing<RequestHandler>()
+               .AddBehaviors(chain => chain
+                                      .AddLogging().UsingSpanish()
+                                      .AddFluentValidationUsing<Validator>()
+                                      .AddLoggingException().UsingSpanish());
 }
 
 public sealed record CreateQuestionContract(
@@ -32,8 +32,6 @@ public sealed record CreateQuestionContract(
     Guid CategoryId,
     [property: Required(ErrorMessage = "La pregunta es obligatorio")]
     string Text);
-
-internal sealed record Command(CategoryId CategoryId, NonEmptyString Text) : IRequest<Unit>;
 
 internal sealed class EndpointDefinition : IEndpointDefinition
 {

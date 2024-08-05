@@ -2,19 +2,28 @@
 using Crud.CrossCutting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using VSlices.Base.Builder;
 using VSlices.Core.RecurringJob;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Counter;
 
-public sealed class CounterFeatureDependencies : IFeatureDependencies
+public sealed record Query : IRequest
 {
-    public static void DefineDependencies(FeatureBuilder featureBuilder) =>
-        featureBuilder.AddRecurringJob<RecurringJob>()
-                      .AddRequestHandler<RequestHandler>();
+    public static Query Instance { get; } = new();
 }
 
-internal sealed class RecurringJob(IRequestRunner runner) : IRecurringJobDefinition
+public sealed class CounterFeatureDependencies : IFeatureDependencies<Query>
+{
+    public static void DefineDependencies(IFeatureStartBuilder<Query, Unit> feature) =>
+        feature.FromIntegration.With<RecurringJobDefinition>()
+               .Executing<RequestHandler>()
+               .AddBehaviors(chain => chain
+                                      .AddLogging().UsingSpanish()
+                                      .AddLoggingException().UsingSpanish());
+}
+
+internal sealed class RecurringJobDefinition(IRequestRunner runner) : IRecurringJobDefinition
 {
     private readonly IRequestRunner _runner = runner;
     public string Identifier => "CounterRecurringJob";
@@ -27,11 +36,6 @@ internal sealed class RecurringJob(IRequestRunner runner) : IRecurringJobDefinit
 
         return ValueTask.CompletedTask;
     }
-}
-
-internal sealed record Query : IRequest
-{
-    public static Query Instance { get; } = new();
 }
 
 internal sealed class RequestHandler : IRequestHandler<Query>

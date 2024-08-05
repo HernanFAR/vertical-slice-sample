@@ -8,22 +8,22 @@ using System.ComponentModel.DataAnnotations;
 using Crud.Domain.Rules.DataAccess;
 using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
 using System.ComponentModel.DataAnnotations.Extensions;
+using VSlices.Base.Builder;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Update;
 
-public sealed class UpdateQuestionDependencies : IFeatureDependencies
+public sealed record Command(QuestionId Id, CategoryId CategoryId, NonEmptyString Text) : IRequest;
+
+public sealed class UpdateQuestionDependencies : IFeatureDependencies<Command>
 {
-    public static void DefineDependencies(FeatureBuilder featureBuilder)
-    {
-        featureBuilder
-            .AddEndpoint<EndpointDefinition>()
-            .AddLoggingBehaviorFor<Command>()
-                .UsingSpanishTemplate()
-            .AddFluentValidationBehaviorUsing<Validator>()
-            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Command, Unit>>()
-            .AddRequestHandler<RequestHandler>();
-    }
+    public static void DefineDependencies(IFeatureStartBuilder<Command, Unit> feature) =>
+        feature.FromIntegration.With<EndpointDefinition>()
+               .Executing<RequestHandler>()
+               .AddBehaviors(chain => chain
+                                      .AddLogging().UsingSpanish()
+                                      .AddFluentValidationUsing<Validator>()
+                                      .AddLoggingException().UsingSpanish());
 }
 
 public sealed record UpdateQuestionContract(
@@ -31,8 +31,6 @@ public sealed record UpdateQuestionContract(
     Guid CategoryId,
     [property: Required(ErrorMessage = "La pregunta es obligatoria")]
     string Text);
-
-internal sealed record Command(QuestionId Id, CategoryId CategoryId, NonEmptyString Text) : IRequest<Unit>;
 
 internal sealed class EndpointDefinition : IEndpointDefinition
 {

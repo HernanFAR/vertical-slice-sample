@@ -6,7 +6,6 @@ using static LanguageExt.Prelude;
 using static VSlices.VSlicesPrelude;
 using VSlices.Base;
 using VSlices.Core.Events.Strategies;
-using VSlices.CrossCutting.Pipeline;
 using VSlices.Domain;
 using VSlices.Base.Traits;
 using VSlices.Core.UseCases;
@@ -73,7 +72,7 @@ public class ReflectionEventRunnerTests
 
     public sealed record RequestOne : Event;
 
-    public sealed class RequestHandlerOne : IRequestHandler<RequestOne>
+    public sealed class RequestHandlerOne : IEventHandler<RequestOne>
     {
         public Eff<VSlicesRuntime, Unit> Define(RequestOne requestOne) =>
             from accumulator in provide<Accumulator>()
@@ -89,7 +88,7 @@ public class ReflectionEventRunnerTests
 
     public sealed record RequestTwo : Event;
 
-    public sealed class RequestHandlerTwo : IRequestHandler<RequestTwo>
+    public sealed class RequestHandlerTwo : IEventHandler<RequestTwo>
     {
         public Eff<VSlicesRuntime, Unit> Define(RequestTwo request) =>
             from accumulator in provide<Accumulator>()
@@ -104,7 +103,7 @@ public class ReflectionEventRunnerTests
     }
     public sealed record RequestThree : Event;
 
-    public sealed class RequestThreeRequestHandlerA : IRequestHandler<RequestThree>
+    public sealed class RequestThreeRequestHandlerA : IEventHandler<RequestThree>
     {
         public AutoResetEvent EventHandled { get; } = new(false);
 
@@ -120,7 +119,7 @@ public class ReflectionEventRunnerTests
             select unit;
     }
 
-    public sealed class RequestThreeRequestHandlerB : IRequestHandler<RequestThree>
+    public sealed class RequestThreeRequestHandlerB : IEventHandler<RequestThree>
     {
         public AutoResetEvent EventHandled { get; } = new(false);
 
@@ -142,7 +141,7 @@ public class ReflectionEventRunnerTests
         const int expCount = 1;
         var provider = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
+                       .AddTransient<IEventHandler<RequestOne>, RequestHandlerOne>()
                        .AddTransient<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                        .AddSingleton<Accumulator>()
@@ -167,9 +166,9 @@ public class ReflectionEventRunnerTests
         var provider = new ServiceCollection()
             .AddVSlicesRuntime()
             .AddScoped<RequestThreeRequestHandlerA>()
-            .AddScoped<IRequestHandler<RequestThree, Unit>>(s => s.GetRequiredService<RequestThreeRequestHandlerA>())
+            .AddScoped<IEventHandler<RequestThree>>(s => s.GetRequiredService<RequestThreeRequestHandlerA>())
             .AddScoped<RequestThreeRequestHandlerB>()
-            .AddScoped<IRequestHandler<RequestThree, Unit>>(s => s.GetRequiredService<RequestThreeRequestHandlerB>())
+            .AddScoped<IEventHandler<RequestThree>>(s => s.GetRequiredService<RequestThreeRequestHandlerB>())
             .AddScoped<IEventRunner, ReflectionEventRunner>()
             .AddSingleton<Accumulator>()
             .AddScoped(_ => strategy)
@@ -202,7 +201,7 @@ public class ReflectionEventRunnerTests
         var provider = new ServiceCollection()
                        .AddVSlicesRuntime()
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
-                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
+                       .AddTransient<IEventHandler<RequestOne>, RequestHandlerOne>()
                        .AddScoped<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                        .AddSingleton<Accumulator>()
@@ -227,7 +226,7 @@ public class ReflectionEventRunnerTests
                        .AddVSlicesRuntime()
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
+                       .AddTransient<IEventHandler<RequestOne>, RequestHandlerOne>()
                        .AddTransient<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
@@ -252,7 +251,7 @@ public class ReflectionEventRunnerTests
                                    .AddVSlicesRuntime()
                                    .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                                    .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
-                                   .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
+                                   .AddTransient<IEventHandler<RequestOne>, RequestHandlerOne>()
                                    .AddScoped<IEventRunner, ReflectionEventRunner>()
                                    .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                                    .AddSingleton<Accumulator>()
@@ -277,7 +276,7 @@ public class ReflectionEventRunnerTests
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
                        .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
+                       .AddTransient<IEventHandler<RequestOne>, RequestHandlerOne>()
                        .AddScoped<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                        .AddSingleton<Accumulator>()
@@ -303,8 +302,8 @@ public class ReflectionEventRunnerTests
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
                        .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
-                       .AddTransient<IRequestHandler<RequestTwo, Unit>, RequestHandlerTwo>()
+                       .AddTransient<IEventHandler<RequestOne>, RequestHandlerOne>()
+                       .AddTransient<IEventHandler<RequestTwo>, RequestHandlerTwo>()
                        .AddScoped<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                        .AddSingleton<Accumulator>()

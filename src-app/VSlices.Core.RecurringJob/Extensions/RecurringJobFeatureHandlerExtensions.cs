@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using VSlices.Base.Builder;
 using VSlices.Core.RecurringJob;
 
 // ReSharper disable once CheckNamespace
@@ -12,11 +13,11 @@ public static class RecurringJobFeatureHandlerExtensions
     /// <summary>
     /// Adds a <see cref="IRecurringJobDefinition"/> to the service collection
     /// </summary>
-    public static FeatureBuilder AddRecurringJob<T>(this FeatureBuilder builder)
+    public static FeatureDefinition<,> AddRecurringJob<T>(this FeatureDefinition<,> definition)
         where T : class, IRecurringJobDefinition
     {
-        builder.Services.AddSingleton<IRecurringJobDefinition, T>();
+        definition.Services.AddSingleton<IRecurringJobDefinition, T>();
 
-        return builder;
+        return definition;
     }
 }

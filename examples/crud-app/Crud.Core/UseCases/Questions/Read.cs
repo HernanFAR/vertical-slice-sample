@@ -1,30 +1,27 @@
 ﻿using Crud.CrossCutting;
-using Crud.CrossCutting.Pipelines;
 using Microsoft.EntityFrameworkCore;
+using VSlices.Base.Builder;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Read;
-
-public sealed class ReadQuestionDependencies : IFeatureDependencies
-{
-    public static void DefineDependencies(FeatureBuilder featureBuilder)
-    {
-        featureBuilder
-            .AddEndpoint<EndpointDefinition>()
-            .AddLoggingBehaviorFor<Query>()
-                .UsingSpanishTemplate()
-            .AddExceptionHandlingBehavior<LoggingExceptionHandlerPipeline<Query, ReadQuestionsDto>>()
-            .AddRequestHandler<RequestHandler>();
-    }
-}
 
 public sealed record QuestionDto(Guid Id, Guid CategoryId, string Category, string Text);
 
 public sealed record ReadQuestionsDto(QuestionDto[] Questions);
 
-internal sealed record Query : IRequest<ReadQuestionsDto>
+public sealed record Query : IRequest<ReadQuestionsDto>
 {
     public static Query Instance { get; } = new();
+}
+
+public sealed class ReadQuestionDependencies : IFeatureDependencies<Query, ReadQuestionsDto>
+{
+    public static void DefineDependencies(IFeatureStartBuilder<Query, ReadQuestionsDto> feature) =>
+        feature.FromIntegration.With<EndpointDefinition>()
+               .Executing<RequestHandler>()
+               .AddBehaviors(chain => chain
+                                      .AddLogging().UsingSpanish()
+                                      .AddLoggingException().UsingSpanish());
 }
 
 internal sealed class EndpointDefinition : IEndpointDefinition

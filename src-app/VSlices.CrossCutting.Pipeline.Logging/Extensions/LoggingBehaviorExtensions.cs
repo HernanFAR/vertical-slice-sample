@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using VSlices.Base;
-using VSlices.CrossCutting.Pipeline;
+using VSlices.Base.Builder;
 using VSlices.CrossCutting.Pipeline.Logging;
 using VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
 
@@ -9,86 +9,49 @@ using VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
 namespace VSlices.Core.Builder;
 
 /// <summary>
-/// <see cref="FeatureBuilder"/> extensions for <see cref="LoggingBehavior{TRequest,TResult}"/>
+/// <see cref="FeatureDefinition{TFeature,TResult}"/> extensions for <see cref="LoggingBehavior{TRequest,TResult}"/>
 /// </summary>
 public static class LoggingBehaviorExtensions
 {
     /// <summary>
-    /// Adds an open generic pipeline behavior to the service collection
+    /// Adds a logging behavior in the pipeline execution related to this specific <see cref="IHandler{TFeature,TResult}"/>>
     /// </summary>
-    /// <param name="featureBuilder">Service Collection</param>
-    /// <returns>Service Collection</returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public static LoggingBehaviorBuilder AddLoggingBehaviorFor<T>(this FeatureBuilder featureBuilder)
-        where T : IFeature
-        => featureBuilder.AddLoggingBehaviorFor(typeof(T));
-    
-    /// <summary>
-    /// Adds an open generic pipeline behavior to the service collection
-    /// </summary>
-    /// <param name="featureBuilder">Service Collection</param>
-    /// <param name="feature">Behavior</param>
-    /// <returns>Service Collection</returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public static LoggingBehaviorBuilder AddLoggingBehaviorFor(this FeatureBuilder featureBuilder, Type feature)
+    public static LoggingBehaviorBuilder AddLogging(this BehaviorChain handlerEffects)
     {
-        Type featureInterface = feature
-            .GetInterfaces()
-            .Where(o => o.IsGenericType)
-            .SingleOrDefault(o => o.GetGenericTypeDefinition() == typeof(IFeature<>))
-            ?? throw new InvalidOperationException(
-                $"The type {feature.FullName} does not implement {typeof(IFeature<>).FullName}");
+        handlerEffects.Add(typeof(LoggingBehavior<,>))
+                 .Services.TryAddSingleton(TimeProvider.System);
 
-        Type featureResultType = featureInterface.GetGenericArguments()[0];
-
-        Type loggingBehaviorType = typeof(LoggingBehavior<,>).MakeGenericType(feature, featureResultType);
-        Type pipelineBehaviorType = typeof(IPipelineBehavior<,>).MakeGenericType(feature, featureResultType);
-
-        featureBuilder.Services
-            .AddTransient(pipelineBehaviorType, loggingBehaviorType)
-            .TryAddSingleton(TimeProvider.System);
-
-        return new LoggingBehaviorBuilder(featureBuilder);
-
+        return new LoggingBehaviorBuilder(handlerEffects);
     }
 }
 
 /// <summary>
 /// Builder for <see cref="LoggingBehavior{TRequest,TResult}"/>
 /// </summary>
-/// <param name="builder"></param>
-public sealed class LoggingBehaviorBuilder(FeatureBuilder builder)
+/// <param name="definition"></param>
+public sealed class LoggingBehaviorBuilder(BehaviorChain definition)
 {
-    readonly FeatureBuilder _builder = builder;
+    private readonly BehaviorChain _definition = definition;
 
     /// <summary>
     /// Add a custom <see cref="ILoggingMessageTemplate"/>
     /// </summary>
-    public FeatureBuilder UsingTemplate<TMessageTemplate>()
+    public BehaviorChain UsingTemplate<TMessageTemplate>()
         where TMessageTemplate : class, ILoggingMessageTemplate
     {
-        _builder.Services.AddSingleton<ILoggingMessageTemplate, TMessageTemplate>();
+        _definition.Services.AddSingleton<ILoggingMessageTemplate, TMessageTemplate>();
 
-        return _builder;
+        return _definition;
     }
 
     /// <summary>
-    /// Add a english <see cref="ILoggingMessageTemplate"/>
+    /// Add an english <see cref="ILoggingMessageTemplate"/>
     /// </summary>
-    public FeatureBuilder UsingEnglishTemplate()
-    {
-        _builder.Services.AddSingleton<ILoggingMessageTemplate, EnglishLoggingMessageTemplate>();
-
-        return _builder;
-    }
+    public BehaviorChain UsingEnglish() => UsingTemplate<EnglishLoggingMessageTemplate>();
 
     /// <summary>
     /// Add a spanish <see cref="ILoggingMessageTemplate"/>
     /// </summary>
-    public FeatureBuilder UsingSpanishTemplate()
-    {
-        _builder.Services.AddSingleton<ILoggingMessageTemplate, SpanishLoggingMessageTemplate>();
+    public BehaviorChain UsingSpanish() => UsingTemplate<SpanishLoggingMessageTemplate>();
 
-        return _builder;
-    }
 }

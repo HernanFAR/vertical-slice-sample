@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Routing;
+using VSlices.Base.Builder;
 
 namespace VSlices.Core.Presentation;
 
 /// <summary>
 /// Defines an endpoint of a use case without dependencies
 /// </summary>
-/// <remarks>If you need to specify dependencies, use <see cref="IFeatureDependencies"/></remarks>
-public interface IEndpointDefinition
+public interface IEndpointDefinition : IPresentationDefinition
 {
     /// <summary>
     /// Defines the endpoint of the use case.

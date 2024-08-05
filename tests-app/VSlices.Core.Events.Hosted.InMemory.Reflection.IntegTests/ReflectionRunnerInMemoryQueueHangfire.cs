@@ -16,7 +16,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 {
     public record AlwaysUnitEvent : Event;
 
-    public class AlwaysUnitRequestHandler : IRequestHandler<AlwaysUnitEvent>
+    public class AlwaysUnitRequestHandler : IEventHandler<AlwaysUnitEvent>
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
@@ -30,7 +30,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
     public record FirstFailureThenUnitEvent : Event;
 
-    public class FirstFailureThenUnitRequestHandler : IRequestHandler<FirstFailureThenUnitEvent>
+    public class FirstFailureThenUnitRequestHandler : IEventHandler<FirstFailureThenUnitEvent>
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
@@ -53,7 +53,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
     public record FirstAndSecondFailureThenUnitEvent : Event;
 
-    public class FirstAndSecondFailureThenUnitRequestHandler : IRequestHandler<FirstAndSecondFailureThenUnitEvent>
+    public class FirstAndSecondFailureThenUnitRequestHandler : IEventHandler<FirstAndSecondFailureThenUnitEvent>
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
@@ -87,7 +87,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
     public record AlwaysFailureEvent : Event;
 
-    public class AlwaysFailureRequestHandler : IRequestHandler<AlwaysFailureEvent>
+    public class AlwaysFailureRequestHandler : IEventHandler<AlwaysFailureEvent>
     {
         public Eff<VSlicesRuntime, Unit> Define(AlwaysFailureEvent request)
         {
@@ -106,7 +106,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
                                    .AddReflectionEventRunner()
                                    .AddLogging()
                                    .AddSingleton<AlwaysUnitRequestHandler>()
-                                   .AddScoped<IRequestHandler<AlwaysUnitEvent, Unit>>(s => s.GetRequiredService<AlwaysUnitRequestHandler>())
+                                   .AddScoped<IEventHandler<AlwaysUnitEvent>>(s => s.GetRequiredService<AlwaysUnitRequestHandler>())
                                    .BuildServiceProvider();
 
         IEnumerable<IHostedService> backgroundEventListener = provider.GetServices<IHostedService>();
@@ -136,7 +136,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
             .AddReflectionEventRunner()
             .AddLogging()
             .AddSingleton<AlwaysUnitRequestHandler>()
-            .AddScoped<IRequestHandler<AlwaysUnitEvent, Unit>>(s => s.GetRequiredService<AlwaysUnitRequestHandler>())
+            .AddScoped<IEventHandler<AlwaysUnitEvent>>(s => s.GetRequiredService<AlwaysUnitRequestHandler>())
             .BuildServiceProvider();
 
         IEnumerable<IHostedService> backgroundEventListener = provider.GetServices<IHostedService>();
@@ -168,7 +168,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
             .AddReflectionEventRunner()
             .AddLogging()
             .AddSingleton<FirstFailureThenUnitRequestHandler>()
-            .AddScoped<IRequestHandler<FirstFailureThenUnitEvent, Unit>>(s => s.GetRequiredService<FirstFailureThenUnitRequestHandler>())
+            .AddScoped<IEventHandler<FirstFailureThenUnitEvent>>(s => s.GetRequiredService<FirstFailureThenUnitRequestHandler>())
             .BuildServiceProvider();
 
         IEnumerable<IHostedService> services = provider.GetServices<IHostedService>();
@@ -201,7 +201,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
             .AddReflectionEventRunner()
             .AddLogging()
             .AddSingleton<FirstAndSecondFailureThenUnitRequestHandler>()
-            .AddScoped<IRequestHandler<FirstAndSecondFailureThenUnitEvent, Unit>>(s => s.GetRequiredService<FirstAndSecondFailureThenUnitRequestHandler>())
+            .AddScoped<IEventHandler<FirstAndSecondFailureThenUnitEvent>>(s => s.GetRequiredService<FirstAndSecondFailureThenUnitRequestHandler>())
             .BuildServiceProvider();
 
         IEnumerable<IHostedService> backgroundEventListener = provider.GetServices<IHostedService>();
@@ -237,7 +237,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
             .AddReflectionEventRunner()
             .AddScoped(_ => logger)
             .AddSingleton<AlwaysFailureRequestHandler>()
-            .AddScoped<IRequestHandler<AlwaysFailureEvent, Unit>>(s => s.GetRequiredService<AlwaysFailureRequestHandler>())
+            .AddScoped<IEventHandler<AlwaysFailureEvent>>(s => s.GetRequiredService<AlwaysFailureRequestHandler>())
             .BuildServiceProvider();
 
         IEnumerable<IHostedService> backgroundEventListener = provider.GetServices<IHostedService>();

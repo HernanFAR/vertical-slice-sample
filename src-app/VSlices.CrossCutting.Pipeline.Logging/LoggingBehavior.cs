@@ -18,7 +18,7 @@ public sealed class LoggingBehavior<TRequest, TResult> : AbstractPipelineBehavio
     where TRequest : IFeature<TResult>
 {
     /// <inheritdoc />
-    protected override Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request) =>
+    protected internal override Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request) =>
         from logger in provide<ILogger<TRequest>>()
         from template in provide<ILoggingMessageTemplate>()
         from time in provide<TimeProvider>()
@@ -34,7 +34,7 @@ public sealed class LoggingBehavior<TRequest, TResult> : AbstractPipelineBehavio
         select unit;
 
     /// <inheritdoc />
-    protected override Eff<VSlicesRuntime, TResult> AfterSuccessHandling(TRequest request, TResult result) =>
+    protected internal override Eff<VSlicesRuntime, TResult> AfterSuccessHandling(TRequest request, TResult result) =>
         from logger in provide<ILogger<TRequest>>()
         from template in provide<ILoggingMessageTemplate>()
         from time in provide<TimeProvider>()
@@ -52,7 +52,7 @@ public sealed class LoggingBehavior<TRequest, TResult> : AbstractPipelineBehavio
         select result_;
 
     /// <inheritdoc />
-    protected override Eff<VSlicesRuntime, TResult> AfterFailureHandling(TRequest request, Error result) =>
+    protected internal override Eff<VSlicesRuntime, TResult> AfterFailureHandling(TRequest request, Error result) =>
         from logger in provide<ILogger<TRequest>>()
         from template in provide<ILoggingMessageTemplate>()
         from time in provide<TimeProvider>()

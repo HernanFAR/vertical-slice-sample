@@ -2,6 +2,7 @@
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
+using VSlices.Base.Builder;
 using VSlices.Core.Builder;
 
 namespace VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests.Extensions;
@@ -15,16 +16,16 @@ public class FluentValidationBehaviorExtensionsTests
     [Fact]
     public void AddFluentValidationPipeline_ShouldRegisterInServiceContainer()
     {
-        FeatureBuilder builder = new(new ServiceCollection());
+        FeatureDefinition<,> definition = new(new ServiceCollection());
 
-        builder.AddFluentValidationBehaviorUsing<Validator>();
+        definition.AddFluentValidationBehaviorUsing<Validator>();
 
-        builder.Services
+        definition.Services
             .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, RequestResult>))
             .Any(e => e.ImplementationType == typeof(FluentValidationBehavior<Request, RequestResult>))
             .Should().BeTrue();
 
-        builder.Services
+        definition.Services
             .Where(e => e.ServiceType == typeof(IValidator<Request>))
             .Any(e => e.ImplementationType == typeof(Validator))
             .Should().BeTrue();

@@ -1,11 +1,7 @@
-﻿using LanguageExt;
-using static LanguageExt.Prelude;
-using LanguageExt.Common;
-using VSlices.Base;
+﻿using LanguageExt.Common;
 using VSlices.Base.Failures;
-using VSlices.Core;
 
-namespace VSlices.CrossCutting.Pipeline;
+namespace VSlices.Base;
 
 /// <summary>
 /// Abstract base class to simplify the implementations of <see cref="IPipelineBehavior{TRequest, TResult}"/>

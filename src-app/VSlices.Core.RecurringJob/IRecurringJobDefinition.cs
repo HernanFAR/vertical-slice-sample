@@ -1,11 +1,12 @@
 ﻿using Cronos;
+using VSlices.Base.Builder;
 
 namespace VSlices.Core.RecurringJob;
 
 /// <summary>
 /// Defines the class as a presentation for a recurring job
 /// </summary>
-public interface IRecurringJobDefinition
+public interface IRecurringJobDefinition : IPresentationDefinition
 {
     /// <summary>
     /// Gets the identifier of the recurring job

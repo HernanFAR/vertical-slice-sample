@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using VSlices.Core;
+using VSlices.Base;
+using VSlices.Base.Builder;
 using VSlices.Core.Builder;
 
 // ReSharper disable once CheckNamespace
@@ -71,7 +71,7 @@ public static class FeatureDependencyExtensions
     public static IServiceCollection AddFeatureDependency<T>(this IServiceCollection services)
         where T : IFeatureDependencies
     {
-        T.DefineDependencies(new FeatureBuilder(services));
+        T.DefineDependencies(new FeatureDefinition<,>(services));
 
         return services;
     }
@@ -95,7 +95,7 @@ public static class FeatureDependencyExtensions
 
         var defineDependenciesMethod = type.GetMethod(nameof(IFeatureDependencies.DefineDependencies));
 
-        defineDependenciesMethod!.Invoke(null, new object?[] { new FeatureBuilder(services) });
+        defineDependenciesMethod!.Invoke(null, new object?[] { new FeatureDefinition<,>(services) });
         
         return services;
     }

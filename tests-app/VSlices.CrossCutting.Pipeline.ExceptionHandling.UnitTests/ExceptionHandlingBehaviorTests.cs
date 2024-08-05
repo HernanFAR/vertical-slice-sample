@@ -11,7 +11,7 @@ using static LanguageExt.Prelude;
 
 namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests;
 
-public class AbstractExceptionHandlingBehaviorTests
+public class ExceptionHandlingBehaviorTests
 {
     public record Result;
     public record Request : IFeature<Result>;
@@ -22,8 +22,8 @@ public class AbstractExceptionHandlingBehaviorTests
         Request request = new();
         Exception expEx = new();
         
-        var pipeline = Mock.Of<AbstractExceptionHandlingBehavior<Request, Result>>();
-        Mock<AbstractExceptionHandlingBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
+        var pipeline = Mock.Of<ExceptionHandlingBehavior<Request, Result>>();
+        Mock<ExceptionHandlingBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
         #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously

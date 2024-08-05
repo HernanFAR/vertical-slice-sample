@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\VSlices.Core.UseCases\VSlices.Core.UseCases.csproj" />
-    <ProjectReference Include="..\VSlices.Core\VSlices.Core.csproj" />
     <ProjectReference Include="..\VSlices.CrossCutting.BackgroundTaskListener\VSlices.CrossCutting.BackgroundTaskListener.csproj" />
   </ItemGroup>
 

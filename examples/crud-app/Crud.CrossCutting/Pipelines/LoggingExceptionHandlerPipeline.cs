@@ -3,7 +3,7 @@ using VSlices.CrossCutting.Pipeline.ExceptionHandling;
 
 namespace Crud.CrossCutting.Pipelines;
 
-public sealed class LoggingExceptionHandlerPipeline<TRequest, TResult> : AbstractExceptionHandlingBehavior<TRequest, TResult>
+public sealed class LoggingExceptionHandlerPipeline<TRequest, TResult> : ExceptionHandlingBehavior<TRequest, TResult>
     where TRequest : IFeature<TResult>
 {
     protected override Eff<VSlicesRuntime, TResult> Process(Exception ex, TRequest request) =>
