@@ -13,7 +13,6 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\VSlices.Base\VSlices.Base.csproj" />
-		<ProjectReference Include="..\VSlices.Core\VSlices.Core.csproj" />
 	</ItemGroup>
 
 </Project>

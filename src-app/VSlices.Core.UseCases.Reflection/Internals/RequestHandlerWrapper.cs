@@ -37,8 +37,13 @@ internal class RequestRunnerWrapper<TRequest, TResponse> : AbstractRequestRunner
                                           IServiceProvider serviceProvider, 
                                           CancellationToken cancellationToken)
     {
-        var handler       = serviceProvider.GetRequiredService<IHandler<TRequest, TResponse>>();
-        var pipelineChain = serviceProvider.GetRequiredService<HandlerBehaviorChain<IHandler<TRequest, TResponse>>>();
+        var handler       = serviceProvider
+            .GetRequiredService<IHandler<TRequest, TResponse>>();
+        
+        var handlerBehaviorChainType = typeof(HandlerBehaviorChain<>)
+            .MakeGenericType(handler.GetType());
+
+        var pipelineChain = (HandlerBehaviorChain)serviceProvider.GetRequiredService(handlerBehaviorChainType);
 
         var pipelines = pipelineChain.Behaviors
                                      .Select(serviceProvider.GetService)
