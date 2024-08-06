@@ -1,6 +1,8 @@
 ﻿using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
+using VSlices.Base.Builder;
+using VSlices.Base.Core;
 using VSlices.Base.CrossCutting;
 using VSlices.Core.Events.Strategies;
 using VSlices.Core.UseCases;
@@ -26,7 +28,7 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
         IPublishingStrategy strategy, 
         CancellationToken cancellationToken)
     {
-        IEnumerable<IEventHandler<TRequest>> handlers = serviceProvider.GetServices<IEventHandler<TRequest>>();
+        IEnumerable<IHandler<TRequest, Unit>> handlers = serviceProvider.GetServices<IHandler<TRequest, Unit>>();
 
         Eff<VSlicesRuntime, Unit>[] delegates =
             handlers.Select(handler =>
@@ -34,10 +36,15 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
                                 Eff<VSlicesRuntime, Unit> handlerEffect =
                                     handler.Define((TRequest)@event);
 
-                                IEnumerable<IPipelineBehavior<TRequest, Unit>>
-                                    pipelines = serviceProvider
-                                                .GetServices<IPipelineBehavior<TRequest, Unit>>()
-                                                .Reverse();
+                                var handlerBehaviorChainType = typeof(HandlerBehaviorChain<>)
+                                    .MakeGenericType(handler.GetType());
+
+                                var pipelineChain = (HandlerBehaviorChain)serviceProvider.GetRequiredService(handlerBehaviorChainType);
+
+                                var pipelines = pipelineChain.Behaviors
+                                                             .Select(serviceProvider.GetService)
+                                                             .Cast<IPipelineBehavior<TRequest, Unit>>()
+                                                             .Reverse();
 
                                 return pipelines.Aggregate(handlerEffect,
                                                            (current, behavior) =>

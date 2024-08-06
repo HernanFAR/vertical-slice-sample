@@ -70,18 +70,8 @@ public sealed class FeatureDefinition<TFeature, TResult, THandler>(IServiceColle
         BehaviorChain order = new(Services, typeof(TFeature), typeof(TResult), typeof(THandler));
 
         chain(order);
-
-        Type handlerType = typeof(IHandler<,>)
-            .MakeGenericType(order.FeatureType,
-                             order.ResultType);
-
-        Type behaviorChainType = typeof(HandlerBehaviorChain<>)
-            .MakeGenericType(handlerType);
-
-        object instance = Activator.CreateInstance(behaviorChainType, order.Behaviors)
-            ?? throw new InvalidOperationException("Failed to create behavior chain instance");
-
-        Services.AddSingleton(behaviorChainType, instance);
+        
+        Services.AddSingleton(new HandlerBehaviorChain<THandler>(order.Behaviors));
     } 
 }
 

@@ -18,7 +18,7 @@ public sealed class QuestionMutatedDependencies : IFeatureDependencies<QuestionM
                                      .AddLoggingException().UsingSpanish());
 }
 
-internal sealed class RequestHandler : IEventHandler<QuestionMutatedEvent>
+internal sealed class RequestHandler : IHandler<QuestionMutatedEvent>
 {
     public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent input) =>
         from repository in provide<IQuestionRepository>()
