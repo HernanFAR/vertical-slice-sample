@@ -3,6 +3,7 @@ using Crud.CrossCutting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using VSlices.Base.Builder;
+using VSlices.Base.Core;
 using VSlices.Core.RecurringJob;
 
 // ReSharper disable once CheckNamespace
@@ -38,9 +39,9 @@ internal sealed class RecurringJobDefinition(IRequestRunner runner) : IRecurring
     }
 }
 
-internal sealed class RequestHandler : IRequestHandler<Query>
+internal sealed class RequestHandler : IHandler<Query>
 {
-    public Eff<VSlicesRuntime, Unit> Define(Query request) =>
+    public Eff<VSlicesRuntime, Unit> Define(Query input) =>
         from context in provide<AppDbContext>()
         from logger in provide<ILogger<RequestHandler>>()
         from timeProvider in provide<TimeProvider>()

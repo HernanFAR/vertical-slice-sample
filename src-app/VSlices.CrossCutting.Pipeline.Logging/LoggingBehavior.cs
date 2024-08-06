@@ -2,6 +2,8 @@
 using LanguageExt.Common;
 using Microsoft.Extensions.Logging;
 using VSlices.Base;
+using VSlices.Base.Core;
+using VSlices.Base.CrossCutting;
 using VSlices.Core;
 using VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
 using static LanguageExt.Prelude;

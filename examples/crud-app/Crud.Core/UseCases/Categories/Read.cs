@@ -2,6 +2,7 @@
 using Crud.CrossCutting.Pipelines;
 using Microsoft.EntityFrameworkCore;
 using VSlices.Base.Builder;
+using VSlices.Base.Core;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Categories.Read;
@@ -13,12 +14,12 @@ public sealed record Query : IRequest<ReadCategoriesDto>
 
 public sealed class ReadCategoriesDependencies : IFeatureDependencies<Query, ReadCategoriesDto>
 {
-    public static void DefineDependencies(IFeatureStartBuilder<Query, ReadCategoriesDto> feature) =>
-        feature.FromIntegration.With<EndpointDefinition>()
-               .Executing<RequestHandler>()
-               .AddBehaviors(chain => chain
-                                      .AddLogging().UsingSpanish()
-                                      .AddLoggingException().UsingSpanish());
+    public static void DefineDependencies(IFeatureStartBuilder<Query, ReadCategoriesDto> define) =>
+        define.FromIntegration.With<EndpointDefinition>()
+              .Executing<RequestHandler>()
+              .AddBehaviors(chain => chain
+                                     .AddLogging().UsingSpanish()
+                                     .AddLoggingException().UsingSpanish());
 }
 
 public sealed record CategoryDto(Guid Id, string Text);
@@ -47,9 +48,9 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class RequestHandler : IRequestHandler<Query, ReadCategoriesDto>
+internal sealed class RequestHandler : IHandler<Query, ReadCategoriesDto>
 {
-    public Eff<VSlicesRuntime, ReadCategoriesDto> Define(Query request) =>
+    public Eff<VSlicesRuntime, ReadCategoriesDto> Define(Query input) =>
         from context in provide<AppDbContext>()
         from cancelToken in cancelToken
         from questions in liftEff(() => context

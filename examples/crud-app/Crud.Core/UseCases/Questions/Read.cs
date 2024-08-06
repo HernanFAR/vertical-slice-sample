@@ -1,6 +1,7 @@
 ﻿using Crud.CrossCutting;
 using Microsoft.EntityFrameworkCore;
 using VSlices.Base.Builder;
+using VSlices.Base.Core;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Read;
@@ -18,7 +19,7 @@ public sealed class ReadQuestionDependencies : IFeatureDependencies<Query, ReadQ
 {
     public static void DefineDependencies(IFeatureStartBuilder<Query, ReadQuestionsDto> feature) =>
         feature.FromIntegration.With<EndpointDefinition>()
-               .Executing<RequestHandler>()
+               .Executing<Handler>()
                .AddBehaviors(chain => chain
                                       .AddLogging().UsingSpanish()
                                       .AddLoggingException().UsingSpanish());
@@ -46,9 +47,9 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class RequestHandler : IRequestHandler<Query, ReadQuestionsDto>
+internal sealed class Handler : IHandler<Query, ReadQuestionsDto>
 {
-    public Eff<VSlicesRuntime, ReadQuestionsDto> Define(Query request) =>
+    public Eff<VSlicesRuntime, ReadQuestionsDto> Define(Query input) =>
         from context in provide<AppDbContext>()
         from cancelToken in cancelToken
         from questions in liftEff(() => context

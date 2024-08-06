@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using VSlices.Base;
 using VSlices.Base.Builder;
+using VSlices.Base.Core;
 using VSlices.CrossCutting.Pipeline.Logging;
 using VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
 

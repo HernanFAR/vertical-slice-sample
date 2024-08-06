@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using VSlices.Base.Core;
 using VSlices.Core.Presentation;
 
 // ReSharper disable once CheckNamespace
@@ -18,7 +19,9 @@ public static class AspNetCoreIntegrationExtensions
     {
         using IServiceScope services = app.ServiceProvider.CreateScope();
 
-        IEnumerable<IEndpointDefinition> endpoints = services.ServiceProvider.GetServices<IEndpointDefinition>();
+        var endpoints = services.ServiceProvider
+                                .GetServices<IPresentationDefinition>()
+                                .OfType<IEndpointDefinition>();
 
         foreach (IEndpointDefinition endpoint in endpoints)
         {

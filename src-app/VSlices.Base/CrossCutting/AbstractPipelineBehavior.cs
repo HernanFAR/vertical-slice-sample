@@ -1,14 +1,15 @@
 ﻿using LanguageExt.Common;
+using VSlices.Base.Core;
 using VSlices.Base.Failures;
 
-namespace VSlices.Base;
+namespace VSlices.Base.CrossCutting;
 
 /// <summary>
 /// Abstract base class to simplify the implementations of <see cref="IPipelineBehavior{TRequest, TResult}"/>
 /// </summary>
 /// <typeparam name="TRequest">The request to intercept</typeparam>
 /// <typeparam name="TResult">The expected result</typeparam>
-public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBehavior<TRequest, TResult> 
+public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
     where TRequest : IFeature<TResult>
 {
     /// <summary>
@@ -28,7 +29,7 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     /// <returns>
     /// A <see cref="LanguageExt.Eff{TRuntime, TResult}"/> that represents the operation in lazy evaluation, which returns a <see cref="Unit" />
     /// </returns>
-    protected internal virtual Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request) 
+    protected internal virtual Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request)
         => unitEff;
 
     /// <summary>
@@ -68,16 +69,16 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     /// <returns>
     /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
     /// </returns>
-    protected internal virtual Eff<VSlicesRuntime, TResult> AfterFailureHandling(TRequest request, Error result) 
-        => liftEff<VSlicesRuntime, TResult>(_ => result); 
+    protected internal virtual Eff<VSlicesRuntime, TResult> AfterFailureHandling(TRequest request, Error result)
+        => liftEff<VSlicesRuntime, TResult>(_ => result);
 
     /// <inheritdoc />
     public Eff<VSlicesRuntime, TResult> Define(TRequest request, Eff<VSlicesRuntime, TResult> next) =>
         from handleResult in BeforeHandle(request)
                              .Match(Succ: _ => InHandle(request, next)
                                                .Match(Succ: result => AfterSuccessHandling(request, result),
-                                                      Fail: error  => AfterFailureHandling(request, error))
-                                               .Flatten(), 
+                                                      Fail: error => AfterFailureHandling(request, error))
+                                               .Flatten(),
                                     Fail: FailEff<VSlicesRuntime, TResult>)
                              .Flatten()
         select handleResult;

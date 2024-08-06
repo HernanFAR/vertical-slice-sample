@@ -3,6 +3,7 @@ using Crud.Domain.Rules.DataAccess;
 using Crud.Domain.Rules.Services;
 using Crud.Domain.ValueObjects;
 using VSlices.Base.Builder;
+using VSlices.Base.Core;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Delete;
@@ -46,12 +47,12 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class RequestHandler : IRequestHandler<Command>
+internal sealed class RequestHandler : IHandler<Command>
 {
-    public Eff<VSlicesRuntime, Unit> Define(Command request) =>
+    public Eff<VSlicesRuntime, Unit> Define(Command input) =>
         from repository in provide<IQuestionRepository>()
         from manager in provide<QuestionManager>()
-        from optionalQuestion in repository.GetOrOption(request.Id)
+        from optionalQuestion in repository.GetOrOption(input.Id)
         from question in optionalQuestion.ToEff(ExtensibleExpected.NotFound("No se ha encontrado la pregunta", []))
         from _ in manager.Delete(question)
         select unit;

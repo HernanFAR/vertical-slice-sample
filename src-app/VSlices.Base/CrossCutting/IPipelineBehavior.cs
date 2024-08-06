@@ -1,4 +1,6 @@
-﻿namespace VSlices.Base;
+﻿using VSlices.Base.Core;
+
+namespace VSlices.Base.CrossCutting;
 
 /// <summary>
 /// Not intended to use in development, use <see cref="IPipelineBehavior{TRequest,TResult}" />

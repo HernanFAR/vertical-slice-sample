@@ -1,6 +1,7 @@
 ﻿using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
+using VSlices.Base.CrossCutting;
 using VSlices.Core.Events.Strategies;
 using VSlices.Core.UseCases;
 using VSlices.Domain.Interfaces;

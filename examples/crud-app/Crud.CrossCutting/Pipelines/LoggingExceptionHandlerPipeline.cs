@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using VSlices.Base.Core;
 using VSlices.CrossCutting.Pipeline.ExceptionHandling;
 
 namespace Crud.CrossCutting.Pipelines;

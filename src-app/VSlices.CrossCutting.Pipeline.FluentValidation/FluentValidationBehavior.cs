@@ -6,6 +6,8 @@ using static LanguageExt.Prelude;
 using static VSlices.VSlicesPrelude;
 using VSlices.Base;
 using VSlices.Core;
+using VSlices.Base.Core;
+using VSlices.Base.CrossCutting;
 
 namespace VSlices.CrossCutting.Pipeline.FluentValidation;
 

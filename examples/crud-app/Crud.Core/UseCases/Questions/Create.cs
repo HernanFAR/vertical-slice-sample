@@ -7,8 +7,8 @@ using Crud.Domain.Rules.Services;
 using Crud.Domain.ValueObjects;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
-using VSlices.Base;
 using VSlices.Base.Builder;
+using VSlices.Base.Core;
 using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
 
 // ReSharper disable once CheckNamespace
@@ -62,11 +62,11 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class RequestHandler : IRequestHandler<Command, Unit>
+internal sealed class RequestHandler : IHandler<Command>
 {
-    public Eff<VSlicesRuntime, Unit> Define(Command request) =>
+    public Eff<VSlicesRuntime, Unit> Define(Command input) =>
         from manager in provide<QuestionManager>()
-        from _ in manager.Create(request.CategoryId, request.Text)
+        from _ in manager.Create(input.CategoryId, input.Text)
         select unit;
 }
 

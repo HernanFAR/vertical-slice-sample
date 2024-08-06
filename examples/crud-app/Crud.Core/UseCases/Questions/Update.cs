@@ -9,6 +9,7 @@ using Crud.Domain.Rules.DataAccess;
 using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
 using System.ComponentModel.DataAnnotations.Extensions;
 using VSlices.Base.Builder;
+using VSlices.Base.Core;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Update;
@@ -19,7 +20,7 @@ public sealed class UpdateQuestionDependencies : IFeatureDependencies<Command>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Command, Unit> feature) =>
         feature.FromIntegration.With<EndpointDefinition>()
-               .Executing<RequestHandler>()
+               .Executing<Handler>()
                .AddBehaviors(chain => chain
                                       .AddLogging().UsingSpanish()
                                       .AddFluentValidationUsing<Validator>()
@@ -65,19 +66,19 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class RequestHandler : IRequestHandler<Command>
+internal sealed class Handler : IHandler<Command>
 {
-    public Eff<VSlicesRuntime, Unit> Define(Command request) =>
+    public Eff<VSlicesRuntime, Unit> Define(Command input) =>
         from token in cancelToken
         from repository in provide<IQuestionRepository>()
         from manager in provide<QuestionManager>()
-        from exists in repository.Exists(request.Id)
+        from exists in repository.Exists(input.Id)
         from _ in exists
-            ? from question in repository.Get(request.Id)
-              from _1 in liftEff(() => question.UpdateState(request.CategoryId, request.Text))
+            ? from question in repository.Get(input.Id)
+              from _1 in liftEff(() => question.UpdateState(input.CategoryId, input.Text))
               from _2 in manager.Update(question)
               select unit
-            : manager.Create(request.Id, request.CategoryId, request.Text)
+            : manager.Create(input.Id, input.CategoryId, input.Text)
         select unit;
 }
 
