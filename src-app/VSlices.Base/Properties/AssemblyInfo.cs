@@ -13,4 +13,5 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests")]
 [assembly: InternalsVisibleTo("VSlices.CrossCutting.Pipeline.Logging")]
 [assembly: InternalsVisibleTo("VSlices.CrossCutting.Pipeline.Logging.UnitTests")]
-
+[assembly: InternalsVisibleTo("VSlices.CrossCutting.Pipeline.Filtering")]
+[assembly: InternalsVisibleTo("VSlices.CrossCutting.Pipeline.Filtering.UnitTests")]

@@ -5,17 +5,19 @@ using Microsoft.Extensions.Logging;
 using VSlices.Base.Builder;
 using VSlices.Base.Core;
 using VSlices.Core.Events;
+using VSlices.CrossCutting.Pipeline.Filtering;
 
 // ReSharper disable once CheckNamespace
-namespace Crud.Core.Events.Mutated;
+namespace Crud.Core.Events.QuestionUpdated;
 
 public sealed class QuestionMutatedDependencies : IFeatureDependencies<QuestionMutatedEvent>
 {
     public static void DefineDependencies(IFeatureStartBuilder<QuestionMutatedEvent, Unit> define) =>
         define.ByExecuting<RequestHandler>()
               .AddBehaviors(chain => chain
+                                     .AddFilteringUsing<Filter>().UsingEnglish()
                                      .AddLogging().UsingEnglish()
-                                     .AddLoggingException().UsingSpanish());
+                                     .AddLoggingException().UsingEnglish());
 }
 
 internal sealed class RequestHandler : IHandler<QuestionMutatedEvent>
@@ -23,20 +25,20 @@ internal sealed class RequestHandler : IHandler<QuestionMutatedEvent>
     public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent input) =>
         from repository in provide<IQuestionRepository>()
         from logger in provide<ILogger<QuestionMutatedEvent>>()
-        from optionalQuestion in repository.GetOrOption(input.Id)
-        from _ in liftEff(() => optionalQuestion.BiIter(
-            Some: question =>
-            {
-                logger.LogInformation("Se ha realizado un cambio en la tabla Questions, cambio de " +
-                                      "tipo: {State}, valores actuales: {Entity}",
-                                      input.CurrentState.ToString(),
-                                      question);
-            },
-            None: _ =>
-            {
-                logger.LogInformation("Se ha realizado un cambio en la tabla Questions, cambio de " +
-                                      "tipo: {State}, no se ha encontrado la entidad",
-                                      input.CurrentState.ToString());
-            }))
+        from question in repository.Get(input.Id)
+        from _ in liftEff(env =>
+        {
+            logger.LogInformation("Se ha actualizado un recurso en la tabla Questions, " +
+                                  "a los valores: {Entity}", question);
+
+            return unit;
+        })
         select unit;
+}
+
+internal sealed class Filter : IEventFilter<QuestionMutatedEvent, RequestHandler>
+{
+    public Eff<VSlicesRuntime, bool> DefineFilter(QuestionMutatedEvent feature) =>
+        from shouldProcess in liftEff(() => feature.CurrentState == EState.Updated)
+        select shouldProcess;
 }
