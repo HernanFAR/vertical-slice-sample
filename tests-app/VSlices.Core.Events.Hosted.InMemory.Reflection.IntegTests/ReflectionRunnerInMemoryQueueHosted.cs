@@ -19,7 +19,7 @@ public class ReflectionRunnerInMemoryQueueHosted
     {
         public AutoResetEvent HandledEvent { get; } = new(false);
 
-        public Eff<VSlicesRuntime, Unit> Define(AlwaysUnitEvent request) =>
+        public Eff<VSlicesRuntime, Unit> Define(AlwaysUnitEvent input) =>
             from _ in liftEff(() =>
             {
                 HandledEvent.Set();
@@ -37,7 +37,7 @@ public class ReflectionRunnerInMemoryQueueHosted
 
         public bool First { get; set; } = true;
 
-        public Eff<VSlicesRuntime, Unit> Define(FirstFailureThenUnitEvent request) =>
+        public Eff<VSlicesRuntime, Unit> Define(FirstFailureThenUnitEvent input) =>
             from _1 in guardnot(First, () =>
             {
                 First = false;
@@ -63,7 +63,7 @@ public class ReflectionRunnerInMemoryQueueHosted
 
         public bool Second { get; set; } = true;
 
-        public Eff<VSlicesRuntime, Unit> Define(FirstAndSecondFailureThenUnitEvent request) =>
+        public Eff<VSlicesRuntime, Unit> Define(FirstAndSecondFailureThenUnitEvent input) =>
             from _1 in liftEff(() =>
             {
                 if (!First) return unit;
@@ -91,7 +91,7 @@ public class ReflectionRunnerInMemoryQueueHosted
 
     public class AlwaysFailureRequestHandler : IEventHandler<AlwaysFailureEvent>
     {
-        public Eff<VSlicesRuntime, Unit> Define(AlwaysFailureEvent request)
+        public Eff<VSlicesRuntime, Unit> Define(AlwaysFailureEvent input)
         {
             throw new Exception("Always failure");
         }

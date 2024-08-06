@@ -1,4 +1,4 @@
-﻿namespace VSlices.Base;
+﻿namespace VSlices.Base.Core;
 
 /// <summary>
 /// Not intented to be used in development, use <see cref="IFeature{TResult}"/>

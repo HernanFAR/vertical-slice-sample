@@ -1,5 +1,5 @@
 ﻿using LanguageExt;
-using VSlices.Base;
+using VSlices.Base.Core;
 using VSlices.Domain.Interfaces;
 
 namespace VSlices.Core.Events;

@@ -2,6 +2,8 @@
 using static LanguageExt.Prelude;
 using VSlices.Base;
 using VSlices.Core;
+using VSlices.Base.Core;
+using VSlices.Base.CrossCutting;
 
 namespace VSlices.CrossCutting.Pipeline.ExceptionHandling;
 
@@ -14,7 +16,7 @@ public abstract class ExceptionHandlingBehavior<TRequest, TResult> : AbstractPip
     where TRequest : IFeature<TResult>
 {
     /// <inheritdoc />
-    protected override Eff<VSlicesRuntime, TResult> InHandle(TRequest request, Eff<VSlicesRuntime, TResult> next) =>
+    protected internal override Eff<VSlicesRuntime, TResult> InHandle(TRequest request, Eff<VSlicesRuntime, TResult> next) =>
         from result in next | catchM(e => e.IsExceptional, 
                                      e => Process(e.ToException(), request))
         select result;

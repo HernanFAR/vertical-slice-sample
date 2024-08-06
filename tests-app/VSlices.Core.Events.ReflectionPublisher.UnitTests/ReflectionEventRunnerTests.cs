@@ -74,7 +74,7 @@ public class ReflectionEventRunnerTests
 
     public sealed class RequestHandlerOne : IEventHandler<RequestOne>
     {
-        public Eff<VSlicesRuntime, Unit> Define(RequestOne requestOne) =>
+        public Eff<VSlicesRuntime, Unit> Define(RequestOne input) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -90,7 +90,7 @@ public class ReflectionEventRunnerTests
 
     public sealed class RequestHandlerTwo : IEventHandler<RequestTwo>
     {
-        public Eff<VSlicesRuntime, Unit> Define(RequestTwo request) =>
+        public Eff<VSlicesRuntime, Unit> Define(RequestTwo input) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -107,7 +107,7 @@ public class ReflectionEventRunnerTests
     {
         public AutoResetEvent EventHandled { get; } = new(false);
 
-        public Eff<VSlicesRuntime, Unit> Define(RequestThree request) =>
+        public Eff<VSlicesRuntime, Unit> Define(RequestThree input) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(async () =>
             {
@@ -123,7 +123,7 @@ public class ReflectionEventRunnerTests
     {
         public AutoResetEvent EventHandled { get; } = new(false);
 
-        public Eff<VSlicesRuntime, Unit> Define(RequestThree request) =>
+        public Eff<VSlicesRuntime, Unit> Define(RequestThree input) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(async () =>
             {

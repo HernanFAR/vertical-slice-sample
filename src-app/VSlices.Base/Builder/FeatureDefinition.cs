@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+using VSlices.Base.Core;
 
 namespace VSlices.Base.Builder;
 
@@ -18,30 +18,38 @@ public sealed class FeatureDefinition<TFeature, TResult>(IServiceCollection serv
     public IFeaturePresentationBuilder<TFeature, TResult> FromIntegration => this;
 
     /// <inheritdoc />
-    public IFeatureHandlerBuilder<TFeature, TResult, THandler> Execute<THandler>()
-        where THandler : IHandler<TFeature, TResult>
+    public IFeatureHandlerBuilder<TFeature, TResult, THandler> ByExecuting<THandler>()
+        where THandler : class, IHandler<TFeature, TResult>
     {
+        Services.AddTransient<IHandler<TFeature, TResult>, THandler>();
+
         return new FeatureDefinition<TFeature, TResult, THandler>(Services);
     }
 
     /// <inheritdoc />
     public IFeaturePresentationBuilder<TFeature, TResult> And<TPresentation>()
-        where TPresentation : IPresentationDefinition
+        where TPresentation : class, IPresentationDefinition
     {
+        Services.AddSingleton<IPresentationDefinition, TPresentation>();
+
         return this;
     }
 
     /// <inheritdoc />
     public IFeatureOtherPresentationsBuilder<TFeature, TResult> With<TPresentation>()
-        where TPresentation : IPresentationDefinition
+        where TPresentation : class, IPresentationDefinition
     {
+        Services.AddSingleton<IPresentationDefinition, TPresentation>();
+
         return this;
     }
 
     /// <inheritdoc />
     public IFeatureHandlerBuilder<TFeature, TResult, THandler> Executing<THandler>()
-        where THandler : IHandler<TFeature, TResult>
+        where THandler : class, IHandler<TFeature, TResult>
     {
+        Services.AddTransient<IHandler<TFeature, TResult>, THandler>();
+
         return new FeatureDefinition<TFeature, TResult, THandler>(Services);
     }
 }
@@ -52,7 +60,7 @@ public sealed class FeatureDefinition<TFeature, TResult>(IServiceCollection serv
 public sealed class FeatureDefinition<TFeature, TResult, THandler>(IServiceCollection services)
     : IFeatureHandlerBuilder<TFeature, TResult, THandler>
     where TFeature : IFeature<TResult> 
-    where THandler : IHandler<TFeature, TResult>
+    where THandler : class, IHandler<TFeature, TResult>
 {
     internal readonly IServiceCollection Services = services;
 
@@ -62,9 +70,20 @@ public sealed class FeatureDefinition<TFeature, TResult, THandler>(IServiceColle
         BehaviorChain order = new(Services, typeof(TFeature), typeof(TResult), typeof(THandler));
 
         chain(order);
+
+        Type handlerType = typeof(IHandler<,>)
+            .MakeGenericType(order.FeatureType,
+                             order.ResultType);
+
+        Type behaviorChainType = typeof(HandlerBehaviorChain<>)
+            .MakeGenericType(handlerType);
+
+        object instance = Activator.CreateInstance(behaviorChainType, order.Behaviors)
+            ?? throw new InvalidOperationException("Failed to create behavior chain instance");
+
+        Services.AddSingleton(behaviorChainType, instance);
     } 
 }
-
 
 /// <summary>
 /// Specifies a fluent api to define dependencies of a specified <see cref="IFeature{TResult}" />
@@ -80,8 +99,8 @@ public interface IFeatureStartBuilder<TFeature, TResult>
     /// <summary>
     /// The feature is associated with this handler
     /// </summary>
-    public IFeatureHandlerBuilder<TFeature, TResult, THandler> Execute<THandler>()
-        where THandler : IHandler<TFeature, TResult>;
+    public IFeatureHandlerBuilder<TFeature, TResult, THandler> ByExecuting<THandler>()
+        where THandler : class, IHandler<TFeature, TResult>;
 }
 
 /// <summary>
@@ -94,7 +113,7 @@ public interface IFeaturePresentationBuilder<TFeature, TResult>
     /// The feature is executed in this integration
     /// </summary>
     IFeatureOtherPresentationsBuilder<TFeature, TResult> With<TPresentation>() 
-        where TPresentation : IPresentationDefinition;
+        where TPresentation : class, IPresentationDefinition;
     
 }
 
@@ -108,13 +127,13 @@ public interface IFeatureOtherPresentationsBuilder<TFeature, TResult>
     /// The feature is executed in this integration
     /// </summary>
     IFeaturePresentationBuilder<TFeature, TResult> And<TPresentation>()
-        where TPresentation : IPresentationDefinition;
+        where TPresentation : class, IPresentationDefinition;
 
     /// <summary>
     /// The feature is associated with this handler
     /// </summary>
     IFeatureHandlerBuilder<TFeature, TResult, THandler> Executing<THandler>()
-        where THandler : IHandler<TFeature, TResult>;
+        where THandler : class, IHandler<TFeature, TResult>;
 
 }
 
@@ -123,32 +142,11 @@ public interface IFeatureOtherPresentationsBuilder<TFeature, TResult>
 /// </summary>
 public interface IFeatureHandlerBuilder<TFeature, TResult, THandler>
     where TFeature : IFeature<TResult>
-    where THandler : IHandler<TFeature, TResult>
+    where THandler : class, IHandler<TFeature, TResult>
 {
     /// <summary>
     /// Adds behaviors to the effect chain
     /// </summary>
     void AddBehaviors(Action<BehaviorChain> chain);
 
-}
-
-/// <summary>
-/// Define the behavior chain related to a concrete handler type
-/// </summary>
-public sealed class BehaviorChain(IServiceCollection services, Type featureType, Type resultType, Type handlerType)
-{
-    internal readonly IServiceCollection Services = services;
-    internal readonly Type FeatureType = featureType;
-    internal readonly Type ResultType = resultType;
-    internal readonly Type HandlerType = handlerType;
-
-    /// <summary>
-    /// Adds a custom behavior
-    /// </summary>
-    public BehaviorChain Add(Type type)
-    {
-        Services.TryAddTransient(type);
-
-        return this;
-    }
 }

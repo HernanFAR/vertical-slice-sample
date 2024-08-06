@@ -4,6 +4,7 @@ using static LanguageExt.Prelude;
 using static VSlices.VSlicesPrelude;
 using VSlices.Base;
 using VSlices.CrossCutting.Pipeline.ExceptionHandling.MessageTemplates;
+using VSlices.Base.Core;
 
 namespace VSlices.CrossCutting.Pipeline.ExceptionHandling;
 

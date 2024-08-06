@@ -3,6 +3,7 @@ using Crud.CrossCutting.Pipelines;
 using Crud.Domain.Rules.DataAccess;
 using Crud.Domain.ValueObjects;
 using VSlices.Base.Builder;
+using VSlices.Base.Core;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Exists;
@@ -13,7 +14,7 @@ public sealed class ExistsQuestionDependencies : IFeatureDependencies<Query>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Query, Unit> feature) =>
         feature.FromIntegration.With<RecurringJobDefinition>()
-               .Executing<RequestHandler>()
+               .Executing<Handler>()
                .AddBehaviors(chain => chain
                                       .AddLogging().UsingSpanish()
                                       .AddLoggingException().UsingSpanish());
@@ -47,11 +48,11 @@ internal sealed class EndpointDefinition : IEndpointDefinition
     }
 }
 
-internal sealed class RequestHandler : IRequestHandler<Query>
+internal sealed class Handler : IHandler<Query>
 {
-    public Eff<VSlicesRuntime, Unit> Define(Query request) =>
+    public Eff<VSlicesRuntime, Unit> Define(Query input) =>
         from repository in provide<IQuestionRepository>()
-        from exists in repository.Exists(request.Id)
+        from exists in repository.Exists(input.Id)
         from _ in guard(exists, notFound("No se ha encontrado la pregunta"))
         select unit;
 

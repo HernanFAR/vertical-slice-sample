@@ -1,7 +1,9 @@
 ﻿using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
-using VSlices.CrossCutting.Pipeline;
+using VSlices.Base.Builder;
+using VSlices.Base.Core;
+using VSlices.Base.CrossCutting;
 
 namespace VSlices.Core.UseCases.Internals;
 
@@ -35,13 +37,15 @@ internal class RequestRunnerWrapper<TRequest, TResponse> : AbstractRequestRunner
                                           IServiceProvider serviceProvider, 
                                           CancellationToken cancellationToken)
     {
-        var handler = serviceProvider.GetRequiredService<IRequestHandler<TRequest, TResponse>>();
+        var handler       = serviceProvider.GetRequiredService<IHandler<TRequest, TResponse>>();
+        var pipelineChain = serviceProvider.GetRequiredService<HandlerBehaviorChain<IHandler<TRequest, TResponse>>>();
+
+        var pipelines = pipelineChain.Behaviors
+                                     .Select(serviceProvider.GetService)
+                                     .Cast<IPipelineBehavior<TRequest, TResponse>>()
+                                     .Reverse();
 
         Eff<VSlicesRuntime, TResponse> handlerEffect = handler.Define((TRequest)request);
-
-        IEnumerable<IPipelineBehavior<TRequest, TResponse>> pipelines = serviceProvider
-            .GetServices<IPipelineBehavior<TRequest, TResponse>>()
-            .Reverse();
 
         Eff<VSlicesRuntime, TResponse> effectChain = pipelines
             .Aggregate(handlerEffect,
