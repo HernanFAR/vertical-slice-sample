@@ -35,4 +35,24 @@ public sealed class BehaviorChain(IServiceCollection services, Type featureType,
 
         return this;
     }
+
+    /// <summary>
+    /// Adds a custom behavior, in a closed-generic way
+    /// </summary>
+    public BehaviorChain AddConcrete(Type type)
+    {
+        var pipType = typeof(IPipelineBehavior<,>);
+        var implementsType = type.GetInterfaces()
+                                 .Any(@interface => @interface.GetGenericTypeDefinition() == pipType);
+
+        if (implementsType is false)
+        {
+            throw new InvalidOperationException($"{type.FullName} does not implement {pipType.FullName}");
+        }
+
+        Behaviors.Add(type);
+        Services.TryAddTransient(type);
+
+        return this;
+    }
 }
