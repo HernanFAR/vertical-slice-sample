@@ -11,7 +11,7 @@ public interface IFeatureDependencies<TFeature, TResult>
     /// <summary>
     /// Defines the dependencies for the feature
     /// </summary>
-    static abstract void DefineDependencies(IFeatureStartBuilder<TFeature, TResult> define);
+    static abstract void DefineDependencies(IFeatureStartBuilder<TFeature, TResult> feature);
 }
 
 /// <summary>

@@ -17,9 +17,9 @@ public sealed record Query : IRequest
 public sealed class CounterFeatureDependencies : IFeatureDependencies<Query>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Query, Unit> feature) =>
-        feature.FromIntegration.With<RecurringJobDefinition>()
-               .Executing<RequestHandler>()
-               .AddBehaviors(chain => chain
+        feature.FromIntegration.Using<RecurringJobDefinition>()
+               .Execute<RequestHandler>()
+               .WithBehaviorChain(chain => chain
                                       .AddLogging().UsingSpanish()
                                       .AddLoggingException().UsingSpanish());
 }

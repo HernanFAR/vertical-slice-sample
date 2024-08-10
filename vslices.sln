@@ -41,8 +41,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Base.UnitTests", "t
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "core", "core", "{B0409F5E-8A42-4FC1-8A07-F56A212FCF39}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.UnitTests", "tests-app\VSlices.Core.UnitTests\VSlices.Core.UnitTests.csproj", "{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Presentation.AspNetCore.IntegTests", "tests-app\VSlices.Core.Presentation.AspNetCore.IntegTests\VSlices.Core.Presentation.AspNetCore.IntegTests.csproj", "{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "events", "events", "{47B60BD3-561A-4738-8AE0-DEE088A750B5}"
@@ -129,9 +127,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crud.Domain.Rules", "exampl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.RecurringJob", "src-app\VSlices.Core.RecurringJob\VSlices.Core.RecurringJob.csproj", "{4AA892D1-50BC-462E-918C-AA55D5B9566B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.Core.RecurringJob.IntegTests", "tests-app\VSlices.Core.RecurringJob.IntegTests\VSlices.Core.RecurringJob.IntegTests.csproj", "{5A77A5AF-AB49-4EED-BAD2-90D3E5975C31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.RecurringJob.IntegTests", "tests-app\VSlices.Core.RecurringJob.IntegTests\VSlices.Core.RecurringJob.IntegTests.csproj", "{5A77A5AF-AB49-4EED-BAD2-90D3E5975C31}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.CrossCutting.Pipeline.Filtering", "src-app\VSlices.CrossCutting.Pipeline.Filtering\VSlices.CrossCutting.Pipeline.Filtering.csproj", "{FF51CFEE-2ECA-4DFE-A633-07AC675F4CD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeline.Filtering", "src-app\VSlices.CrossCutting.Pipeline.Filtering\VSlices.CrossCutting.Pipeline.Filtering.csproj", "{FF51CFEE-2ECA-4DFE-A633-07AC675F4CD9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -187,10 +185,6 @@ Global
 		{E1CA2A01-2B69-4C44-AD07-6570DF7C8612}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1CA2A01-2B69-4C44-AD07-6570DF7C8612}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1CA2A01-2B69-4C44-AD07-6570DF7C8612}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -345,7 +339,6 @@ Global
 		{2F05C137-40CD-4ED4-B2CA-6FA910DE1202} = {3CDE8CD7-B0F6-4361-8FA1-A8F6B0E56DB4}
 		{E1CA2A01-2B69-4C44-AD07-6570DF7C8612} = {CAC7D3FA-B294-44BD-A12C-F4CB28100D48}
 		{B0409F5E-8A42-4FC1-8A07-F56A212FCF39} = {CAC7D3FA-B294-44BD-A12C-F4CB28100D48}
-		{3EA6CD66-84E8-4DE8-B326-1A1EC42A9D9B} = {B0409F5E-8A42-4FC1-8A07-F56A212FCF39}
 		{C32281EC-F3AB-4823-8F85-282C1FF2FC5F} = {AAAF7688-7C6D-478F-89B2-77B695113ABE}
 		{47B60BD3-561A-4738-8AE0-DEE088A750B5} = {B0409F5E-8A42-4FC1-8A07-F56A212FCF39}
 		{8BC722D7-CCC8-4BC7-8DB3-D64ADB17F012} = {47B60BD3-561A-4738-8AE0-DEE088A750B5}

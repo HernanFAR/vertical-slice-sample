@@ -20,7 +20,7 @@ public static class AspNetCoreIntegrationExtensions
         using IServiceScope services = app.ServiceProvider.CreateScope();
 
         var endpoints = services.ServiceProvider
-                                .GetServices<IPresentationDefinition>()
+                                .GetServices<IIntegrator>()
                                 .OfType<IEndpointDefinition>();
 
         foreach (IEndpointDefinition endpoint in endpoints)
