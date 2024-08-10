@@ -41,9 +41,10 @@ public sealed class BehaviorChain(IServiceCollection services, Type featureType,
     /// </summary>
     public BehaviorChain AddConcrete(Type type)
     {
-        var pipType = typeof(IPipelineBehavior<,>);
-        var implementsType = type.GetInterfaces()
-                                 .Any(@interface => @interface.GetGenericTypeDefinition() == pipType);
+        var pipType = typeof(IPipelineBehavior<,>)
+            .MakeGenericType(FeatureType, ResultType);
+
+        var implementsType = type.GetInterfaces().Any(@interface => @interface == pipType);
 
         if (implementsType is false)
         {

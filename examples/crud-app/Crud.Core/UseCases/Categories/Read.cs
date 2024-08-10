@@ -15,9 +15,9 @@ public sealed record Query : IRequest<ReadCategoriesDto>
 public sealed class ReadCategoriesDependencies : IFeatureDependencies<Query, ReadCategoriesDto>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Query, ReadCategoriesDto> define) =>
-        define.FromIntegration.With<EndpointDefinition>()
-              .Executing<RequestHandler>()
-              .AddBehaviors(chain => chain
+        define.FromIntegration.Using<EndpointDefinition>()
+              .Execute<RequestHandler>()
+              .WithBehaviorChain(chain => chain
                                      .AddLogging().UsingSpanish()
                                      .AddLoggingException().UsingSpanish());
 }

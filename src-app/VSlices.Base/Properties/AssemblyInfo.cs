@@ -5,6 +5,7 @@ global using LanguageExt.Sys.Traits;
 global using static LanguageExt.Prelude;
 using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("VSlices.Base.UnitTests")]
 [assembly: InternalsVisibleTo("VSlices.Core.UseCases.Reflection")]
 [assembly: InternalsVisibleTo("VSlices.Core.Events.ReflectionRunner")]
 [assembly: InternalsVisibleTo("VSlices.CrossCutting.Pipeline.ExceptionHandling")]

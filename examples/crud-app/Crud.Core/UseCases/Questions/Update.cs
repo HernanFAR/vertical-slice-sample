@@ -19,9 +19,9 @@ public sealed record Command(QuestionId Id, CategoryId CategoryId, NonEmptyStrin
 public sealed class UpdateQuestionDependencies : IFeatureDependencies<Command>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Command, Unit> feature) =>
-        feature.FromIntegration.With<EndpointDefinition>()
-               .Executing<Handler>()
-               .AddBehaviors(chain => chain
+        feature.FromIntegration.Using<EndpointDefinition>()
+               .Execute<Handler>()
+               .WithBehaviorChain(chain => chain
                                       .AddLogging().UsingSpanish()
                                       .AddFluentValidationUsing<Validator>()
                                       .AddLoggingException().UsingSpanish());

@@ -13,9 +13,9 @@ public sealed record Command(QuestionId Id) : IRequest<Unit>;
 public sealed class DeleteQuestionDependencies : IFeatureDependencies<Command>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Command, Unit> feature) =>
-        feature.FromIntegration.With<EndpointDefinition>()
-               .Executing<RequestHandler>()
-               .AddBehaviors(chain => chain
+        feature.FromIntegration.Using<EndpointDefinition>()
+               .Execute<RequestHandler>()
+               .WithBehaviorChain(chain => chain
                                       .AddLogging().UsingSpanish()
                                       .AddLoggingException().UsingSpanish());
 }

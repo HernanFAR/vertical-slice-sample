@@ -1,7 +1,7 @@
 ﻿using LanguageExt.Common;
 using VSlices.Base;
+using VSlices.Base.Extensions;
 using VSlices.Base.Failures;
-using VSlices.Base.Traits;
 using static VSlices.Base.Failures.ExtensibleExpected;
 
 // ReSharper disable CheckNamespace
@@ -20,14 +20,14 @@ public static class VSlicesPrelude
     /// If it does not exist in the runtime, throws <see cref="InvalidOperationException"/>
     /// </remarks>
     public static Eff<VSlicesRuntime, T> provide<T>()
-        where T : notnull => DependencyProviderExtensions<Eff<VSlicesRuntime>, VSlicesRuntime>.Get<T>().As();
+        where T : notnull => DependencyProviderExtensions<Eff<VSlicesRuntime>, VSlicesRuntime>.Provide<T>().As();
 
     /// <summary>
     /// Provides with an optional instance of <typeparamref name="T"/>
     /// </summary>
     public static Eff<VSlicesRuntime, Option<T>> provideOptional<T>()
         where T : notnull =>
-        DependencyProviderExtensions<Eff<VSlicesRuntime>, VSlicesRuntime>.GetOptional<T>().As();
+        DependencyProviderExtensions<Eff<VSlicesRuntime>, VSlicesRuntime>.ProvideOptional<T>().As();
 
     /// <summary>
     /// Creates an <see cref="ExtensibleExpected"/> with a bad request status (400)

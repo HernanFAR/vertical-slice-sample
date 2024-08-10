@@ -1,15 +1,16 @@
-﻿using Moq;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using FluentAssertions;
 using LanguageExt;
 using LanguageExt.Common;
 using Microsoft.Extensions.DependencyInjection;
-using static LanguageExt.Prelude;
-using VSlices.Base;
+using Moq;
+using VSlices.Base.Core;
+using VSlices.Base.CrossCutting;
 using VSlices.Base.Failures;
 using VSlices.Base.Traits;
+using static LanguageExt.Prelude;
 
-namespace VSlices.CrossCutting.Pipeline.UnitTests;
+namespace VSlices.Base.UnitTests;
 
 public class AbstractPipelineBehaviorTests
 {
@@ -22,13 +23,13 @@ public class AbstractPipelineBehaviorTests
         Request request = new();
         ExtensibleExpected failure = ExtensibleExpected.NotFound("Testing", []);
 
-        var pipeline = Mock.Of<AbstractPipelineBehavior<Request, Result>>();
+        AbstractPipelineBehavior<Request, Result> pipeline = Mock.Of<AbstractPipelineBehavior<Request, Result>>();
         Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
-        #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         Eff<Result> next = liftEff<Result>(async () => throw new UnreachableException());
-        #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
+#pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
         pipelineMock.Setup(e => e.BeforeHandle(request))
                     .Returns(FailEff<Unit>(failure))
@@ -39,7 +40,7 @@ public class AbstractPipelineBehaviorTests
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = VSlicesRuntime.New(dependencyProvider);
+        VSlicesRuntime runtime = VSlicesRuntime.New(dependencyProvider);
 
         Fin<Result> result = effect.Run(runtime, default(CancellationToken));
 
@@ -47,7 +48,7 @@ public class AbstractPipelineBehaviorTests
         pipelineMock.VerifyNoOtherCalls();
 
         _ = result.Match(
-            _  => throw new UnreachableException(),
+            _ => throw new UnreachableException(),
             error =>
             {
                 error.Should().Be(failure);
@@ -63,7 +64,7 @@ public class AbstractPipelineBehaviorTests
         Request request = new();
         Result expResult = new();
 
-        var pipeline = Mock.Of<AbstractPipelineBehavior<Request, Result>>();
+        AbstractPipelineBehavior<Request, Result> pipeline = Mock.Of<AbstractPipelineBehavior<Request, Result>>();
         Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
@@ -85,7 +86,7 @@ public class AbstractPipelineBehaviorTests
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = VSlicesRuntime.New(dependencyProvider);
+        VSlicesRuntime runtime = VSlicesRuntime.New(dependencyProvider);
 
         Fin<Result> effectResult = effect.Run(runtime, default(CancellationToken));
 
@@ -106,10 +107,10 @@ public class AbstractPipelineBehaviorTests
     [Fact]
     public Task InHandle_ShouldReturnFailure()
     {
-        Request                         request = new();
+        Request request = new();
         ExtensibleExpected failure = ExtensibleExpected.NotFound("Testing", []);
 
-        var pipeline = Mock.Of<AbstractPipelineBehavior<Request, Result>>();
+        AbstractPipelineBehavior<Request, Result> pipeline = Mock.Of<AbstractPipelineBehavior<Request, Result>>();
         Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
@@ -131,9 +132,7 @@ public class AbstractPipelineBehaviorTests
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);
-        var runtime = VSlicesRuntime.New(dependencyProvider);
-
-        var         result_      = liftEff<VSlicesRuntime, Result>(_ => failure).Run(runtime, default(CancellationToken));
+        VSlicesRuntime runtime = VSlicesRuntime.New(dependencyProvider);
 
         Fin<Result> effectResult = effect.Run(runtime, default(CancellationToken));
 
