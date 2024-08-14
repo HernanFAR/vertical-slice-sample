@@ -5,31 +5,38 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
-using VSlices.Core.Builder;
+using LanguageExt;
+using VSlices.Base;
+using VSlices.Base.Builder;
+using VSlices.Base.Core;
 using VSlices.Core.Presentation;
 
 namespace VSlices.Integration.AspNetCore.IntegTests.Extensions;
 
 public class WebApplicationExtensionsTests
 {
-    public class WebAppDummy : IEndpointRouteBuilder
+    public class WebAppDummy(IServiceProvider serviceProvider) : IEndpointRouteBuilder
     {
-        public WebAppDummy(IServiceProvider serviceProvider)
-        {
-            ServiceProvider = serviceProvider;
-            DataSources = new Collection<EndpointDataSource>();
-        }
-
         public IApplicationBuilder CreateApplicationBuilder()
         {
             throw new NotImplementedException();
         }
 
-        public IServiceProvider ServiceProvider { get; }
-        public ICollection<EndpointDataSource> DataSources { get; }
+        public IServiceProvider ServiceProvider { get; } = serviceProvider;
+        public ICollection<EndpointDataSource> DataSources { get; } = new Collection<EndpointDataSource>();
     }
 
-    public class EndpointDefinition : IEndpointDefinition
+    public record Feature : IFeature<Unit>;
+
+    public record Handler : IHandler<Feature>
+    {
+        public Eff<VSlicesRuntime, Unit> Define(Feature input)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class EndpointIntegrator : IEndpointIntegrator, IFeatureDependencies<Feature>
     {
         public const string ApiRoute = "api/test";
 
@@ -39,21 +46,21 @@ public class WebApplicationExtensionsTests
         }
 
         public static Task Test(HttpContext context) => Task.FromResult<IResult>(EmptyHttpResult.Instance);
-
-        public static void DefineDependencies(FeatureBuilder featureBuilder)
+        public static void DefineDependencies(IFeatureStartBuilder<Feature, Unit> feature)
         {
-
+            feature.FromIntegration.Using<EndpointIntegrator>()
+                   .Execute<Handler>();
         }
     }
 
     [Fact]
     public void UseEndpointDefinitions_ShouldCallMethods()
     {
-        var featureBuilder = new FeatureBuilder(new ServiceCollection());
+        var services = new ServiceCollection();
 
-        featureBuilder.AddEndpoint<EndpointDefinition>();
+        EndpointIntegrator.DefineDependencies(new FeatureDefinition<Feature, Unit>(services));
 
-        var provider = featureBuilder.Services.BuildServiceProvider();
+        var provider = services.BuildServiceProvider();
 
         var webAppDummy = new WebAppDummy(provider);
 
@@ -65,7 +72,7 @@ public class WebApplicationExtensionsTests
 
         if (addedEndpoint.RequestDelegate is null) throw new ArgumentNullException(nameof(addedEndpoint.RequestDelegate));
 
-        addedEndpoint.RequestDelegate.Method.Should().BeSameAs(typeof(EndpointDefinition).GetMethod(nameof(EndpointDefinition.Test)));
-        addedEndpoint.RoutePattern.RawText.Should().Be(EndpointDefinition.ApiRoute);
+        addedEndpoint.RequestDelegate.Method.Should().BeSameAs(typeof(EndpointIntegrator).GetMethod(nameof(EndpointIntegrator.Test)));
+        addedEndpoint.RoutePattern.RawText.Should().Be(EndpointIntegrator.ApiRoute);
     }
 }

@@ -6,6 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Testcontainers.MsSql;
 using VSlices.Base;
+using VSlices.Base.Builder;
+using VSlices.Base.Core;
 using VSlices.Core.UseCases;
 using VSlices.CrossCutting.BackgroundTaskListener;
 using static LanguageExt.Prelude;
@@ -24,18 +26,15 @@ public class RecurringJobTests
 
     public record Query : IRequest;
 
-    public class RequestHandler : IRequestHandler<Query>
+    public class RequestHandler : IHandler<Query>
     {
         public Eff<VSlicesRuntime, Unit> Define(Query request) =>
             from accumulator in provide<Accumulator>()
-            from _ in liftEff(() =>
-            {
-                accumulator.Increment();
-            })
+            from _ in liftEff(accumulator.Increment)
             select unit;
     }
 
-    public class RecurringJobListener(IRequestRunner runner) : IRecurringJobDefinition
+    public class RecurringJobListener(IRequestRunner runner) : IRecurringJobIntegrator
     {
         private readonly IRequestRunner _runner = runner;
 
@@ -54,19 +53,18 @@ public class RecurringJobTests
     [Fact]
     public async Task StartRecurringJob_AspNetCoreHosting()
     {
-        var provider = new ServiceCollection()
-                       // Runtime
+        var services = new ServiceCollection()
                        .AddVSlicesRuntime()
                        .AddReflectionRequestRunner()
                        .AddHostedTaskListener()
-                       // Extras
                        .AddLogging()
-                       // Testing
-                       .AddSingleton<Accumulator>()
-                       .AddTransient<IRequestHandler<Query, Unit>, RequestHandler>()
-                       .AddSingleton<IRecurringJobDefinition, RecurringJobListener>()
                        .AddRecurringJobListener()
-                       .BuildServiceProvider();
+                       .AddSingleton<Accumulator>();
+
+        new FeatureDefinition<Query, Unit>(services).FromIntegration.Using<RecurringJobListener>()
+                                                    .Execute<RequestHandler>();
+
+        var provider = services.BuildServiceProvider();
 
         var backgroundTaskListener = provider.GetRequiredService<IBackgroundTaskListener>();
         var accumulator = provider.GetRequiredService<Accumulator>();
@@ -75,7 +73,7 @@ public class RecurringJobTests
 
         accumulator.Count.Should().Be(0);
 
-        await Task.Delay(5000);
+        await Task.Delay(7500);
 
         accumulator.Count.Should().BeGreaterOrEqualTo(2);
     }
@@ -89,19 +87,18 @@ public class RecurringJobTests
 
         await container.StartAsync();
 
-        ServiceProvider provider = new ServiceCollection()
-                                   // Runtime
-                                   .AddVSlicesRuntime()
-                                   .AddReflectionRequestRunner()
-                                   .AddHangfireTaskListener(config => config.UseSqlServerStorage(container.GetConnectionString()))
-                                   // Extras
-                                   .AddLogging()
-                                   // Testing
-                                   .AddSingleton<Accumulator>()
-                                   .AddTransient<IRequestHandler<Query, Unit>, RequestHandler>()
-                                   .AddSingleton<IRecurringJobDefinition, RecurringJobListener>()
-                                   .AddRecurringJobListener()
-                                   .BuildServiceProvider();
+        var services = new ServiceCollection()
+                       .AddVSlicesRuntime()
+                       .AddReflectionRequestRunner()
+                       .AddHangfireTaskListener(config => config.UseSqlServerStorage(container.GetConnectionString()))
+                       .AddLogging()
+                       .AddRecurringJobListener()
+                       .AddSingleton<Accumulator>();
+
+        new FeatureDefinition<Query, Unit>(services).FromIntegration.Using<RecurringJobListener>()
+                                                    .Execute<RequestHandler>();
+
+        var provider = services.BuildServiceProvider();
 
         var backgroundEventListener = provider.GetServices<IHostedService>();
         var accumulator             = provider.GetRequiredService<Accumulator>();
@@ -113,7 +110,7 @@ public class RecurringJobTests
         
         accumulator.Count.Should().Be(0);
 
-        await Task.Delay(5000);
+        await Task.Delay(7500);
 
         accumulator.Count.Should().BeGreaterOrEqualTo(2);
 

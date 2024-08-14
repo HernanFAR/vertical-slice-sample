@@ -5,10 +5,11 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using static VSlices.VSlicesPrelude;
 using VSlices.Base;
+using VSlices.Base.Builder;
+using VSlices.Base.Core;
+using VSlices.Base.CrossCutting;
 using VSlices.Core.Events.Strategies;
 using VSlices.Domain;
-using VSlices.Base.Traits;
-using VSlices.Core.UseCases;
 
 // ReSharper disable once CheckNamespace
 namespace VSlices.Core.Events._ReflectionRunner.UnitTests;
@@ -55,9 +56,9 @@ public class ReflectionEventRunnerTests
             select result;
     }
 
-    public sealed class ConcretePipelineBehaviorOne : IPipelineBehavior<RequestOne, Unit>
+    public sealed class ConcretePipelineBehaviorOne : IPipelineBehavior<EventOne, Unit>
     {
-        public Eff<VSlicesRuntime, Unit> Define(RequestOne request, Eff<VSlicesRuntime, Unit> next) =>
+        public Eff<VSlicesRuntime, Unit> Define(EventOne @event, Eff<VSlicesRuntime, Unit> next) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -70,11 +71,11 @@ public class ReflectionEventRunnerTests
             select result;
     }
 
-    public sealed record RequestOne : Event;
+    public sealed record EventOne : Event;
 
-    public sealed class RequestHandlerOne : IEventHandler<RequestOne>
+    public sealed class HandlerOne : IHandler<EventOne>
     {
-        public Eff<VSlicesRuntime, Unit> Define(RequestOne input) =>
+        public Eff<VSlicesRuntime, Unit> Define(EventOne input) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -86,11 +87,11 @@ public class ReflectionEventRunnerTests
             select unit;
     }
 
-    public sealed record RequestTwo : Event;
+    public sealed record EventTwo : Event;
 
-    public sealed class RequestHandlerTwo : IEventHandler<RequestTwo>
+    public sealed class HandlerTwo : IHandler<EventTwo>
     {
-        public Eff<VSlicesRuntime, Unit> Define(RequestTwo input) =>
+        public Eff<VSlicesRuntime, Unit> Define(EventTwo input) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -103,7 +104,7 @@ public class ReflectionEventRunnerTests
     }
     public sealed record RequestThree : Event;
 
-    public sealed class RequestThreeRequestHandlerA : IEventHandler<RequestThree>
+    public sealed class RequestThreeRequestHandlerA : IHandler<RequestThree>
     {
         public AutoResetEvent EventHandled { get; } = new(false);
 
@@ -119,7 +120,7 @@ public class ReflectionEventRunnerTests
             select unit;
     }
 
-    public sealed class RequestThreeRequestHandlerB : IEventHandler<RequestThree>
+    public sealed class RequestThreeRequestHandlerB : IHandler<RequestThree>
     {
         public AutoResetEvent EventHandled { get; } = new(false);
 
@@ -136,51 +137,59 @@ public class ReflectionEventRunnerTests
     }
 
     [Fact]
-    public Task Publisher_Should_CallOneHandler()
+    public void Publisher_Should_CallOneHandler()
     {
+        // Arrange
         const int expCount = 1;
-        var provider = new ServiceCollection()
+
+        var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddTransient<IEventHandler<RequestOne>, RequestHandlerOne>()
                        .AddTransient<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
-                       .AddSingleton<Accumulator>()
-                       .BuildServiceProvider();
+                       .AddSingleton<Accumulator>();
+
+        new FeatureDefinition<EventOne, Unit>(services)
+            .Execute<HandlerOne>();
+
+        var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
-        publisher.Publish(new RequestOne(), default);
+        // Act
+        var result = publisher.Publish(new EventOne());
+
+        // Assert
+        result.IsSucc.Should().BeTrue();
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("EventHandlerOne_");
-        return Task.CompletedTask;
     }
 
     [Theory]
     [InlineData(typeof(AwaitForEachStrategy), 2999)]
-    public Task Publisher_Should_CallManyHandler(Type strategyType, int time)
+    public void Publisher_Should_CallManyHandler(Type strategyType, int time)
     {
-        var strategy = (IPublishingStrategy)Activator.CreateInstance(strategyType)!;
-
         var provider = new ServiceCollection()
             .AddVSlicesRuntime()
             .AddScoped<RequestThreeRequestHandlerA>()
-            .AddScoped<IEventHandler<RequestThree>>(s => s.GetRequiredService<RequestThreeRequestHandlerA>())
+            .AddScoped<IHandler<RequestThree, Unit>>(s => s.GetRequiredService<RequestThreeRequestHandlerA>())
             .AddScoped<RequestThreeRequestHandlerB>()
-            .AddScoped<IEventHandler<RequestThree>>(s => s.GetRequiredService<RequestThreeRequestHandlerB>())
+            .AddScoped<IHandler<RequestThree, Unit>>(s => s.GetRequiredService<RequestThreeRequestHandlerB>())
             .AddScoped<IEventRunner, ReflectionEventRunner>()
             .AddSingleton<Accumulator>()
-            .AddScoped(_ => strategy)
+            .AddScoped(typeof(IPublishingStrategy), strategyType)
             .BuildServiceProvider();
 
         var publisher = provider.GetRequiredService<IEventRunner>();
 
         var stopwatch = Stopwatch.StartNew();
 
-        publisher.Publish(new RequestThree(), default);
+        var result = publisher.Publish(new RequestThree());
 
         stopwatch.Stop();
+
+        result.IsSucc.Should().BeTrue();
 
         stopwatch.ElapsedMilliseconds.Should().BeGreaterOrEqualTo(time);
 
@@ -191,17 +200,20 @@ public class ReflectionEventRunnerTests
             .Should().BeTrue();
         handlerB.EventHandled.WaitOne(1000)
             .Should().BeTrue();
-        return Task.CompletedTask;
     }
 
     [Fact]
-    public Task Publisher_Should_CallHandlerAndOpenPipeline()
+    public void Publisher_Should_CallHandlerAndOpenPipeline()
     {
         const int expCount = 2;
+
+        var behaviorChain = new HandlerBehaviorChain<HandlerOne>([typeof(PipelineBehaviorOne<EventOne, Unit>)]);
+
         var provider = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
-                       .AddTransient<IEventHandler<RequestOne>, RequestHandlerOne>()
+                       .AddSingleton(behaviorChain)
+                       .AddTransient(typeof(PipelineBehaviorOne<,>))
+                       .AddTransient<IHandler<EventOne, Unit>, HandlerOne>()
                        .AddScoped<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                        .AddSingleton<Accumulator>()
@@ -210,48 +222,60 @@ public class ReflectionEventRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
-        publisher.Publish(new RequestOne(), default);
+        publisher.Publish(new EventOne());
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_EventHandlerOne_");
 
-        return Task.CompletedTask;
     }
 
     [Fact]
-    public Task Publisher_Should_CallHandlerAndOpenPipelineAndClosedPipeline()
+    public void Publisher_Should_CallHandlerAndOpenPipelineAndClosedPipeline()
     {
         const int expCount = 3;
+
+        var behaviorChain = new HandlerBehaviorChain<HandlerOne>([
+            typeof(PipelineBehaviorOne<EventOne, Unit>), 
+            typeof(ConcretePipelineBehaviorOne)
+        ]);
+
         var provider = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
-                       .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IEventHandler<RequestOne>, RequestHandlerOne>()
+                       .AddSingleton(behaviorChain)
+                       .AddTransient(typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(ConcretePipelineBehaviorOne))
+                       .AddTransient<IHandler<EventOne, Unit>, HandlerOne>()
                        .AddTransient<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                        .AddSingleton<Accumulator>()
                        .BuildServiceProvider();
+
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
-        publisher.Publish(new RequestOne(), default);
+        publisher.Publish(new EventOne());
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_ConcretePipelineOne_EventHandlerOne_");
-        return Task.CompletedTask;
     }
 
     [Fact]
-    public Task Publisher_Should_CallHandlerAndTwoOpenPipeline()
+    public void Publisher_Should_CallHandlerAndTwoOpenPipeline()
     {
         const int expCount = 3;
 
+        var behaviorChain = new HandlerBehaviorChain<HandlerOne>([
+            typeof(PipelineBehaviorOne<EventOne, Unit>),
+            typeof(PipelineBehaviorTwo<EventOne, Unit>)
+        ]);
+
         ServiceProvider provider = new ServiceCollection()
                                    .AddVSlicesRuntime()
-                                   .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
-                                   .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
-                                   .AddTransient<IEventHandler<RequestOne>, RequestHandlerOne>()
+                                   .AddSingleton(behaviorChain)
+                                   .AddTransient(typeof(PipelineBehaviorOne<,>))
+                                   .AddTransient(typeof(PipelineBehaviorTwo<,>))
+                                   .AddTransient<IHandler<EventOne, Unit>, HandlerOne>()
                                    .AddScoped<IEventRunner, ReflectionEventRunner>()
                                    .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                                    .AddSingleton<Accumulator>()
@@ -260,23 +284,30 @@ public class ReflectionEventRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
-        publisher.Publish(new RequestOne(), default);
+        publisher.Publish(new EventOne());
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_OpenPipelineTwo_EventHandlerOne_");
-        return Task.CompletedTask;
     }
 
     [Fact]
-    public Task Publisher_Should_CallHandlerAndTwoOpenPipelineAndOneClosedPipeline()
+    public void Publisher_Should_CallHandlerAndTwoOpenPipelineAndOneClosedPipeline()
     {
         const int expCount = 4;
+
+        var behaviorChain = new HandlerBehaviorChain<HandlerOne>([
+            typeof(PipelineBehaviorOne<EventOne, Unit>),
+            typeof(PipelineBehaviorTwo<EventOne, Unit>),
+            typeof(ConcretePipelineBehaviorOne)
+        ]);
+
         var provider = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
-                       .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IEventHandler<RequestOne>, RequestHandlerOne>()
+                       .AddSingleton(behaviorChain)
+                       .AddTransient(typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(PipelineBehaviorTwo<,>))
+                       .AddTransient(typeof(ConcretePipelineBehaviorOne))
+                       .AddTransient<IHandler<EventOne, Unit>, HandlerOne>()
                        .AddScoped<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                        .AddSingleton<Accumulator>()
@@ -285,25 +316,30 @@ public class ReflectionEventRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
-        publisher.Publish(new RequestOne(), default);
+        publisher.Publish(new EventOne());
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_OpenPipelineTwo_ConcretePipelineOne_EventHandlerOne_");
-        return Task.CompletedTask;
     }
 
     [Fact]
-    public Task Publisher_Should_CallHandlerAndTwoOpenPipelineAndNoneClosedPipeline()
+    public void Publisher_Should_CallHandlerAndTwoOpenPipelineAndNoneClosedPipeline()
     {
         const int expCount = 3;
 
+        var behaviorChain = new HandlerBehaviorChain<HandlerTwo>([
+            typeof(PipelineBehaviorOne<EventTwo, Unit>),
+            typeof(PipelineBehaviorTwo<EventTwo, Unit>)
+        ]);
+
         var provider = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
-                       .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IEventHandler<RequestOne>, RequestHandlerOne>()
-                       .AddTransient<IEventHandler<RequestTwo>, RequestHandlerTwo>()
+                       .AddSingleton(behaviorChain)
+                       .AddTransient(typeof(PipelineBehaviorOne<,>))
+                       .AddTransient(typeof(PipelineBehaviorTwo<,>))
+                       .AddTransient(typeof(ConcretePipelineBehaviorOne))
+                       .AddTransient<IHandler<EventOne, Unit>, HandlerOne>()
+                       .AddTransient<IHandler<EventTwo, Unit>, HandlerTwo>()
                        .AddScoped<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                        .AddSingleton<Accumulator>()
@@ -312,10 +348,9 @@ public class ReflectionEventRunnerTests
         var accumulator = provider.GetRequiredService<Accumulator>();
         var publisher = provider.GetRequiredService<IEventRunner>();
 
-        publisher.Publish(new RequestTwo(), default);
+        publisher.Publish(new EventTwo());
 
         accumulator.Count.Should().Be(expCount);
         accumulator.Str.Should().Be("OpenPipelineOne_OpenPipelineTwo_EventHandlerTwo_");
-        return Task.CompletedTask;
     }
 }

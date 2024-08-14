@@ -15,18 +15,18 @@ public sealed record Query : IRequest<ReadCategoriesDto>
 public sealed class ReadCategoriesDependencies : IFeatureDependencies<Query, ReadCategoriesDto>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Query, ReadCategoriesDto> define) =>
-        define.FromIntegration.Using<EndpointDefinition>()
+        define.FromIntegration.Using<EndpointIntegrator>()
               .Execute<RequestHandler>()
               .WithBehaviorChain(chain => chain
-                                     .AddLogging().UsingSpanish()
-                                     .AddLoggingException().UsingSpanish());
+                                     .AddLogging().InSpanish()
+                                     .AddLoggingException().InSpanish());
 }
 
 public sealed record CategoryDto(Guid Id, string Text);
 
 public sealed record ReadCategoriesDto(CategoryDto[] Categories);
 
-internal sealed class EndpointDefinition : IEndpointDefinition
+internal sealed class EndpointIntegrator : IEndpointIntegrator
 {
     public const string Path = "api/categories";
 

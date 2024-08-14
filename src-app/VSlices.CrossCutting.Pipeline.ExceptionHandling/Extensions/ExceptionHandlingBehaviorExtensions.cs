@@ -39,7 +39,7 @@ public sealed class ExceptionBehaviorBuilder(BehaviorChain definition)
     /// <summary>
     /// Add a custom <see cref="IExceptionMessageTemplate"/>
     /// </summary>
-    public BehaviorChain Using<TMessageTemplate>()
+    public BehaviorChain In<TMessageTemplate>()
         where TMessageTemplate : class, IExceptionMessageTemplate
     {
         _definition.Services.AddSingleton<IExceptionMessageTemplate, TMessageTemplate>();
@@ -50,11 +50,11 @@ public sealed class ExceptionBehaviorBuilder(BehaviorChain definition)
     /// <summary>
     /// Add an english <see cref="IExceptionMessageTemplate"/>
     /// </summary>
-    public BehaviorChain UsingEnglish() => Using<EnglishExceptionMessageTemplate>();
+    public BehaviorChain InEnglish() => In<EnglishExceptionMessageTemplate>();
 
     /// <summary>
     /// Add a spanish <see cref="IExceptionMessageTemplate"/>
     /// </summary>
-    public BehaviorChain UsingSpanish() => Using<SpanishExceptionMessageTemplate>();
+    public BehaviorChain InSpanish() => In<SpanishExceptionMessageTemplate>();
 
 }

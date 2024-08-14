@@ -40,9 +40,9 @@ public class LoggingBehaviorTests
             where TState1 : notnull;
     }
 
-    readonly Logger _logger = Substitute.For<Logger>();
+    private readonly Logger _logger = Substitute.For<Logger>();
 
-    readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
+    private readonly TimeProvider _timeProvider = Substitute.For<TimeProvider>();
     
     public static IEnumerable<object[]> GetTemplates()
     {

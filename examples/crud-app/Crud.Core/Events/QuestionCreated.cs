@@ -10,39 +10,33 @@ namespace Crud.Core.Events.QuestionCreated;
 
 public sealed class QuestionCreatedDependencies : IFeatureDependencies<QuestionMutatedEvent>
 {
-    public static void DefineDependencies(IFeatureStartBuilder<QuestionMutatedEvent, Unit> define)
-    {
+    public static void DefineDependencies(IFeatureStartBuilder<QuestionMutatedEvent, Unit> define) =>
         define.Execute<RequestHandler>()
               .WithBehaviorChain(chain => chain
-                                          .AddFilteringUsing<Filter>().UsingEnglish()
-                                          .AddLogging().UsingEnglish()
-                                          .AddLoggingException().UsingEnglish());
-    }
-}
-
-internal sealed class RequestHandler : IHandler<QuestionMutatedEvent>
-{
-    public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent input)
-    {
-        return from repository in provide<IQuestionRepository>()
-               from logger in provide<ILogger<QuestionMutatedEvent>>()
-               from question in repository.Get(input.Id)
-               from _ in liftEff(env =>
-               {
-                   logger.LogInformation("Se ha creado un nuevo recurso en la tabla Questions, " +
-                                         "con valores: {Entity}", question);
-
-                   return unit;
-               })
-               select unit;
-    }
+                                          .AddFilteringUsing<Filter>().InSpanish()
+                                          .AddLogging().InSpanish()
+                                          .AddLoggingException().InSpanish());
 }
 
 internal sealed class Filter : IEventFilter<QuestionMutatedEvent, RequestHandler>
 {
-    public Eff<VSlicesRuntime, bool> DefineFilter(QuestionMutatedEvent feature)
-    {
-        return from shouldProcess in liftEff(() => feature.CurrentState == EState.Created)
-               select shouldProcess;
-    }
+    public Eff<VSlicesRuntime, bool> DefineFilter(QuestionMutatedEvent feature) =>
+        from shouldProcess in liftEff(() => feature.CurrentState == EState.Created)
+        select shouldProcess;
+}
+
+internal sealed class RequestHandler : IHandler<QuestionMutatedEvent>
+{
+    public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent input) =>
+        from repository in provide<IQuestionRepository>()
+        from logger in provide<ILogger<QuestionMutatedEvent>>()
+        from question in repository.Get(input.Id)
+        from _ in liftEff(env =>
+        {
+            logger.LogInformation("Se ha creado un nuevo recurso en la tabla Questions, " +
+                                  "con valores: {Entity}", question);
+
+            return unit;
+        })
+        select unit;
 }

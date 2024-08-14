@@ -1,254 +1,262 @@
 using FluentAssertions;
 using LanguageExt;
-using static LanguageExt.Prelude;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using VSlices.Base;
-using VSlices.Core.UseCases;
+using VSlices.Base.Builder;
+using VSlices.Base.Core;
 using VSlices.Domain;
+using static LanguageExt.Prelude;
+using static VSlices.VSlicesPrelude;
 
-namespace VSlices.Core.Events.Hosted.InMemory.Reflection.IntegTests;
+namespace VSlices.Core.Events.IntegTests;
 
 public class ReflectionRunnerInMemoryQueueHosted
 {
-    public record AlwaysUnitEvent : Event;
-
-    public class AlwaysUnitRequestHandler : IEventHandler<AlwaysUnitEvent>
+    public sealed class Accumulator
     {
-        public AutoResetEvent HandledEvent { get; } = new(false);
+        public int Value { get; set; }
+    }
 
+    public sealed record AlwaysUnitEvent : Event;
+
+    public sealed class AlwaysUnitRequestHandler : IHandler<AlwaysUnitEvent>
+    {
         public Eff<VSlicesRuntime, Unit> Define(AlwaysUnitEvent input) =>
-            from _ in liftEff(() =>
-            {
-                HandledEvent.Set();
-
-                return unit;
-            })
+            from accumulator in provide<Accumulator>()
+            from _ in liftEff(() => accumulator.Value++)
             select unit;
     }
 
-    public record FirstFailureThenUnitEvent : Event;
+    public sealed record FirstFailureThenUnitEvent : Event;
 
-    public class FirstFailureThenUnitRequestHandler : IEventHandler<FirstFailureThenUnitEvent>
+    public sealed class FirstFailureThenUnitRequestHandler : IHandler<FirstFailureThenUnitEvent>
     {
-        public AutoResetEvent HandledEvent { get; } = new(false);
-
-        public bool First { get; set; } = true;
-
         public Eff<VSlicesRuntime, Unit> Define(FirstFailureThenUnitEvent input) =>
-            from _1 in guardnot(First, () =>
+            from accumulator in provide<Accumulator>()
+            from _1 in guardnot(accumulator.Value == 0, () =>
             {
-                First = false;
+                accumulator.Value++;
                 throw new Exception("First failure");
             })
-            from _2 in liftEff(() =>
-            {
-                HandledEvent.Set();
-
-                return unit;
-            })
+            from _2 in liftEff(() => accumulator.Value++)
             select unit;
         
     }
 
-    public record FirstAndSecondFailureThenUnitEvent : Event;
+    public sealed record FirstAndSecondFailureThenUnitEvent : Event;
 
-    public class FirstAndSecondFailureThenUnitRequestHandler : IEventHandler<FirstAndSecondFailureThenUnitEvent>
+    public sealed class FirstAndSecondFailureThenUnitRequestHandler : IHandler<FirstAndSecondFailureThenUnitEvent>
     {
-        public AutoResetEvent HandledEvent { get; } = new(false);
-
-        public bool First { get; set; } = true;
-
-        public bool Second { get; set; } = true;
-
         public Eff<VSlicesRuntime, Unit> Define(FirstAndSecondFailureThenUnitEvent input) =>
-            from _1 in liftEff(() =>
+            from accumulator in provide<Accumulator>()
+            from _1 in guardnot(accumulator.Value == 0, () =>
             {
-                if (!First) return unit;
-
-                First = false;
+                accumulator.Value++;
                 throw new Exception("First failure");
             })
-            from _2 in liftEff(() =>
+            from _2 in guardnot(accumulator.Value == 1, () =>
             {
-                if (!Second) return unit;
-
-                Second = false;
+                accumulator.Value++;
                 throw new Exception("Second failure");
             })
-            from _3 in liftEff(() =>
-            {
-                HandledEvent.Set();
-
-                return unit;
-            })
+            from _3 in liftEff(() => accumulator.Value++)
             select unit;
     }
 
-    public record AlwaysFailureEvent : Event;
+    public sealed record AlwaysFailureEvent : Event;
 
-    public class AlwaysFailureRequestHandler : IEventHandler<AlwaysFailureEvent>
+    public sealed class AlwaysFailureRequestHandler : IHandler<AlwaysFailureEvent>
     {
-        public Eff<VSlicesRuntime, Unit> Define(AlwaysFailureEvent input)
-        {
-            throw new Exception("Always failure");
-        }
+        public Eff<VSlicesRuntime, Unit> Define(AlwaysFailureEvent input) => throw new Exception("Always failure");
     }
 
     [Fact]
     public async Task InMemoryEventFlow_AddedEventBeforeListeningStart_AlwaysUnitHandler()
     {
-        ServiceProvider provider = new ServiceCollection()
-                                   .AddVSlicesRuntime()
-                                   .AddEventListener()
-                                   .AddHostedTaskListener()
-                                   .AddInMemoryEventQueue()
-                                   .AddReflectionEventRunner()
-                                   .AddLogging()
-                                   .AddSingleton<AlwaysUnitRequestHandler>()
-                                   .AddScoped<IEventHandler<AlwaysUnitEvent>>(s => s.GetRequiredService<AlwaysUnitRequestHandler>())
-                                   .BuildServiceProvider();
+        // Arrange
+        const int expCount = 1;
+        var services = new ServiceCollection()
+                       .AddVSlicesRuntime()
+                       .AddEventListener()
+                       .AddHostedTaskListener()
+                       .AddInMemoryEventQueue()
+                       .AddReflectionEventRunner()
+                       .AddLogging()
+                       .AddSingleton<Accumulator>();
+
+        new FeatureDefinition<AlwaysUnitEvent, Unit>(services)
+            .Execute<AlwaysUnitRequestHandler>();
+
+        var provider  = services.BuildServiceProvider();
 
         var backgroundEventListener = provider.GetRequiredService<IHostedService>();
-        var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
+        var eventQueue = provider.GetRequiredService<IEventQueueWriter>();
+        var accumulator = provider.GetRequiredService<Accumulator>();
 
         var event1 = new AlwaysUnitEvent();
 
-        await eventQueue.EnqueueAsync(event1, default);
+        await eventQueue.EnqueueAsync(event1);
 
+        // Act
         _ = backgroundEventListener.StartAsync(default);
 
-        var handler = provider.GetRequiredService<AlwaysUnitRequestHandler>();
-        handler.HandledEvent.WaitOne(5000).Should().BeTrue();
+        // Assert
+        accumulator.Value.Should().Be(expCount);
     }
 
     [Fact]
     public async Task InMemoryEventFlow_AddedEventAfterListeningStart()
     {
-        ServiceProvider provider = new ServiceCollection()
-                                   .AddVSlicesRuntime()
-                                   .AddEventListener()
-                                   .AddHostedTaskListener()
-                                   .AddInMemoryEventQueue()
-                                   .AddReflectionEventRunner()
-                                   .AddLogging()
-                                   .AddSingleton<AlwaysUnitRequestHandler>()
-                                   .AddScoped<IEventHandler<AlwaysUnitEvent>>(s => s.GetRequiredService<AlwaysUnitRequestHandler>())
-                                   .BuildServiceProvider();
+        // Arrange
+        const int expCount = 1;
+        var services = new ServiceCollection()
+                       .AddVSlicesRuntime()
+                       .AddEventListener()
+                       .AddHostedTaskListener()
+                       .AddInMemoryEventQueue()
+                       .AddReflectionEventRunner()
+                       .AddLogging()
+                       .AddSingleton<Accumulator>();
+
+        new FeatureDefinition<AlwaysUnitEvent, Unit>(services)
+            .Execute<AlwaysUnitRequestHandler>();
+
+        var provider = services.BuildServiceProvider();
 
         var backgroundEventListener = provider.GetRequiredService<IHostedService>();
-        var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
+        var eventQueue = provider.GetRequiredService<IEventQueueWriter>();
+        var accumulator = provider.GetRequiredService<Accumulator>();
 
         var event2 = new AlwaysUnitEvent();
 
         _ = backgroundEventListener.StartAsync(default);
+
+        // Act
+        await eventQueue.EnqueueAsync(event2);
         await Task.Delay(1000);
 
-        await eventQueue.EnqueueAsync(event2, default);
+        // Assert
+        accumulator.Value.Should().Be(expCount);
 
-        var handler = provider.GetRequiredService<AlwaysUnitRequestHandler>();
-        handler.HandledEvent.WaitOne(5000).Should().BeTrue();
     }
 
     [Fact]
     public async Task InMemoryEventFlow_FirstRetry()
     {
-        ServiceProvider provider = new ServiceCollection()
-                                   .AddVSlicesRuntime()
-                                   .AddEventListener()
-                                   .AddHostedTaskListener()
-                                   .AddInMemoryEventQueue()
-                                   .AddReflectionEventRunner()
-                                   .AddLogging()
-                                   .AddSingleton<FirstFailureThenUnitRequestHandler>()
-                                   .AddScoped<IEventHandler<FirstFailureThenUnitEvent>>(s => s.GetRequiredService<FirstFailureThenUnitRequestHandler>())
-                                   .BuildServiceProvider();
+        // Arrange
+        const int expCount = 2;
+        var services = new ServiceCollection()
+                       .AddVSlicesRuntime()
+                       .AddEventListener()
+                       .AddHostedTaskListener()
+                       .AddInMemoryEventQueue()
+                       .AddReflectionEventRunner()
+                       .AddLogging()
+                       .AddSingleton<Accumulator>();
+
+        new FeatureDefinition<FirstFailureThenUnitEvent, Unit>(services)
+            .Execute<FirstFailureThenUnitRequestHandler>();
+
+        var provider = services.BuildServiceProvider();
 
         var backgroundEventListener = provider.GetRequiredService<IHostedService>();
-        var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
+        var eventQueue = provider.GetRequiredService<IEventQueueWriter>();
+        var accumulator = provider.GetRequiredService<Accumulator>();
 
         var event2 = new FirstFailureThenUnitEvent();
 
         _ = backgroundEventListener.StartAsync(default);
+
+        // Act
+        await eventQueue.EnqueueAsync(event2);
         await Task.Delay(1000);
 
-        await eventQueue.EnqueueAsync(event2, default);
-
-        var handler = provider.GetRequiredService<FirstFailureThenUnitRequestHandler>();
-
-        handler.HandledEvent.WaitOne(5000).Should().BeTrue();
+        // Assert
+        accumulator.Value.Should().Be(expCount);
     }
 
     [Fact]
     public async Task InMemoryEventFlow_SecondRetry()
     {
-        ServiceProvider provider = new ServiceCollection()
-                                   .AddVSlicesRuntime()
-                                   .AddEventListener()
-                                   .AddHostedTaskListener()
-                                   .AddInMemoryEventQueue()
-                                   .AddReflectionEventRunner()
-                                   .AddLogging()
-                                   .AddSingleton<FirstAndSecondFailureThenUnitRequestHandler>()
-                                   .AddScoped<IEventHandler<FirstAndSecondFailureThenUnitEvent>>(s => s.GetRequiredService<FirstAndSecondFailureThenUnitRequestHandler>())
-                                   .BuildServiceProvider();
+        // Arrange
+        const int expCount = 3;
+        var services = new ServiceCollection()
+                       .AddVSlicesRuntime()
+                       .AddEventListener()
+                       .AddHostedTaskListener()
+                       .AddInMemoryEventQueue()
+                       .AddReflectionEventRunner()
+                       .AddLogging()
+                       .AddSingleton<Accumulator>();
 
+        new FeatureDefinition<FirstAndSecondFailureThenUnitEvent, Unit>(services)
+            .Execute<FirstAndSecondFailureThenUnitRequestHandler>();
+
+        var provider = services.BuildServiceProvider();
+        
         var backgroundEventListener = provider.GetRequiredService<IHostedService>();
-        var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
+        var eventQueue = provider.GetRequiredService<IEventQueueWriter>();
+        var accumulator = provider.GetRequiredService<Accumulator>();
 
         var event2 = new FirstAndSecondFailureThenUnitEvent();
 
         _ = backgroundEventListener.StartAsync(default);
+
+        // Act
+        await eventQueue.EnqueueAsync(event2);
         await Task.Delay(1000);
 
-        await eventQueue.EnqueueAsync(event2, default);
+        // Assert
+        accumulator.Value.Should().Be(expCount);
 
-        var handler = provider.GetRequiredService<FirstAndSecondFailureThenUnitRequestHandler>();
-
-        handler.HandledEvent.WaitOne(5000).Should().BeTrue();
     }
 
     [Fact]
     public async Task InMemoryEventFlow_NeverMakesIt()
     {
+        // Arrange
         var logger = Mock.Of<ILogger<EventListenerBackgroundTask>>();
         Mock<ILogger<EventListenerBackgroundTask>>? loggerMock = Mock.Get(logger);
 
-        ServiceProvider provider = new ServiceCollection()
-                                   .AddVSlicesRuntime()
-            .AddEventListener()
-            .AddHostedTaskListener()
-            .AddInMemoryEventQueue()
-            .AddReflectionEventRunner()
-            .AddScoped(_ => logger)
-            .AddSingleton<AlwaysFailureRequestHandler>()
-            .AddScoped<IEventHandler<AlwaysFailureEvent>>(s => s.GetRequiredService<AlwaysFailureRequestHandler>())
-            .BuildServiceProvider();
+        var services = new ServiceCollection()
+                       .AddVSlicesRuntime()
+                       .AddEventListener()
+                       .AddHostedTaskListener()
+                       .AddInMemoryEventQueue()
+                       .AddReflectionEventRunner()
+                       .AddScoped(_ => logger);
+
+        new FeatureDefinition<AlwaysFailureEvent, Unit>(services)
+            .Execute<AlwaysFailureRequestHandler>();
+
+        var provider = services.BuildServiceProvider();
 
         var backgroundEventListener = provider.GetRequiredService<IHostedService>();
-        var eventQueue = (InMemoryEventQueue)provider.GetRequiredService<IEventQueueWriter>();
+        var eventQueue = provider.GetRequiredService<IEventQueueWriter>();
 
         var event2 = new AlwaysFailureEvent();
 
         _ = backgroundEventListener.StartAsync(default);
-        await Task.Delay(1000);
 
-        await eventQueue.EnqueueAsync(event2, default);
+        // Act
+        await eventQueue.EnqueueAsync(event2);
 
-        await Task.Delay(5000);
+        await Task.Delay(6000);
 
+        // Assert
         loggerMock.Verify(
-            e => e.Log(
-                LogLevel.Error,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((o, t) =>
-                    o.ToString()!.IndexOf($"Max retries 3 reached for {event2}.", StringComparison.Ordinal) != -1),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-            ),
-            Times.Once);
+                          e => e.Log(
+                                     LogLevel.Error,
+                                     It.IsAny<EventId>(),
+                                     It.Is<It.IsAnyType>((o, t) =>
+                                                             o.ToString()!.IndexOf($"Max retries 3 reached for {event2}.", StringComparison.Ordinal) != -1),
+                                     It.IsAny<Exception>(),
+                                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()
+                                    ),
+                          Times.Once);
 
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Cronos;
 using Microsoft.Extensions.Logging;
+using VSlices.Base.Core;
 using VSlices.CrossCutting.BackgroundTaskListener;
 
 namespace VSlices.Core.RecurringJob;
@@ -7,11 +8,11 @@ namespace VSlices.Core.RecurringJob;
 /// <summary>
 /// Listeners and executes recurring jobs in the background
 /// </summary>
-public sealed class RecurringJobBackgroundTask(IEnumerable<IRecurringJobDefinition> recurringJobs, 
+public sealed class RecurringJobBackgroundTask(IEnumerable<IIntegrator> recurringJobs, 
                                                ILogger<RecurringJobBackgroundTask> logger,
                                                TimeProvider timeProvider) : IBackgroundTask
 {
-    private readonly IEnumerable<IRecurringJobDefinition> _recurringJobs = recurringJobs;
+    private readonly IEnumerable<IRecurringJobIntegrator> _recurringJobs = recurringJobs.OfType<IRecurringJobIntegrator>();
     private readonly ILogger<RecurringJobBackgroundTask> _logger = logger;
     private readonly TimeProvider _timeProvider = timeProvider;
 
@@ -28,9 +29,9 @@ public sealed class RecurringJobBackgroundTask(IEnumerable<IRecurringJobDefiniti
     }
 }
 
-internal sealed class RecurringJobWrapper(IRecurringJobDefinition recurringJob, TimeProvider timeProvider) : IRecurringJobDefinition
+internal sealed class RecurringJobWrapper(IRecurringJobIntegrator recurringJob, TimeProvider timeProvider) : IRecurringJobIntegrator
 {
-    private readonly IRecurringJobDefinition _recurringJob = recurringJob;
+    private readonly IRecurringJobIntegrator _recurringJob = recurringJob;
     private readonly TimeProvider _timeProvider = timeProvider;
 
     public string Identifier => _recurringJob.Identifier;

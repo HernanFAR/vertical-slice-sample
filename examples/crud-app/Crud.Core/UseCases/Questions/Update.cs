@@ -19,12 +19,12 @@ public sealed record Command(QuestionId Id, CategoryId CategoryId, NonEmptyStrin
 public sealed class UpdateQuestionDependencies : IFeatureDependencies<Command>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Command, Unit> feature) =>
-        feature.FromIntegration.Using<EndpointDefinition>()
+        feature.FromIntegration.Using<EndpointIntegrator>()
                .Execute<Handler>()
                .WithBehaviorChain(chain => chain
-                                      .AddLogging().UsingSpanish()
+                                      .AddLogging().InSpanish()
                                       .AddFluentValidationUsing<Validator>()
-                                      .AddLoggingException().UsingSpanish());
+                                      .AddLoggingException().InSpanish());
 }
 
 public sealed record UpdateQuestionContract(
@@ -33,7 +33,7 @@ public sealed record UpdateQuestionContract(
     [property: Required(ErrorMessage = "La pregunta es obligatoria")]
     string Text);
 
-internal sealed class EndpointDefinition : IEndpointDefinition
+internal sealed class EndpointIntegrator : IEndpointIntegrator
 {
     public const string Path = "api/questions/{id:Guid}";
 

@@ -9,37 +9,31 @@ namespace Crud.Core.Events.Mutated;
 
 public sealed class QuestionMutatedDependencies : IFeatureDependencies<QuestionMutatedEvent>
 {
-    public static void DefineDependencies(IFeatureStartBuilder<QuestionMutatedEvent, Unit> feature)
-    {
+    public static void DefineDependencies(IFeatureStartBuilder<QuestionMutatedEvent, Unit> feature) =>
         feature.Execute<RequestHandler>()
                .WithBehaviorChain(chain => chain
-                                           .AddFilteringUsing<Filter>().UsingEnglish()
-                                           .AddLogging().UsingEnglish()
-                                           .AddLoggingException().UsingEnglish());
-    }
-}
-
-internal sealed class RequestHandler : IHandler<QuestionMutatedEvent>
-{
-    public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent input)
-    {
-        return from logger in provide<ILogger<QuestionMutatedEvent>>()
-               from _ in liftEff(_ =>
-               {
-                   logger.LogInformation("Se ha eliminado un recurso en la tabla Questions, Id: " +
-                                         "{Id}", input.Id);
-
-                   return unit;
-               })
-               select unit;
-    }
+                                           .AddFilteringUsing<Filter>().InSpanish()
+                                           .AddLogging().InSpanish()
+                                           .AddLoggingException().InSpanish());
 }
 
 internal sealed class Filter : IEventFilter<QuestionMutatedEvent, RequestHandler>
 {
-    public Eff<VSlicesRuntime, bool> DefineFilter(QuestionMutatedEvent feature)
-    {
-        return from shouldProcess in liftEff(() => feature.CurrentState == EState.Removed)
-               select shouldProcess;
-    }
+    public Eff<VSlicesRuntime, bool> DefineFilter(QuestionMutatedEvent feature) =>
+        from shouldProcess in liftEff(() => feature.CurrentState == EState.Removed)
+        select shouldProcess;
+}
+
+internal sealed class RequestHandler : IHandler<QuestionMutatedEvent>
+{
+    public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent input) =>
+        from logger in provide<ILogger<QuestionMutatedEvent>>()
+        from _ in liftEff(_ =>
+        {
+            logger.LogInformation("Se ha eliminado un recurso en la tabla Questions, Id: " +
+                                  "{Id}", input.Id);
+
+            return unit;
+        })
+        select unit;
 }

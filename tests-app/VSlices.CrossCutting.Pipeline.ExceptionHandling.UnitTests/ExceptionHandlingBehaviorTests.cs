@@ -5,6 +5,7 @@ using VSlices.Base;
 using LanguageExt;
 using LanguageExt.Common;
 using Microsoft.Extensions.DependencyInjection;
+using VSlices.Base.Core;
 using VSlices.Base.Failures;
 using VSlices.Base.Traits;
 using static LanguageExt.Prelude;

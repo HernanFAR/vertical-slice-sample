@@ -13,15 +13,15 @@ public sealed record Query(QuestionId Id) : IRequest;
 public sealed class ExistsQuestionDependencies : IFeatureDependencies<Query>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Query, Unit> feature) =>
-        feature.FromIntegration.Using<RecurringJobDefinition>()
+        feature.FromIntegration.Using<RecurringJobIntegrator>()
                .Execute<Handler>()
                .WithBehaviorChain(chain => chain
-                                      .AddLogging().UsingSpanish()
-                                      .AddLoggingException().UsingSpanish());
+                                      .AddLogging().InSpanish()
+                                      .AddLoggingException().InSpanish());
 }
 
 
-internal sealed class EndpointDefinition : IEndpointDefinition
+internal sealed class EndpointIntegrator : IEndpointIntegrator
 {
     public const string Path = "api/questions/{id:Guid}";
 
