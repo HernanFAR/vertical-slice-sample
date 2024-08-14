@@ -17,14 +17,14 @@ public sealed record Query : IRequest
 public sealed class CounterFeatureDependencies : IFeatureDependencies<Query>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Query, Unit> feature) =>
-        feature.FromIntegration.Using<RecurringJobDefinition>()
+        feature.FromIntegration.Using<RecurringJobIntegrator>()
                .Execute<RequestHandler>()
                .WithBehaviorChain(chain => chain
-                                      .AddLogging().UsingSpanish()
-                                      .AddLoggingException().UsingSpanish());
+                                      .AddLogging().InSpanish()
+                                      .AddLoggingException().InSpanish());
 }
 
-internal sealed class RecurringJobDefinition(IRequestRunner runner) : IRecurringJobDefinition
+internal sealed class RecurringJobIntegrator(IRequestRunner runner) : IRecurringJobIntegrator
 {
     private readonly IRequestRunner _runner = runner;
     public string Identifier => "CounterRecurringJob";

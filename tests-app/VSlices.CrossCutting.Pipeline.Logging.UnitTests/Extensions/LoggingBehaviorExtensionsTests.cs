@@ -1,18 +1,29 @@
 ﻿using FluentAssertions;
+using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
 using VSlices.Base.Builder;
+using VSlices.Base.Core;
+using VSlices.Base.CrossCutting;
 using VSlices.Core.Builder;
 using VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
 
 namespace VSlices.CrossCutting.Pipeline.Logging.UnitTests.Extensions;
 
-public class LoggingBehaviorExtensionsTests
+public sealed class LoggingBehaviorExtensionsTests
 {
-    public record Result;
-    public record Request : IFeature<Result>;
+    public sealed record Result;
+    public sealed record Request : IFeature<Result>;
 
-    public class CustomTemplate : ILoggingMessageTemplate
+    public sealed class Handler : IHandler<Request, Result>
+    {
+        public Eff<VSlicesRuntime, Result> Define(Request input)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public sealed class CustomTemplate : ILoggingMessageTemplate
     {
         public string Start { get; } = string.Empty;
         public string FailureEnd { get; } = string.Empty;
@@ -22,69 +33,84 @@ public class LoggingBehaviorExtensionsTests
     [Fact]
     public void AddLoggingBehaviorFor_ShouldRegisterInServiceContainer_DetailWithSpanishTemplate()
     {
-        FeatureDefinition<,> definition = new(new ServiceCollection());
+        // Arrange
+        const int expBehaviorCount = 1;
 
-        definition.AddLoggingBehaviorFor<Request>()
-            .UsingSpanishTemplate();
+        var services = new ServiceCollection();
 
-        definition.Services
-            .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Result>))
-            .Any(e => e.ImplementationType == typeof(LoggingBehavior<Request, Result>))
-            .Should().BeTrue();
+        var chain = new BehaviorChain(services, typeof(Request), typeof(Result), typeof(Handler));
 
-        definition.Services
-            .Where(e => e.ServiceType == typeof(ILoggingMessageTemplate))
-            .Any(e => e.ImplementationType == typeof(SpanishLoggingMessageTemplate))
-            .Should().BeTrue();
+        // Act
+        chain.AddLogging().InSpanish();
+
+        // Assert
+        services.Where(e => e.ImplementationType == typeof(LoggingBehavior<,>))
+                .Any(e => e.Lifetime             == ServiceLifetime.Transient)
+                .Should().BeTrue();
+
+        services.Where(e => e.ServiceType        == typeof(ILoggingMessageTemplate))
+                .Where(e => e.ImplementationType == typeof(SpanishLoggingMessageTemplate))
+                .Any(e => e.Lifetime             == ServiceLifetime.Singleton)
+                .Should().BeTrue();
+
+        chain.Behaviors.Should()
+             .HaveCount(expBehaviorCount)
+             .And.Contain(type => type == typeof(LoggingBehavior<Request, Result>));
     }
 
     [Fact]
     public void AddLoggingBehaviorFor_ShouldRegisterInServiceContainer_DetailWithEnglishTemplate()
     {
-        FeatureDefinition<,> definition = new(new ServiceCollection());
+        // Arrange
+        const int expBehaviorCount = 1;
 
-        definition.AddLoggingBehaviorFor<Request>()
-            .UsingEnglishTemplate();
+        var services = new ServiceCollection();
 
-        definition.Services
-            .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Result>))
-            .Any(e => e.ImplementationType == typeof(LoggingBehavior<Request, Result>))
-            .Should().BeTrue();
+        var chain = new BehaviorChain(services, typeof(Request), typeof(Result), typeof(Handler));
 
-        definition.Services
-            .Where(e => e.ServiceType == typeof(ILoggingMessageTemplate))
-            .Any(e => e.ImplementationType == typeof(EnglishLoggingMessageTemplate))
-            .Should().BeTrue();
+        // Act
+        chain.AddLogging().InEnglish();
+
+        // Assert
+        services.Where(e => e.ImplementationType == typeof(LoggingBehavior<,>))
+                .Any(e => e.Lifetime             == ServiceLifetime.Transient)
+                .Should().BeTrue();
+
+        services.Where(e => e.ServiceType        == typeof(ILoggingMessageTemplate))
+                .Where(e => e.ImplementationType == typeof(EnglishLoggingMessageTemplate))
+                .Any(e => e.Lifetime             == ServiceLifetime.Singleton)
+                .Should().BeTrue();
+
+        chain.Behaviors.Should()
+             .HaveCount(expBehaviorCount)
+             .And.Contain(type => type == typeof(LoggingBehavior<Request, Result>));
     }
 
     [Fact]
     public void AddLoggingBehaviorFor_ShouldRegisterInServiceContainer_DetailWithCustomTemplate()
     {
-        FeatureDefinition<,> definition = new(new ServiceCollection());
+        // Arrange
+        const int expBehaviorCount = 1;
 
-        definition.AddLoggingBehaviorFor<Request>()
-            .UsingTemplate<CustomTemplate>();
+        var services = new ServiceCollection();
 
-        definition.Services
-            .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Result>))
-            .Any(e => e.ImplementationType == typeof(LoggingBehavior<Request, Result>))
-            .Should().BeTrue();
+        var chain = new BehaviorChain(services, typeof(Request), typeof(Result), typeof(Handler));
+        
+        // Act
+        chain.AddLogging().In<CustomTemplate>();
 
-        definition.Services
-            .Where(e => e.ServiceType == typeof(ILoggingMessageTemplate))
-            .Any(e => e.ImplementationType == typeof(CustomTemplate))
-            .Should().BeTrue();
-    }
+        // Assert
+        services.Where(e => e.ImplementationType == typeof(LoggingBehavior<,>))
+                .Any(e => e.Lifetime             == ServiceLifetime.Transient)
+                .Should().BeTrue();
 
-    [Fact]
-    public void AddLoggingBehaviorFor_ShouldThrowExceptoin()
-    {
-        FeatureDefinition<,> definition = new(new ServiceCollection());
+        services.Where(e => e.ServiceType        == typeof(ILoggingMessageTemplate))
+                .Where(e => e.ImplementationType == typeof(CustomTemplate))
+                .Any(e => e.Lifetime             == ServiceLifetime.Singleton)
+                .Should().BeTrue();
 
-        Func<LoggingBehaviorBuilder> act = () => definition.AddLoggingBehaviorFor(typeof(object));
-
-        act.Should()
-            .Throw<InvalidOperationException>()
-            .WithMessage($"The type {typeof(object).FullName} does not implement {typeof(IFeature<>).FullName}");
+        chain.Behaviors.Should()
+             .HaveCount(expBehaviorCount)
+             .And.Contain(type => type == typeof(LoggingBehavior<Request, Result>));
     }
 }

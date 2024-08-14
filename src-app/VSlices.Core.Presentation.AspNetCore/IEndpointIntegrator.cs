@@ -6,7 +6,7 @@ namespace VSlices.Core.Presentation;
 /// <summary>
 /// Defines an endpoint of a use case without dependencies
 /// </summary>
-public interface IEndpointDefinition : IIntegrator
+public interface IEndpointIntegrator : IIntegrator
 {
     /// <summary>
     /// Defines the endpoint of the use case.

@@ -19,12 +19,12 @@ public sealed record Command(CategoryId CategoryId, NonEmptyString Text) : IRequ
 public sealed class CreateQuestionDependencies : IFeatureDependencies<Command, Unit>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Command, Unit> feature) =>
-        feature.FromIntegration.Using<EndpointDefinition>()
+        feature.FromIntegration.Using<EndpointIntegrator>()
                .Execute<RequestHandler>()
                .WithBehaviorChain(chain => chain
-                                      .AddLogging().UsingSpanish()
+                                      .AddLogging().InSpanish()
                                       .AddFluentValidationUsing<Validator>()
-                                      .AddLoggingException().UsingSpanish());
+                                      .AddLoggingException().InSpanish());
 }
 
 public sealed record CreateQuestionContract(
@@ -33,7 +33,7 @@ public sealed record CreateQuestionContract(
     [property: Required(ErrorMessage = "La pregunta es obligatorio")]
     string Text);
 
-internal sealed class EndpointDefinition : IEndpointDefinition
+internal sealed class EndpointIntegrator : IEndpointIntegrator
 {
     public const string Path = "api/questions";
 

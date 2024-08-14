@@ -10,39 +10,34 @@ namespace Crud.Core.Events.QuestionUpdated;
 
 public sealed class QuestionMutatedDependencies : IFeatureDependencies<QuestionMutatedEvent>
 {
-    public static void DefineDependencies(IFeatureStartBuilder<QuestionMutatedEvent, Unit> define)
-    {
+    public static void DefineDependencies(IFeatureStartBuilder<QuestionMutatedEvent, Unit> define) => 
         define.Execute<RequestHandler>()
               .WithBehaviorChain(chain => chain
-                                          .AddFilteringUsing<Filter>().UsingEnglish()
-                                          .AddLogging().UsingEnglish()
-                                          .AddLoggingException().UsingEnglish());
-    }
-}
-
-internal sealed class RequestHandler : IHandler<QuestionMutatedEvent>
-{
-    public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent input)
-    {
-        return from repository in provide<IQuestionRepository>()
-               from logger in provide<ILogger<QuestionMutatedEvent>>()
-               from question in repository.Get(input.Id)
-               from _ in liftEff(env =>
-               {
-                   logger.LogInformation("Se ha actualizado un recurso en la tabla Questions, " +
-                                         "a los valores: {Entity}", question);
-
-                   return unit;
-               })
-               select unit;
-    }
+                                          .AddFilteringUsing<Filter>().InSpanish()
+                                          .AddLogging().InSpanish()
+                                          .AddLoggingException().InSpanish());
 }
 
 internal sealed class Filter : IEventFilter<QuestionMutatedEvent, RequestHandler>
 {
-    public Eff<VSlicesRuntime, bool> DefineFilter(QuestionMutatedEvent feature)
-    {
-        return from shouldProcess in liftEff(() => feature.CurrentState == EState.Updated)
-               select shouldProcess;
-    }
+    public Eff<VSlicesRuntime, bool> DefineFilter(QuestionMutatedEvent feature) =>
+        from shouldProcess in liftEff(() => feature.CurrentState == EState.Updated)
+        select shouldProcess;
+}
+
+internal sealed class RequestHandler : IHandler<QuestionMutatedEvent>
+{
+    public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent input) =>
+        from repository in provide<IQuestionRepository>()
+        from logger in provide<ILogger<QuestionMutatedEvent>>()
+        from question in repository.Get(input.Id)
+        from _ in liftEff(env =>
+        {
+            logger.LogInformation("Se ha actualizado un recurso en la tabla Questions, " +
+                                  "a los valores: {Entity}",
+                                  question);
+
+            return unit;
+        })
+        select unit;
 }

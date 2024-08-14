@@ -36,7 +36,7 @@ public sealed class LoggingBehaviorBuilder(BehaviorChain definition)
     /// <summary>
     /// Add a custom <see cref="ILoggingMessageTemplate"/>
     /// </summary>
-    public BehaviorChain UsingTemplate<TMessageTemplate>()
+    public BehaviorChain In<TMessageTemplate>()
         where TMessageTemplate : class, ILoggingMessageTemplate
     {
         _definition.Services.AddSingleton<ILoggingMessageTemplate, TMessageTemplate>();
@@ -47,11 +47,11 @@ public sealed class LoggingBehaviorBuilder(BehaviorChain definition)
     /// <summary>
     /// Add an english <see cref="ILoggingMessageTemplate"/>
     /// </summary>
-    public BehaviorChain UsingEnglish() => UsingTemplate<EnglishLoggingMessageTemplate>();
+    public BehaviorChain InEnglish() => In<EnglishLoggingMessageTemplate>();
 
     /// <summary>
     /// Add a spanish <see cref="ILoggingMessageTemplate"/>
     /// </summary>
-    public BehaviorChain UsingSpanish() => UsingTemplate<SpanishLoggingMessageTemplate>();
+    public BehaviorChain InSpanish() => In<SpanishLoggingMessageTemplate>();
 
 }

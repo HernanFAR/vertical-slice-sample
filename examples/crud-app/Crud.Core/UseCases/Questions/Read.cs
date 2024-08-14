@@ -18,14 +18,14 @@ public sealed record Query : IRequest<ReadQuestionsDto>
 public sealed class ReadQuestionDependencies : IFeatureDependencies<Query, ReadQuestionsDto>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Query, ReadQuestionsDto> feature) =>
-        feature.FromIntegration.Using<EndpointDefinition>()
+        feature.FromIntegration.Using<EndpointIntegrator>()
                .Execute<Handler>()
                .WithBehaviorChain(chain => chain
-                                      .AddLogging().UsingSpanish()
-                                      .AddLoggingException().UsingSpanish());
+                                      .AddLogging().InSpanish()
+                                      .AddLoggingException().InSpanish());
 }
 
-internal sealed class EndpointDefinition : IEndpointDefinition
+internal sealed class EndpointIntegrator : IEndpointIntegrator
 {
     public const string Path = "api/questions";
 

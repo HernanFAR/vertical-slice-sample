@@ -4,8 +4,11 @@ using System.Diagnostics;
 using LanguageExt;
 using VSlices.Base;
 using VSlices.Base.Builder;
+using VSlices.Base.Core;
+using VSlices.Base.CrossCutting;
 using VSlices.Core;
 using VSlices.Core.Builder;
+using VSlices.CrossCutting.Pipeline.ExceptionHandling.MessageTemplates;
 
 namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests.Extensions;
 
@@ -17,61 +20,117 @@ public class ExceptionHandlingBehaviorExtensionsTests
 
     public record Request : IFeature<Result>;
     
-    public class TestPipeline1<TRequest, TResult> : ExceptionHandlingBehavior<TRequest, TResult>
-        where TRequest : IFeature<TResult>
+    public record Handler : IHandler<Request, Result>
     {
-        protected internal override Eff<VSlicesRuntime, TResult> Process(Exception ex, TRequest request)
+        public Eff<VSlicesRuntime, Result> Define(Request input)
         {
-            throw new UnreachableException();
-        }
-    }
-    
-    public class TestPipeline2<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
-        where TRequest : IFeature<TResult>
-    {
-        public Eff<VSlicesRuntime, TResult> Define(TRequest request, Eff<VSlicesRuntime, TResult> next)
-        {
-            throw new UnreachableException();
+            throw new NotImplementedException();
         }
     }
 
-    [Fact]
-    public void AddExceptionHandlingPipeline_ShouldRegisterInServiceContainer()
+    public sealed class CustomTemplate : IExceptionMessageTemplate
     {
-        FeatureDefinition<,> definition = new(new ServiceCollection());
+        public string LogException => throw new NotImplementedException();
 
-        definition.AddExceptionHandlingBehavior<TestPipeline1<Request, Result>>();
+        public string ErrorMessage => throw new NotImplementedException();
+    }
 
-        definition.Services
-            .Where(e => e.ServiceType == typeof(IPipelineBehavior<Request, Result>))
-            .Any(e => e.ImplementationType == typeof(TestPipeline1<Request, Result>))
-            .Should().BeTrue();
+    [Fact]
+    public void AddExceptionHandlingPipeline_ShouldRegisterInServiceContainer_DetailWithEnglishTemplate()
+    {
+        // Arrange
+        const int expBehaviorCount = 1;
+
+        var services = new ServiceCollection();
+
+        var chain = new BehaviorChain(services, typeof(Request), typeof(Result), typeof(Handler));
+
+        // Act
+        chain.AddLoggingException().InEnglish();
+
+        // Arrange
+        services.Where(e => e.ServiceType      == typeof(LoggingExceptionBehavior<,>))
+                .Any(e => e.Lifetime == ServiceLifetime.Transient)
+                .Should().BeTrue();
+
+        services.Where(e => e.ServiceType == typeof(TimeProvider))
+                .Any(e => e.Lifetime      == ServiceLifetime.Singleton)
+                .Should().BeTrue();
+
+        services.Where(e => e.ServiceType        == typeof(IExceptionMessageTemplate))
+                .Where(e => e.ImplementationType == typeof(EnglishExceptionMessageTemplate))
+                .Any(e => e.Lifetime             == ServiceLifetime.Singleton)
+                .Should().BeTrue();
+
+        chain.Behaviors.Should()
+             .HaveCount(expBehaviorCount)
+             .And.Contain(type => type == typeof(LoggingExceptionBehavior<Request, Result>));
 
     }
 
     [Fact]
-    public void AddExceptionHandlingPipeline_ShouldThrowInvalidOperation_DetailDoesNotImplementPipelineBehavior()
+    public void AddExceptionHandlingPipeline_ShouldRegisterInServiceContainer_DetailWithSpanishTemplate()
     {
-        var expMessage = $"The type {typeof(FalsePipeline).FullName} does not implement {typeof(IPipelineBehavior<,>).FullName}";
-        
-        FeatureDefinition<,> definition = new(new ServiceCollection());
+        // Arrange
+        const int expBehaviorCount = 1;
 
-        Func<FeatureDefinition<,>> act = () => definition.AddExceptionHandlingBehavior<FalsePipeline>();
+        var services = new ServiceCollection();
 
-        act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
+        var chain = new BehaviorChain(services, typeof(Request), typeof(Result), typeof(Handler));
+
+        // Act
+        chain.AddLoggingException().InSpanish();
+
+        // Arrange
+        services.Where(e => e.ServiceType == typeof(LoggingExceptionBehavior<,>))
+                .Any(e => e.Lifetime      == ServiceLifetime.Transient)
+                .Should().BeTrue();
+
+        services.Where(e => e.ServiceType == typeof(TimeProvider))
+                .Any(e => e.Lifetime      == ServiceLifetime.Singleton)
+                .Should().BeTrue();
+
+        services.Where(e => e.ServiceType        == typeof(IExceptionMessageTemplate))
+                .Where(e => e.ImplementationType == typeof(SpanishExceptionMessageTemplate))
+                .Any(e => e.Lifetime             == ServiceLifetime.Singleton)
+                .Should().BeTrue();
+
+        chain.Behaviors.Should()
+             .HaveCount(expBehaviorCount)
+             .And.Contain(type => type == typeof(LoggingExceptionBehavior<Request, Result>));
 
     }
 
     [Fact]
-    public void AddExceptionHandlingPipeline_ShouldThrowInvalidOperation_DetailDoesNotImplementExceptionHandlingBehavior()
+    public void AddExceptionHandlingPipeline_ShouldRegisterInServiceContainer_DetailWithCustomTemplate()
     {
-        var expMessage = $"Type {typeof(TestPipeline2<Request, Result>).FullName} must inherit from {typeof(ExceptionHandlingBehavior<,>).FullName}";
+        // Arrange
+        const int expBehaviorCount = 1;
 
-        FeatureDefinition<,> definition = new(new ServiceCollection());
+        var services = new ServiceCollection();
 
-        Func<FeatureDefinition<,>> act = () => definition.AddExceptionHandlingBehavior<TestPipeline2<Request, Result>>();
+        var chain = new BehaviorChain(services, typeof(Request), typeof(Result), typeof(Handler));
 
-        act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
+        // Act
+        chain.AddLoggingException().In<CustomTemplate>();
+
+        // Arrange
+        services.Where(e => e.ServiceType == typeof(LoggingExceptionBehavior<,>))
+                .Any(e => e.Lifetime      == ServiceLifetime.Transient)
+                .Should().BeTrue();
+
+        services.Where(e => e.ServiceType == typeof(TimeProvider))
+                .Any(e => e.Lifetime      == ServiceLifetime.Singleton)
+                .Should().BeTrue();
+
+        services.Where(e => e.ServiceType        == typeof(IExceptionMessageTemplate))
+                .Where(e => e.ImplementationType == typeof(CustomTemplate))
+                .Any(e => e.Lifetime             == ServiceLifetime.Singleton)
+                .Should().BeTrue();
+
+        chain.Behaviors.Should()
+             .HaveCount(expBehaviorCount)
+             .And.Contain(type => type == typeof(LoggingExceptionBehavior<Request, Result>));
 
     }
 }

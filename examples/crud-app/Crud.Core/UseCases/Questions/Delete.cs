@@ -13,14 +13,14 @@ public sealed record Command(QuestionId Id) : IRequest<Unit>;
 public sealed class DeleteQuestionDependencies : IFeatureDependencies<Command>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Command, Unit> feature) =>
-        feature.FromIntegration.Using<EndpointDefinition>()
+        feature.FromIntegration.Using<EndpointIntegrator>()
                .Execute<RequestHandler>()
                .WithBehaviorChain(chain => chain
-                                      .AddLogging().UsingSpanish()
-                                      .AddLoggingException().UsingSpanish());
+                                      .AddLogging().InSpanish()
+                                      .AddLoggingException().InSpanish());
 }
 
-internal sealed class EndpointDefinition : IEndpointDefinition
+internal sealed class EndpointIntegrator : IEndpointIntegrator
 {
     public const string Path = "api/questions/{id:Guid}";
 

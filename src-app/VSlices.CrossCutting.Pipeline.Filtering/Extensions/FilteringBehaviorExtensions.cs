@@ -18,20 +18,9 @@ public static class EventFilteringBehaviorExtensions
     /// <returns>Service Collection</returns>
     /// <exception cref="InvalidOperationException"></exception>
     public static EventFilteringBehaviorBuilder AddFilteringUsing<T>(this BehaviorChain handlerEffects)
-        where T : IEventFilter
     {
-        return handlerEffects.AddFilteringUsing(typeof(T));
-    }
+        Type eventFilterType = typeof(T);
 
-    /// <summary>
-    /// Adds an open generic pipeline behavior to the service collection
-    /// </summary>
-    /// <param name="handlerEffects">Service Collection</param>
-    /// <param name="eventFilterType">Behavior</param>
-    /// <returns>Service Collection</returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public static EventFilteringBehaviorBuilder AddFilteringUsing(this BehaviorChain handlerEffects, Type eventFilterType)
-    {
         Type behaviorType = typeof(FilteringBehavior<,,>)
             .MakeGenericType(handlerEffects.FeatureType, 
                              eventFilterType, 
@@ -48,7 +37,6 @@ public static class EventFilteringBehaviorExtensions
 /// <summary>
 /// Builder for <see cref="FilteringBehavior{TRequest, TFilter, THandler}"/>
 /// </summary>
-/// <param name="builder"></param>
 public sealed class EventFilteringBehaviorBuilder(BehaviorChain builder)
 {
     private readonly BehaviorChain _builder = builder;
@@ -56,7 +44,7 @@ public sealed class EventFilteringBehaviorBuilder(BehaviorChain builder)
     /// <summary>
     /// Add a custom <see cref="IEventFilteringMessageTemplate"/>
     /// </summary>
-    public BehaviorChain Using<TMessageTemplate>()
+    public BehaviorChain In<TMessageTemplate>()
         where TMessageTemplate : class, IEventFilteringMessageTemplate
     {
         _builder.Services.AddSingleton<IEventFilteringMessageTemplate, TMessageTemplate>();
@@ -65,9 +53,9 @@ public sealed class EventFilteringBehaviorBuilder(BehaviorChain builder)
     }
 
     /// <summary>
-    /// Add a english <see cref="IEventFilteringMessageTemplate"/>
+    /// Add an english <see cref="IEventFilteringMessageTemplate"/>
     /// </summary>
-    public BehaviorChain UsingEnglish()
+    public BehaviorChain InEnglish()
     {
         _builder.Services.AddSingleton<IEventFilteringMessageTemplate, EnglishEventFilteringMessageTemplate>();
 
@@ -77,7 +65,7 @@ public sealed class EventFilteringBehaviorBuilder(BehaviorChain builder)
     /// <summary>
     /// Add a spanish <see cref="IEventFilteringMessageTemplate"/>
     /// </summary>
-    public BehaviorChain UsingSpanish()
+    public BehaviorChain InSpanish()
     {
         _builder.Services.AddSingleton<IEventFilteringMessageTemplate, SpanishEventFilteringMessageTemplate>();
 

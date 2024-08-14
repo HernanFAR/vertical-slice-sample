@@ -12,30 +12,18 @@ public class EventExtensionsTests
 {
     public class EventRunner : IEventRunner
     {
-        public Fin<Unit> Publish(IEvent @event, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public Fin<Unit> Publish(IEvent @event, CancellationToken cancellationToken) => throw new NotImplementedException();
     }
 
     public class EventQueue : IEventQueue
     {
-        public ValueTask<IEvent> PeekAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public ValueTask<IEvent> PeekAsync(CancellationToken cancellationToken) => throw new NotImplementedException();
 
-        public ValueTask<IEvent> DequeueAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public ValueTask<IEvent> DequeueAsync(CancellationToken cancellationToken) => throw new NotImplementedException();
 
         public string BackgroundReaderProvider => throw new NotImplementedException();
 
-        public ValueTask EnqueueAsync(IEvent @event, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        public ValueTask EnqueueAsync(IEvent @event, CancellationToken cancellationToken) => throw new NotImplementedException();
 
         public string BackgroundWriterProvider => throw new NotImplementedException();
     }
@@ -43,7 +31,7 @@ public class EventExtensionsTests
     [Fact]
     public void AddPublisher_ShouldAddPublisher()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new();
 
         services.AddEventRunner<EventRunner>();
 
@@ -58,10 +46,10 @@ public class EventExtensionsTests
     [Fact]
     public void AddPublisher_ShouldThrowException()
     {
-        var expMessage = $"{typeof(object).FullName} does not implement {typeof(IEventRunner).FullName}";
-        var services = new ServiceCollection();
+        string expMessage = $"{typeof(object).FullName} does not implement {typeof(IEventRunner).FullName}";
+        ServiceCollection services = new();
 
-        var act = () => services.AddEventRunner(typeof(object));
+        Func<IServiceCollection> act = () => services.AddEventRunner(typeof(object));
 
         act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 
@@ -70,7 +58,7 @@ public class EventExtensionsTests
     [Fact]
     public void AddEventQueue_ShouldAddEventQueue()
     {
-        var services = new ServiceCollection();
+        ServiceCollection services = new();
 
         services.AddEventQueue<EventQueue>();
 
@@ -85,10 +73,10 @@ public class EventExtensionsTests
     [Fact]
     public void AddEventQueue_ShouldThrowInvalidOperationException()
     {
-        var expMessage = $"{typeof(object).FullName} does not implement {typeof(IEventQueue).FullName}";
-        var services = new ServiceCollection();
+        string expMessage = $"{typeof(object).FullName} does not implement {typeof(IEventQueue).FullName}";
+        ServiceCollection services = new();
 
-        var act = () => services.AddEventQueue(typeof(object));
+        Func<IServiceCollection> act = () => services.AddEventQueue(typeof(object));
 
         act.Should().Throw<InvalidOperationException>().WithMessage(expMessage);
 
@@ -97,7 +85,7 @@ public class EventExtensionsTests
     public void AddDefaultEventListener_ShouldAddEventListener_DetailWithConfig()
     {
         const MoveActions moveActions = MoveActions.ImmediateRetry;
-        var services = new ServiceCollection();
+        ServiceCollection services = new();
 
         services.AddEventListener(config =>
         {
@@ -110,15 +98,14 @@ public class EventExtensionsTests
             .Any(e => e.Lifetime == ServiceLifetime.Singleton)
             .Should().BeTrue();
 
-        var descriptor = services
+        ServiceDescriptor descriptor = services
             .Where(e => e.ServiceType == typeof(EventListenerConfiguration))
             .Single(e => e.Lifetime == ServiceLifetime.Singleton);
 
-        var opts = (EventListenerConfiguration)descriptor.ImplementationInstance!;
+        EventListenerConfiguration opts = (EventListenerConfiguration)descriptor.ImplementationInstance!;
 
         opts.ActionInException.Should().Be(moveActions);
         opts.MaxRetries.Should().Be(3);
-
 
     }
 }

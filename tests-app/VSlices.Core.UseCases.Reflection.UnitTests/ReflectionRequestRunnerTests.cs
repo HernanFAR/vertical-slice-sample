@@ -3,7 +3,9 @@ using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using VSlices.Base;
-using VSlices.CrossCutting.Pipeline;
+using VSlices.Base.Builder;
+using VSlices.Base.Core;
+using VSlices.Base.CrossCutting;
 using static LanguageExt.Prelude;
 using static VSlices.VSlicesPrelude;
 
@@ -68,7 +70,7 @@ public class ReflectionRequestRunnerTests
 
     public record RequestOne : IRequest;
 
-    public class RequestHandlerOne : IRequestHandler<RequestOne, Unit>
+    public class RequestHandlerOne : IHandler<RequestOne, Unit>
     {        
         public Eff<VSlicesRuntime, Unit> Define(RequestOne requestOne) =>
             from accumulator in provide<Accumulator>()
@@ -84,7 +86,7 @@ public class ReflectionRequestRunnerTests
 
     public record RequestTwo : IRequest<Unit>;
 
-    public class RequestHandlerTwo : IRequestHandler<RequestTwo, Unit>
+    public class RequestHandlerTwo : IHandler<RequestTwo, Unit>
     {
         public Eff<VSlicesRuntime, Unit> Define(RequestTwo request) =>
             from accumulator in provide<Accumulator>()
@@ -102,12 +104,15 @@ public class ReflectionRequestRunnerTests
     public Task Sender_Should_CallHandler()
     {
         const int expCount = 1;
-        var provider = new ServiceCollection()
-                       .AddVSlicesRuntime()
-                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
-                       .AddTransient<IRequestRunner, ReflectionRequestRunner>()
-                       .AddSingleton<Accumulator>()
-                       .BuildServiceProvider();
+
+        var services = new ServiceCollection()
+            .AddVSlicesRuntime()
+            .AddTransient<IRequestRunner, ReflectionRequestRunner>()
+            .AddSingleton<Accumulator>();
+
+        new FeatureDefinition<RequestOne, Unit>(services).Execute<RequestHandlerOne>();
+
+        var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
@@ -127,16 +132,19 @@ public class ReflectionRequestRunnerTests
     public Task Sender_Should_CallHandlerAndOpenPipeline()
     {
         const int expCount = 2;
-        var provider = new ServiceCollection()
+
+        var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
-                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
-                       .AddSingleton<Accumulator>()
-                       .BuildServiceProvider();
+                       .AddSingleton<Accumulator>();
+
+        new FeatureDefinition<RequestOne, Unit>(services).Execute<RequestHandlerOne>()
+                                                         .WithBehaviorChain(chain => chain.Add(typeof(PipelineBehaviorOne<,>)));
+
+        var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
-        var sender = provider.GetRequiredService<IRequestRunner>();
+        var sender      = provider.GetRequiredService<IRequestRunner>();
 
         Fin<Unit> effectResult = sender.Run(new RequestOne());
 
@@ -153,14 +161,19 @@ public class ReflectionRequestRunnerTests
     public Task Sender_Should_CallHandlerAndOpenPipelineAndClosedPipeline()
     {
         const int expCount = 3;
-        var provider = new ServiceCollection()
+
+        var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
-                       .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
-                       .AddSingleton<Accumulator>()
-                       .BuildServiceProvider();
+                       .AddSingleton<Accumulator>();
+
+        new FeatureDefinition<RequestOne, Unit>(services).Execute<RequestHandlerOne>()
+                                                         .WithBehaviorChain(chain => chain
+                                                                                .Add(typeof(PipelineBehaviorOne<,>))
+                                                                                .AddConcrete(typeof(
+                                                                                    ConcretePipelineBehaviorOne)));
+
+        var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
@@ -180,14 +193,18 @@ public class ReflectionRequestRunnerTests
     public Task Sender_Should_CallHandlerAndTwoOpenPipeline()
     {
         const int expCount = 3;
-        var provider = new ServiceCollection()
+
+        var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
-                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
-                       .AddSingleton<Accumulator>()
-                       .BuildServiceProvider();
+                       .AddSingleton<Accumulator>();
+
+        new FeatureDefinition<RequestOne, Unit>(services).Execute<RequestHandlerOne>()
+                                                         .WithBehaviorChain(chain => chain
+                                                                                .Add(typeof(PipelineBehaviorOne<,>))
+                                                                                .Add(typeof(PipelineBehaviorTwo<,>)));
+
+        var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
@@ -207,15 +224,19 @@ public class ReflectionRequestRunnerTests
     public Task Sender_Should_CallHandlerAndTwoOpenPipelineAndOneClosedPipeline()
     {
         const int expCount = 4;
-        var provider = new ServiceCollection()
+
+        var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
-                       .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
-                       .AddSingleton<Accumulator>()
-                       .BuildServiceProvider();
+                       .AddSingleton<Accumulator>();
+
+        new FeatureDefinition<RequestOne, Unit>(services).Execute<RequestHandlerOne>()
+                                                         .WithBehaviorChain(chain => chain
+                                                                                .Add(typeof(PipelineBehaviorOne<,>))
+                                                                                .Add(typeof(PipelineBehaviorTwo<,>))
+                                                                                .AddConcrete(typeof(ConcretePipelineBehaviorOne)));
+
+        var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
@@ -235,16 +256,24 @@ public class ReflectionRequestRunnerTests
     public Task Sender_Should_CallHandlerAndTwoOpenPipelineAndNoneClosedPipeline()
     {
         const int expCount = 3;
-        var provider = new ServiceCollection()
+
+        var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorOne<,>))
-                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(PipelineBehaviorTwo<,>))
-                       .AddTransient(typeof(IPipelineBehavior<RequestOne, Unit>), typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IRequestHandler<RequestOne, Unit>, RequestHandlerOne>()
-                       .AddTransient<IRequestHandler<RequestTwo, Unit>, RequestHandlerTwo>()
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
-                       .AddSingleton<Accumulator>()
-                       .BuildServiceProvider();
+                       .AddSingleton<Accumulator>();
+
+        new FeatureDefinition<RequestOne, Unit>(services).Execute<RequestHandlerOne>()
+                                                         .WithBehaviorChain(chain => chain
+                                                                                .Add(typeof(PipelineBehaviorOne<,>))
+                                                                                .Add(typeof(PipelineBehaviorTwo<,>))
+                                                                                .AddConcrete(typeof(ConcretePipelineBehaviorOne)));
+
+        new FeatureDefinition<RequestTwo, Unit>(services).Execute<RequestHandlerTwo>()
+                                                         .WithBehaviorChain(chain => chain
+                                                                                .Add(typeof(PipelineBehaviorOne<,>))
+                                                                                .Add(typeof(PipelineBehaviorTwo<,>)));
+
+        var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();

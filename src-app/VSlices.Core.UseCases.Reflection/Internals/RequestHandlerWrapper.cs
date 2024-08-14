@@ -43,12 +43,14 @@ internal class RequestRunnerWrapper<TRequest, TResponse> : AbstractRequestRunner
         var handlerBehaviorChainType = typeof(HandlerBehaviorChain<>)
             .MakeGenericType(handler.GetType());
 
-        var pipelineChain = (HandlerBehaviorChain)serviceProvider.GetRequiredService(handlerBehaviorChainType);
+        var pipelineChain = (HandlerBehaviorChain?)serviceProvider.GetService(handlerBehaviorChainType);
 
-        var pipelines = pipelineChain.Behaviors
-                                     .Select(serviceProvider.GetService)
-                                     .Cast<IPipelineBehavior<TRequest, TResponse>>()
-                                     .Reverse();
+        var pipelines = pipelineChain is null
+            ? []
+            : pipelineChain.Behaviors
+                           .Select(serviceProvider.GetService)
+                           .Cast<IPipelineBehavior<TRequest, TResponse>>()
+                           .Reverse();
 
         Eff<VSlicesRuntime, TResponse> handlerEffect = handler.Define((TRequest)request);
 

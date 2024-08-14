@@ -39,12 +39,14 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
                                 var handlerBehaviorChainType = typeof(HandlerBehaviorChain<>)
                                     .MakeGenericType(handler.GetType());
 
-                                var pipelineChain = (HandlerBehaviorChain)serviceProvider.GetRequiredService(handlerBehaviorChainType);
+                                var pipelineChain = (HandlerBehaviorChain?)serviceProvider.GetService(handlerBehaviorChainType);
 
-                                var pipelines = pipelineChain.Behaviors
-                                                             .Select(serviceProvider.GetService)
-                                                             .Cast<IPipelineBehavior<TRequest, Unit>>()
-                                                             .Reverse();
+                                var pipelines = pipelineChain is null
+                                    ? []
+                                    : pipelineChain.Behaviors
+                                                   .Select(serviceProvider.GetService)
+                                                   .Cast<IPipelineBehavior<TRequest, Unit>>()
+                                                   .Reverse();
 
                                 return pipelines.Aggregate(handlerEffect,
                                                            (current, behavior) =>

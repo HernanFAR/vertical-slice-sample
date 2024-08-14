@@ -1,5 +1,4 @@
 ﻿using LanguageExt;
-using LanguageExt.Pipes;
 using Microsoft.Extensions.Logging;
 using VSlices.Base;
 using VSlices.Base.Core;
