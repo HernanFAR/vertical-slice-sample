@@ -27,6 +27,7 @@ internal sealed class Filter : IEventFilter<QuestionMutatedEvent, RequestHandler
 internal sealed class RequestHandler : IHandler<QuestionMutatedEvent>
 {
     public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent input) =>
+        from _1 in liftEff<VSlicesRuntime, Unit>(async _ => throw new InvalidOperationException("Testing"))
         from repository in provide<IQuestionRepository>()
         from logger in provide<ILogger<QuestionMutatedEvent>>()
         from question in repository.Get(input.Id)

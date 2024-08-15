@@ -2,8 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using VSlices.Core.Events.Configurations;
+using VSlices.Core.Events.DeadLetters;
 using VSlices.CrossCutting.BackgroundTaskListener;
 using VSlices.Domain.Interfaces;
+using static LanguageExt.Prelude;
 
 namespace VSlices.Core.Events;
 
@@ -16,6 +18,7 @@ namespace VSlices.Core.Events;
 public sealed class EventListenerBackgroundTask(
     ILogger<EventListenerBackgroundTask> logger,
     IServiceProvider serviceProvider,
+    IDeadLetterStrategy deadLetterStrategy,
     EventListenerConfiguration configOptions) 
     : IBackgroundTask
 {
@@ -23,6 +26,7 @@ public sealed class EventListenerBackgroundTask(
     private readonly IServiceProvider _serviceProvider = serviceProvider;
     private readonly EventListenerConfiguration _config = configOptions;
     private readonly IEventQueue _eventQueue = serviceProvider.GetRequiredService<IEventQueue>();
+    private readonly IDeadLetterStrategy _deadLetterStrategy = deadLetterStrategy;
 
     private readonly Dictionary<Guid, int> _retries = [];
 
@@ -77,26 +81,26 @@ public sealed class EventListenerBackgroundTask(
         if (_retries[workItem.EventId] > _config.MaxRetries)
         {
             _logger.LogError("Max retries {RetryLimit} reached for {WorkItem}.",
-                _config.MaxRetries, workItem);
+                             _config.MaxRetries,
+                             workItem);
 
             _retries.Remove(workItem.EventId);
+
+            await _deadLetterStrategy.PersistAsync(workItem, stoppingToken);
 
             return false;
         }
 
-        switch (_config.ActionInException)
+        return _config.ActionInException switch
         {
-            case MoveActions.MoveLast:
+            MoveActions.MoveLast => await fun(async () =>
+            {
                 await _eventQueue.EnqueueAsync(workItem, stoppingToken);
 
                 return false;
-
-            case MoveActions.ImmediateRetry:
-
-                return true;
-
-            default:
-                throw new InvalidOperationException(nameof(_config.ActionInException));
-        }
+            })(),
+            MoveActions.ImmediateRetry => true,
+            _                          => throw new InvalidOperationException(nameof(_config.ActionInException))
+        };
     }
 }
