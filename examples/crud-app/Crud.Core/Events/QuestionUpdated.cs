@@ -10,12 +10,11 @@ namespace Crud.Core.Events.QuestionUpdated;
 
 public sealed class QuestionMutatedDependencies : IFeatureDependencies<QuestionMutatedEvent>
 {
-    public static void DefineDependencies(IFeatureStartBuilder<QuestionMutatedEvent, Unit> define) => 
-        define.Execute<RequestHandler>()
-              .WithBehaviorChain(chain => chain
-                                          .AddFilteringUsing<Filter>().InSpanish()
-                                          .AddLogging().InSpanish()
-                                          .AddLoggingException().InSpanish());
+    public static void DefineDependencies(IFeatureStartBuilder<QuestionMutatedEvent, Unit> feature) =>
+        feature.Execute<RequestHandler>()
+               .WithBehaviorChain(chain => chain.AddFilteringUsing<Filter>().InSpanish()
+                                                .AddLogging().InSpanish()
+                                                .AddLoggingException().InSpanish());
 }
 
 internal sealed class Filter : IEventFilter<QuestionMutatedEvent, RequestHandler>

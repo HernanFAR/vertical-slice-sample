@@ -1,5 +1,4 @@
-﻿using Crud.CrossCutting.Pipelines;
-using Crud.Domain.Rules.DataAccess;
+﻿using Crud.Domain.Rules.DataAccess;
 using Crud.Domain.Rules.Services;
 using Crud.Domain.ValueObjects;
 using VSlices.Base.Builder;
