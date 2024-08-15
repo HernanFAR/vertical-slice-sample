@@ -13,7 +13,7 @@ public sealed record Query(QuestionId Id) : IRequest;
 public sealed class ExistsQuestionDependencies : IFeatureDependencies<Query>
 {
     public static void DefineDependencies(IFeatureStartBuilder<Query, Unit> feature) =>
-        feature.FromIntegration.Using<RecurringJobIntegrator>()
+        feature.FromIntegration.Using<EndpointIntegrator>()
                .Execute<Handler>()
                .WithBehaviorChain(chain => chain
                                       .AddLogging().InSpanish()
