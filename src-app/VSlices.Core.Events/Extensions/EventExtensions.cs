@@ -1,5 +1,6 @@
 ﻿using VSlices.Core.Events;
 using VSlices.Core.Events.Configurations;
+using VSlices.Core.Events.DeadLetters;
 using VSlices.CrossCutting.BackgroundTaskListener;
 
 // ReSharper disable once CheckNamespace
@@ -85,14 +86,51 @@ public static class EventExtensions
     /// <param name="services">Service Collection</param>
     /// <param name="configAction">Configuration action</param>
     /// <returns>Service Collection</returns>
-    public static IServiceCollection AddEventListener(this IServiceCollection services,
-        Action<EventListenerConfiguration>? configAction = null)
+    public static EventListenerBuilder AddEventListener(this IServiceCollection services,
+                                                        Action<EventListenerConfiguration>? configAction = null)
     {
         EventListenerConfiguration config = new();
 
         configAction?.Invoke(config);
 
-        return services.AddSingleton<IBackgroundTask, EventListenerBackgroundTask>()
-            .AddSingleton(config);
+        services.AddSingleton<IBackgroundTask, EventListenerBackgroundTask>().AddSingleton(config);
+
+        return new EventListenerBuilder(services);
+    }
+}
+
+/// <summary>
+/// Builder for <see cref="EventListenerBackgroundTask"/>
+/// </summary>
+public sealed class EventListenerBuilder(IServiceCollection services)
+{
+    private readonly IServiceCollection _services = services;
+
+    /// <summary>
+    /// Adds a custom <see cref="IDeadLetterStrategy"/> implementation to the <see cref="IServiceCollection"/>
+    /// </summary>
+    public IServiceCollection With<T>()
+        where T : class, IDeadLetterStrategy
+    {
+        _services.AddSingleton<IDeadLetterStrategy, T>();
+
+        return _services;
+    }
+
+    /// <summary>
+    /// Adds <see cref="NoActionDeadLetterStrategy"/> to the <see cref="IServiceCollection"/>
+    /// </summary>¿
+    public IServiceCollection WithNoActionInDeadLetterCase() => With<NoActionDeadLetterStrategy>();
+
+    /// <summary>
+    /// Adds <see cref="FileWriteDeadLetterStrategy"/> to the <see cref="IServiceCollection"/>
+    /// </summary>  
+    public IServiceCollection WithFileWriteInDeadLetterCase(Action<FileWriteDeadLetterConfiguration> configAction)
+    {
+        var config = new FileWriteDeadLetterConfiguration();
+
+        configAction(config);
+
+        return With<FileWriteDeadLetterStrategy>().AddSingleton(config);
     }
 }

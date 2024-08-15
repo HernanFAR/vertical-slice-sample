@@ -79,7 +79,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
     {
         ServiceProvider provider = new ServiceCollection()
                                    .AddVSlicesRuntime()
-                                   .AddEventListener()
+                                   .AddEventListener().WithNoActionInDeadLetterCase()
                                    .AddHangfireTaskListener(config => config.UseInMemoryStorage())
                                    .AddInMemoryEventQueue()
                                    .AddReflectionEventRunner()
@@ -111,7 +111,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
         const int expCount = 1;
         var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddEventListener()
+                       .AddEventListener().WithNoActionInDeadLetterCase()
                        .AddHangfireTaskListener(config => config.UseInMemoryStorage())
                        .AddInMemoryEventQueue()
                        .AddReflectionEventRunner()
@@ -150,7 +150,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
         const int expCount = 2;
         var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddEventListener()
+                       .AddEventListener().WithNoActionInDeadLetterCase()
                        .AddHangfireTaskListener(config => config.UseInMemoryStorage())
                        .AddInMemoryEventQueue()
                        .AddReflectionEventRunner()
@@ -188,7 +188,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
         const int expCount = 3;
         var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddEventListener()
+                       .AddEventListener().WithNoActionInDeadLetterCase()
                        .AddHangfireTaskListener(config => config.UseInMemoryStorage())
                        .AddInMemoryEventQueue()
                        .AddReflectionEventRunner()
@@ -228,7 +228,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
         var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddEventListener()
+                       .AddEventListener().WithNoActionInDeadLetterCase()
                        .AddHangfireTaskListener(config => config.UseInMemoryStorage())
                        .AddInMemoryEventQueue()
                        .AddReflectionEventRunner()

@@ -80,7 +80,7 @@ public class ReflectionRunnerInMemoryQueueHosted
         const int expCount = 1;
         var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddEventListener()
+                       .AddEventListener().WithNoActionInDeadLetterCase()
                        .AddHostedTaskListener()
                        .AddInMemoryEventQueue()
                        .AddReflectionEventRunner()
@@ -114,7 +114,7 @@ public class ReflectionRunnerInMemoryQueueHosted
         const int expCount = 1;
         var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddEventListener()
+                       .AddEventListener().WithNoActionInDeadLetterCase()
                        .AddHostedTaskListener()
                        .AddInMemoryEventQueue()
                        .AddReflectionEventRunner()
@@ -150,7 +150,7 @@ public class ReflectionRunnerInMemoryQueueHosted
         const int expCount = 2;
         var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddEventListener()
+                       .AddEventListener().WithNoActionInDeadLetterCase()
                        .AddHostedTaskListener()
                        .AddInMemoryEventQueue()
                        .AddReflectionEventRunner()
@@ -185,7 +185,7 @@ public class ReflectionRunnerInMemoryQueueHosted
         const int expCount = 3;
         var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddEventListener()
+                       .AddEventListener().WithNoActionInDeadLetterCase()
                        .AddHostedTaskListener()
                        .AddInMemoryEventQueue()
                        .AddReflectionEventRunner()
@@ -223,7 +223,7 @@ public class ReflectionRunnerInMemoryQueueHosted
 
         var services = new ServiceCollection()
                        .AddVSlicesRuntime()
-                       .AddEventListener()
+                       .AddEventListener().WithNoActionInDeadLetterCase()
                        .AddHostedTaskListener()
                        .AddInMemoryEventQueue()
                        .AddReflectionEventRunner()

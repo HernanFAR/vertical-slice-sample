@@ -29,7 +29,11 @@ public static class Startup
                 // Events
                 .AddReflectionEventRunner()
                 .AddInMemoryEventQueue()
-                .AddEventListener();
+                .AddEventListener().WithFileWriteInDeadLetterCase(config =>
+                {
+                    config.AbsolutePath = "C:\\DeadLetters";
+                    config.JsonOptions.IncludeFields = true;
+                });
 }
 
 internal sealed class Anchor;

@@ -25,7 +25,7 @@ internal sealed class EnglishExceptionMessageTemplate : IExceptionMessageTemplat
     public static IExceptionMessageTemplate Instance { get; } = new EnglishExceptionMessageTemplate();
 
     /// <inheritdoc />
-    public string LogException => "UTC {0} - Finished handling of {1}, result: Exception raised | Input: {2} | Exception: {3}";
+    public string LogException => "UTC {0} - Finished handling of {1}, result: Exception raised | Input: {2}";
 
     public string ErrorMessage => "Internal server error. Please try again later.";
 }
@@ -39,7 +39,7 @@ internal sealed class SpanishExceptionMessageTemplate : IExceptionMessageTemplat
     public static IExceptionMessageTemplate Instance { get; } = new SpanishExceptionMessageTemplate();
 
     /// <inheritdoc />
-    public string LogException => "UTC {0} - Ejecución de {1} terminada, resultado: Exception lanzada | Entrada: {2} | Exception: {3}";
+    public string LogException => "UTC {0} - Ejecución de {1} terminada, resultado: Exception lanzada | Entrada: {2}";
 
     public string ErrorMessage => "Error interno. Por favor, vuelva a intentarlo.";
 }
