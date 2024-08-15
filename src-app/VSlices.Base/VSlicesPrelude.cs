@@ -21,7 +21,7 @@ public static class VSlicesPrelude
     /// </remarks>
     public static Eff<VSlicesRuntime, T> provide<T>()
         where T : notnull => DependencyProviderExtensions<Eff<VSlicesRuntime>, VSlicesRuntime>.Provide<T>().As();
-
+    
     /// <summary>
     /// Provides with an optional instance of <typeparamref name="T"/>
     /// </summary>

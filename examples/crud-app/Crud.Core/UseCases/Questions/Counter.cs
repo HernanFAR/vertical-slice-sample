@@ -27,6 +27,7 @@ public sealed class CounterFeatureDependencies : IFeatureDependencies<Query>
 internal sealed class RecurringJobIntegrator(IRequestRunner runner) : IRecurringJobIntegrator
 {
     private readonly IRequestRunner _runner = runner;
+
     public string Identifier => "CounterRecurringJob";
 
     public CronExpression Cron => CronExpression.EveryMinute;
@@ -46,9 +47,14 @@ internal sealed class RequestHandler : IHandler<Query>
         from logger in provide<ILogger<RequestHandler>>()
         from timeProvider in provide<TimeProvider>()
         from cancelToken in cancelToken
-        from count in liftEff(() => context.Questions.CountAsync(cancelToken))
-        from _ in liftEff(() => logger.LogInformation("Total questions: {Count} at: {CurrentTime}.", 
-                                                      count, 
-                                                      timeProvider.GetUtcNow().UtcDateTime))
+        from _ in liftEff(async () =>
+        {
+            int count = await context.Questions.CountAsync(cancelToken);
+
+            logger.LogInformation("Total questions: {Count} at: {CurrentTime}.",
+                                  count, 
+                                  timeProvider.GetUtcNow().UtcDateTime);
+
+        })
         select unit;
 }
