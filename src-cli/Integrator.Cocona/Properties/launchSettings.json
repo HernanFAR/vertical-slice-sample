@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Integrator.Cocona": {
+      "commandName": "Project",
+      "commandLineArgs": "create use-case"
+    }
+  }
+}

@@ -28,4 +28,5 @@
 	<s:String x:Key="/Default/GrammarAndSpelling/GrammarChecking/RulesStates/=LanguageTool_002EEN_002EWHITESPACE_005FPARAGRAPH/@EntryIndexedValue"></s:String>
 	<s:Boolean x:Key="/Default/GrammarAndSpelling/GrammarChecking/RulesStates/=LanguageTool_002EEN_002EWHITESPACE_005FPARAGRAPH/@EntryIndexRemoved">True</s:Boolean>
 	<s:String x:Key="/Default/GrammarAndSpelling/GrammarChecking/RulesStates/=LanguageTool_002EEN_002EWHITESPACE_005FPARAGRAPH_005FBEGIN/@EntryIndexedValue"></s:String>
-	<s:Boolean x:Key="/Default/GrammarAndSpelling/GrammarChecking/RulesStates/=LanguageTool_002EEN_002EWHITESPACE_005FPARAGRAPH_005FBEGIN/@EntryIndexRemoved">True</s:Boolean></wpf:ResourceDictionary>
+	<s:Boolean x:Key="/Default/GrammarAndSpelling/GrammarChecking/RulesStates/=LanguageTool_002EEN_002EWHITESPACE_005FPARAGRAPH_005FBEGIN/@EntryIndexRemoved">True</s:Boolean>
+	<s:Boolean x:Key="/Default/UserDictionary/Words/=Cocona/@EntryIndexedValue">True</s:Boolean></wpf:ResourceDictionary>
