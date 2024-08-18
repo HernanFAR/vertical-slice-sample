@@ -25,7 +25,7 @@ public sealed class DependencyProviderTests
         var provider = new DependencyProvider(services);
 
         // Act
-        var service = provider.Provide<Dependency>().runIO(EnvIO.New());
+        var service = provider.Provide<Dependency>().Run(EnvIO.New());
 
         // Assert 
         service.Should().BeOfType<Dependency>();
@@ -42,7 +42,8 @@ public sealed class DependencyProviderTests
         var provider = new DependencyProvider(services);
 
         // Act
-        var optionalService = provider.ProvideOptional<Dependency>().runIO(EnvIO.New());
+        var optionalService = provider.ProvideOptional<Dependency>()
+                                      .Run(EnvIO.New());
 
         // Assert 
         optionalService.IsNone.Should().BeFalse();
@@ -61,7 +62,8 @@ public sealed class DependencyProviderTests
         var provider = new DependencyProvider(services);
 
         // Act
-        var optionalService = provider.ProvideOptional<Dependency>().runIO(EnvIO.New());
+        var optionalService = provider.ProvideOptional<Dependency>()
+                                      .Run(EnvIO.New());
 
         // Assert 
         optionalService.IsNone.Should().BeTrue();

@@ -17,7 +17,7 @@ public abstract class ExceptionHandlingBehavior<TRequest, TResult> : AbstractPip
 {
     /// <inheritdoc />
     protected internal override Eff<VSlicesRuntime, TResult> InHandle(TRequest request, Eff<VSlicesRuntime, TResult> next) =>
-        from result in next | catchM(e => e.IsExceptional, 
+        from result in next | @catch(e => e.IsExceptional, 
                                      e => Process(e.ToException(), request))
         select result;
 
