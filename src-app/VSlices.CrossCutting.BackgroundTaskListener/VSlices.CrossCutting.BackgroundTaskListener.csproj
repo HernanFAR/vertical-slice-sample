@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="LanguageExt.Sys" Version="5.0.0-beta-03" />
+	  <PackageReference Include="LanguageExt.Sys" Version="5.0.0-beta-08" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
 	</ItemGroup>
 

@@ -24,31 +24,27 @@ public sealed class VSlicesRuntime
         _directoryIo = directoryIo;
     }
 
-    K<Eff<VSlicesRuntime>, DependencyProvider>
-        Has<Eff<VSlicesRuntime>, DependencyProvider>.Trait =>
-        liftEff((VSlicesRuntime _) => _dependencyProvider);
+    static K<Eff<VSlicesRuntime>, DependencyProvider> Has<Eff<VSlicesRuntime>, DependencyProvider>.Ask =>
+        asks(runtime => runtime._dependencyProvider);
 
-    K<Eff<VSlicesRuntime>, FileIO>
-        Has<Eff<VSlicesRuntime>, FileIO>.Trait =>
-        liftEff((VSlicesRuntime _) => _fileIo);
+    static K<Eff<VSlicesRuntime>, FileIO> Has<Eff<VSlicesRuntime>, FileIO>.Ask =>
+        asks(runtime => runtime._fileIo);
 
-    K<Eff<VSlicesRuntime>, DirectoryIO>
-        Has<Eff<VSlicesRuntime>, DirectoryIO>.Trait =>
-        liftEff((VSlicesRuntime _) => _directoryIo);
+    static K<Eff<VSlicesRuntime>, DirectoryIO> Has<Eff<VSlicesRuntime>, DirectoryIO>.Ask =>
+        asks(runtime => runtime._directoryIo);
 
     /// <summary>
     /// Creates a <see cref="VSlicesRuntime"/> by specifying all the dependencies
     /// </summary>
-    public static VSlicesRuntime New(DependencyProvider dependencyProvider, FileIO fileIo, DirectoryIO directoryIo)
-    {
-        return new(dependencyProvider, fileIo, directoryIo);
-    }
+    public static VSlicesRuntime New(DependencyProvider dependencyProvider, FileIO fileIo, DirectoryIO directoryIo) =>
+        new(dependencyProvider, fileIo, directoryIo);
 
     /// <summary>
     /// Creates a <see cref="VSlicesRuntime"/> by specifying all the dependencies
     /// </summary>
-    public static VSlicesRuntime New(DependencyProvider dependencyProvider)
-    {
-        return new(dependencyProvider, Implementations.FileIO.Default, Implementations.DirectoryIO.Default);
-    }
+    public static VSlicesRuntime New(DependencyProvider dependencyProvider) => 
+        new(dependencyProvider, Implementations.FileIO.Default, Implementations.DirectoryIO.Default);
+
+    static K<Eff<VSlicesRuntime>, A> asks<A>(Func<VSlicesRuntime, A> f) =>
+        Readable.asks<Eff<VSlicesRuntime>, VSlicesRuntime, A>(f);
 }
