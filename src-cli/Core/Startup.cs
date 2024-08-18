@@ -1,5 +1,6 @@
 ﻿global using static LanguageExt.Prelude;
 global using static VSlices.VSlicesPrelude;
+global using static Core.Functional.EffExtensions;
 global using LanguageExt;
 
 

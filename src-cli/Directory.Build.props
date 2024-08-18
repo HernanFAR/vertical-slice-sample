@@ -1,0 +1,33 @@
+<Project>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Authors>Enryu20</Authors>
+		<Product>VSlices</Product>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<Copyright>Hernán Fernando Álvarez Rubio</Copyright>
+		<PackageProjectUrl>https://vslice-framework.readthedocs.io/en/latest/</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/HernanFAR/vslices-framework</RepositoryUrl>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\..\icons\icon lq.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>$(MsBuildProjectName).UnitTests</_Parameter1>
+		</AssemblyAttribute>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+			<_Parameter1>$(MsBuildProjectName).IntegTests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+</Project>
