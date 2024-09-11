@@ -1,14 +1,24 @@
-﻿using System.Runtime.Serialization;
-using LanguageExt.Traits;
+﻿using LanguageExt.Traits.Domain;
 
 namespace Crud.Domain.ValueObjects;
 
-public sealed class NonEmptyString : NewType<NonEmptyString, string, NonEmptyString>, 
-                                     Pred<string>
+public sealed class NonEmptyString(string value) : DomainType<NonEmptyString, string>
 {
-    public NonEmptyString(string value) : base(value) { }
+    public string Value { get; } = value;
 
-    public NonEmptyString(SerializationInfo info, StreamingContext context) : base(info, context) { }
+    public string To() => Value;
 
-    public static bool True(string value) => string.IsNullOrWhiteSpace(value) == false;
+    public bool Equals(NonEmptyString? other) => other?.Value == Value;
+
+    public override bool Equals(object? obj) => Equals(obj as NonEmptyString);
+
+    public override int GetHashCode() => Value.GetHashCode();
+
+    public static NonEmptyString New(string repr) => new(repr);
+
+    public static Fin<NonEmptyString> From(string repr) => Fin<NonEmptyString>.Succ(new NonEmptyString(repr));
+
+    public static bool operator ==(NonEmptyString? left, NonEmptyString? right) => Equals(left, right);
+
+    public static bool operator !=(NonEmptyString? left, NonEmptyString? right) => !Equals(left, right);
 }
