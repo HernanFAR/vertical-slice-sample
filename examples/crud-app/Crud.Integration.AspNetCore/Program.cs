@@ -4,11 +4,12 @@ builder.Services
     .AddInfrastructure()
     .AddCrossCutting()
     .AddCore()
-    .AddDomain();
+    .AddDomain()
+    .Orchestrate(composer => composer.AllFeaturesFromAssemblyContaining<Crud.Core.Anchor>());
 
 WebApplication app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP input pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

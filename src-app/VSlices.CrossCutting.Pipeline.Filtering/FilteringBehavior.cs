@@ -3,20 +3,20 @@ using Microsoft.Extensions.Logging;
 using VSlices.Base;
 using VSlices.Base.Core;
 using VSlices.Base.CrossCutting;
-using VSlices.CrossCutting.Pipeline.Filtering.MessageTemplates;
+using VSlices.CrossCutting.Interceptor.Filtering.MessageTemplates;
 using VSlices.Domain.Interfaces;
 using static LanguageExt.Prelude;
 using static VSlices.VSlicesPrelude;
 
-namespace VSlices.CrossCutting.Pipeline.Filtering;
+namespace VSlices.CrossCutting.Interceptor.Filtering;
 
 /// <summary>
 /// A filtering behavior using a custom logic
 /// </summary>
-public sealed class FilteringBehavior<TRequest, TFilter, THandler> : IPipelineBehavior<TRequest, Unit>
+public sealed class FilteringBehaviorInterceptor<TRequest, TFilter, THandler> : IBehaviorInterceptor<TRequest, Unit>
     where TRequest : IEvent
     where TFilter : IEventFilter<TRequest, THandler>
-    where THandler : IHandler<TRequest>
+    where THandler : IBehavior<TRequest>
 {
     /// <inheritdoc />
     public Eff<VSlicesRuntime, Unit> Define(TRequest request, Eff<VSlicesRuntime, Unit> next) =>
@@ -68,4 +68,4 @@ public interface IEventFilter<in TEvent> : IEventFilter
 /// </summary>
 public interface IEventFilter<in TEvent, THandler> : IEventFilter<TEvent>
     where TEvent : IEvent
-    where THandler : IHandler<TEvent>;
+    where THandler : IBehavior<TEvent>;

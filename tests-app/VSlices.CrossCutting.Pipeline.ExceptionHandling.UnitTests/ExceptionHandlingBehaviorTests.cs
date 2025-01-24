@@ -1,51 +1,50 @@
 using System.Diagnostics;
 using FluentAssertions;
-using Moq;
-using VSlices.Base;
 using LanguageExt;
 using LanguageExt.Common;
 using Microsoft.Extensions.DependencyInjection;
-using VSlices.Base.Core;
+using Moq;
+using VSlices.Base;
 using VSlices.Base.Failures;
 using VSlices.Base.Traits;
 using static LanguageExt.Prelude;
 
-namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests;
+namespace VSlices.CrossCutting.Interceptor.ExceptionHandling.UnitTests;
 
-public class ExceptionHandlingBehaviorTests
+public class ExceptionHandlingInterceptorTests
 {
     public record Result;
-    public record Request : IFeature<Result>;
+    public record Input;
 
     [Fact]
     public void InHandle_ShouldReturnFailure()
     {
-        Request request = new();
+        Input input = new();
         Exception expEx = new();
         
-        var pipeline = Mock.Of<ExceptionHandlingBehavior<Request, Result>>();
-        Mock<ExceptionHandlingBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
+        var pipeline = Mock.Of<ExceptionHandlingInterceptor<Input, Result>>();
+        Mock<ExceptionHandlingInterceptor<Input, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
         #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         Eff<VSlicesRuntime, Result> next = liftEff<VSlicesRuntime, Result>(async _ => throw expEx);
         #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
-        pipelineMock.Setup(e => e.BeforeHandle(request))
+        pipelineMock.Setup(e => e.BeforeHandle(input))
                     .Verifiable();
 
-        pipelineMock.Setup(e => e.Process(expEx, request))
+        pipelineMock.Setup(e => e.Process(expEx, input))
             .Returns(liftEff<VSlicesRuntime, Result>(_ =>VSlicesPrelude.serverError("Internal server error")))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.InHandle(request, next))
+        pipelineMock.Setup(e => e.InHandle(input, next))
             .Verifiable();
 
         pipelineMock.Setup(e => e.AfterFailureHandling(
-                request, It.Is<Error>(e => e.Message == "Internal server error")))
+                input, It.Is<Error>(e => e.Message == "Internal server error")))
             .Verifiable();
 
-        Eff<VSlicesRuntime, Result> pipelineEffect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, Result> pipelineEffect = pipeline.Define(input, next);
 
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 

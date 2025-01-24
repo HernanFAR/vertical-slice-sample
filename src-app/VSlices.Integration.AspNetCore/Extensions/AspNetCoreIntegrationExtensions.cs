@@ -12,7 +12,7 @@ namespace Microsoft.AspNetCore.Routing;
 public static class AspNetCoreIntegrationExtensions
 {
     /// <summary>
-    /// Uses the endpoint definitions to define the endpoints of the application.
+    /// Uses the endpoint definitions to Define the endpoints of the application.
     /// </summary>
     /// <param name="app">Endpoint route builder</param>
     public static void UseEndpointDefinitions(this IEndpointRouteBuilder app)

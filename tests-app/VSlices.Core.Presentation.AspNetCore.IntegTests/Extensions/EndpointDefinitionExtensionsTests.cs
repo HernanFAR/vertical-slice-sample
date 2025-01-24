@@ -5,16 +5,22 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using VSlices.Base.Builder;
+using VSlices.Base;
 using VSlices.Base.Core;
+using VSlices.Base.Definitions;
 
 namespace VSlices.Core.Presentation.AspNetCore.IntegTests.Extensions;
 
 public class EndpointDefinitionExtensionsTests
 {
-    public sealed record Feature : IFeature<Unit>;
+    public sealed record Input;
 
-    public class EndpointIntegrator : IEndpointIntegrator, IFeatureDependencies<Feature>
+    public class Behavior : IBehavior<Input>
+    {
+        public Eff<VSlicesRuntime, Unit> Define(Input input) => throw new NotImplementedException();
+    }
+
+    public class EndpointIntegrator : IEndpointIntegrator, IFeatureDefinition
     {
         public void Define(IEndpointRouteBuilder builder)
         {
@@ -23,15 +29,19 @@ public class EndpointDefinitionExtensionsTests
 
         public static IResult Test() => EmptyHttpResult.Instance;
         
-        public static void DefineDependencies(IFeatureStartBuilder<Feature, Unit> feature)
-        {
-            feature.FromIntegration.Using<EndpointIntegrator>();
-        }
+        public static Unit Define(FeatureComposer feature) => 
+            feature.With<Input>().ExpectNoOutput().ByExecuting<Behavior>()
+                   .AndBindTo<EndpointIntegrator>();
     }
 
-    public sealed record Feature2 : IFeature<Unit>;
+    public sealed record Feature2;
 
-    public class Endpoint2 : IEndpointIntegrator, IFeatureDependencies<Feature2>
+    public class Behavior2 : IBehavior<Feature2>
+    {
+        public Eff<VSlicesRuntime, Unit> Define(Feature2 input) => throw new NotImplementedException();
+    }
+
+    public class Endpoint2 : IEndpointIntegrator, IFeatureDefinition
     {
         public void Define(IEndpointRouteBuilder builder)
         {
@@ -40,10 +50,9 @@ public class EndpointDefinitionExtensionsTests
 
         public static IResult Test() => EmptyHttpResult.Instance;
 
-        public static void DefineDependencies(IFeatureStartBuilder<Feature2, Unit> feature)
-        {
-            feature.FromIntegration.Using<Endpoint2>();
-        }
+        public static Unit Define(FeatureComposer feature) =>
+            feature.With<Feature2>().ExpectNoOutput().ByExecuting<Behavior2>()
+                   .AndBindTo<Endpoint2>();
     }
 
     [Fact]
@@ -51,7 +60,7 @@ public class EndpointDefinitionExtensionsTests
     {
         var services = new ServiceCollection();
 
-        EndpointIntegrator.DefineDependencies(new FeatureDefinition<Feature, Unit>(services));
+        EndpointIntegrator.Define(new FeatureComposer(services));
 
         services
             .Where(e => e.ServiceType == typeof(IIntegrator))

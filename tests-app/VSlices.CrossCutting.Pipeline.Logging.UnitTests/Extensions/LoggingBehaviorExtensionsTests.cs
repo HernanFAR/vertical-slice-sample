@@ -2,22 +2,21 @@
 using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
-using VSlices.Base.CrossCutting;
+using VSlices.Base.Definitions;
 using VSlices.Core.Builder;
-using VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
+using VSlices.CrossCutting.Interceptor.Logging.MessageTemplates;
 
-namespace VSlices.CrossCutting.Pipeline.Logging.UnitTests.Extensions;
+namespace VSlices.CrossCutting.Interceptor.Logging.UnitTests.Extensions;
 
 public sealed class LoggingBehaviorExtensionsTests
 {
     public sealed record Result;
-    public sealed record Request : IFeature<Result>;
+    public sealed record Input;
 
-    public sealed class Handler : IHandler<Request, Result>
+    public sealed class Behavior : IBehavior<Input, Result>
     {
-        public Eff<VSlicesRuntime, Result> Define(Request input)
+        public Eff<VSlicesRuntime, Result> Define(Input input)
         {
             throw new NotImplementedException();
         }
@@ -38,13 +37,13 @@ public sealed class LoggingBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        var chain = new BehaviorChain(services, typeof(Request), typeof(Result), typeof(Handler));
+        var chain = new InterceptorChain(services, typeof(Input), typeof(Result), typeof(Behavior));
 
         // Act
         chain.AddLogging().InSpanish();
 
         // Assert
-        services.Where(e => e.ImplementationType == typeof(LoggingBehavior<,>))
+        services.Where(e => e.ImplementationType == typeof(LoggingInterceptor<,>))
                 .Any(e => e.Lifetime             == ServiceLifetime.Transient)
                 .Should().BeTrue();
 
@@ -55,7 +54,7 @@ public sealed class LoggingBehaviorExtensionsTests
 
         chain.Behaviors.Should()
              .HaveCount(expBehaviorCount)
-             .And.Contain(type => type == typeof(LoggingBehavior<Request, Result>));
+             .And.Contain(type => type == typeof(LoggingInterceptor<Input, Result>));
     }
 
     [Fact]
@@ -66,13 +65,13 @@ public sealed class LoggingBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        var chain = new BehaviorChain(services, typeof(Request), typeof(Result), typeof(Handler));
+        var chain = new InterceptorChain(services, typeof(Input), typeof(Result), typeof(Behavior));
 
         // Act
         chain.AddLogging().InEnglish();
 
         // Assert
-        services.Where(e => e.ImplementationType == typeof(LoggingBehavior<,>))
+        services.Where(e => e.ImplementationType == typeof(LoggingInterceptor<,>))
                 .Any(e => e.Lifetime             == ServiceLifetime.Transient)
                 .Should().BeTrue();
 
@@ -83,7 +82,7 @@ public sealed class LoggingBehaviorExtensionsTests
 
         chain.Behaviors.Should()
              .HaveCount(expBehaviorCount)
-             .And.Contain(type => type == typeof(LoggingBehavior<Request, Result>));
+             .And.Contain(type => type == typeof(LoggingInterceptor<Input, Result>));
     }
 
     [Fact]
@@ -94,13 +93,13 @@ public sealed class LoggingBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        var chain = new BehaviorChain(services, typeof(Request), typeof(Result), typeof(Handler));
+        var chain = new InterceptorChain(services, typeof(Input), typeof(Result), typeof(Behavior));
         
         // Act
         chain.AddLogging().In<CustomTemplate>();
 
         // Assert
-        services.Where(e => e.ImplementationType == typeof(LoggingBehavior<,>))
+        services.Where(e => e.ImplementationType == typeof(LoggingInterceptor<,>))
                 .Any(e => e.Lifetime             == ServiceLifetime.Transient)
                 .Should().BeTrue();
 
@@ -111,6 +110,6 @@ public sealed class LoggingBehaviorExtensionsTests
 
         chain.Behaviors.Should()
              .HaveCount(expBehaviorCount)
-             .And.Contain(type => type == typeof(LoggingBehavior<Request, Result>));
+             .And.Contain(type => type == typeof(LoggingInterceptor<Input, Result>));
     }
 }

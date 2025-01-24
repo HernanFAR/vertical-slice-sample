@@ -12,30 +12,30 @@ using static LanguageExt.Prelude;
 
 namespace VSlices.Base.UnitTests;
 
-public class AbstractPipelineBehaviorTests
+public class AbstractBehaviorInterceptorTests
 {
     public record Result;
-    public record Request : IFeature<Result>;
+    public record Input;
 
     [Fact]
     public Task BeforeHandleAsync_ShouldInterruptExecution()
     {
-        Request request = new();
+        Input input = new();
         ExtensibleExpected failure = ExtensibleExpected.NotFound("Testing", []);
 
-        AbstractPipelineBehavior<Request, Result> pipeline = Mock.Of<AbstractPipelineBehavior<Request, Result>>();
-        Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
+        AbstractBehaviorInterceptor<Input, Result> pipeline = Mock.Of<AbstractBehaviorInterceptor<Input, Result>>();
+        Mock<AbstractBehaviorInterceptor<Input, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         Eff<Result> next = liftEff<Result>(async () => throw new UnreachableException());
 #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
-        pipelineMock.Setup(e => e.BeforeHandle(request))
+        pipelineMock.Setup(e => e.BeforeHandle(input))
                     .Returns(FailEff<Unit>(failure))
                     .Verifiable();
 
-        Eff<VSlicesRuntime, Result> effect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, Result> effect = pipeline.Define(input, next);
 
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
@@ -61,27 +61,27 @@ public class AbstractPipelineBehaviorTests
     [Fact]
     public Task InHandle_ShouldReturnResult()
     {
-        Request request = new();
+        Input input = new();
         Result expResult = new();
 
-        AbstractPipelineBehavior<Request, Result> pipeline = Mock.Of<AbstractPipelineBehavior<Request, Result>>();
-        Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
+        AbstractBehaviorInterceptor<Input, Result> pipeline = Mock.Of<AbstractBehaviorInterceptor<Input, Result>>();
+        Mock<AbstractBehaviorInterceptor<Input, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
         Eff<VSlicesRuntime, Result> next = SuccessEff(expResult);
 
-        pipelineMock.Setup(e => e.BeforeHandle(request))
+        pipelineMock.Setup(e => e.BeforeHandle(input))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.InHandle(request, next))
+        pipelineMock.Setup(e => e.InHandle(input, next))
             .Verifiable();
 
         pipelineMock.Setup(e => e.AfterSuccessHandling(
-                request, It.Is<Result>(e => e == expResult))
+                input, It.Is<Result>(e => e == expResult))
             )
             .Verifiable();
 
-        Eff<VSlicesRuntime, Result> effect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, Result> effect = pipeline.Define(input, next);
 
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 
@@ -107,27 +107,27 @@ public class AbstractPipelineBehaviorTests
     [Fact]
     public Task InHandle_ShouldReturnFailure()
     {
-        Request request = new();
+        Input input = new();
         ExtensibleExpected failure = ExtensibleExpected.NotFound("Testing", []);
 
-        AbstractPipelineBehavior<Request, Result> pipeline = Mock.Of<AbstractPipelineBehavior<Request, Result>>();
-        Mock<AbstractPipelineBehavior<Request, Result>> pipelineMock = Mock.Get(pipeline);
+        AbstractBehaviorInterceptor<Input, Result> pipeline = Mock.Of<AbstractBehaviorInterceptor<Input, Result>>();
+        Mock<AbstractBehaviorInterceptor<Input, Result>> pipelineMock = Mock.Get(pipeline);
         pipelineMock.CallBase = true;
 
         Eff<VSlicesRuntime, Result> next = FailEff<VSlicesRuntime, Result>(failure);
 
-        pipelineMock.Setup(e => e.BeforeHandle(request))
+        pipelineMock.Setup(e => e.BeforeHandle(input))
             .Verifiable();
 
-        pipelineMock.Setup(e => e.InHandle(request, next))
+        pipelineMock.Setup(e => e.InHandle(input, next))
             .Verifiable();
 
         pipelineMock.Setup(e => e.AfterFailureHandling(
-                request, It.Is<Error>(e => e == failure))
+                input, It.Is<Error>(e => e == failure))
             )
             .Verifiable();
 
-        Eff<VSlicesRuntime, Result> effect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, Result> effect = pipeline.Define(input, next);
 
         ServiceProvider provider = new ServiceCollection().BuildServiceProvider();
 

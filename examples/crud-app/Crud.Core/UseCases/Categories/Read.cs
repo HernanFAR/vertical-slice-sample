@@ -3,23 +3,23 @@ using Crud.CrossCutting.Pipelines;
 using Microsoft.EntityFrameworkCore;
 using VSlices.Base.Builder;
 using VSlices.Base.Core;
+using VSlices.Base.Definitions;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Categories.Read;
 
-public sealed record Query : IRequest<ReadCategoriesDto>
+public sealed record Query : IInput<ReadCategoriesDto>
 {
     public static Query Instance { get; } = new();
 }
-
-public sealed class ReadCategoriesDependencies : IFeatureDependencies<Query, ReadCategoriesDto>
+ 
+public sealed class ReadCategoriesDefinition : IFeatureDefinition
 {
-    public static void DefineDependencies(IFeatureStartBuilder<Query, ReadCategoriesDto> define) =>
-        define.FromIntegration.Using<EndpointIntegrator>()
-              .Execute<RequestHandler>()
-              .WithBehaviorChain(chain => chain
-                                     .AddLogging().InSpanish()
-                                     .AddLoggingException().InSpanish());
+    public static Unit Define(FeatureComposer define) =>
+        define.With<Query>().Expect<ReadCategoriesDto>()
+              .ByExecuting<RequestBehavior>(chain => chain.AddLogging().InSpanish()
+                                                          .AddLoggingException().InSpanish())
+              .AndBindTo<EndpointIntegrator>();
 }
 
 public sealed record CategoryDto(Guid Id, string Text);
@@ -48,7 +48,7 @@ internal sealed class EndpointIntegrator : IEndpointIntegrator
     }
 }
 
-internal sealed class RequestHandler : IHandler<Query, ReadCategoriesDto>
+internal sealed class RequestBehavior : IBehavior<Query, ReadCategoriesDto>
 {
     public Eff<VSlicesRuntime, ReadCategoriesDto> Define(Query input) =>
         from context in provide<AppDbContext>()

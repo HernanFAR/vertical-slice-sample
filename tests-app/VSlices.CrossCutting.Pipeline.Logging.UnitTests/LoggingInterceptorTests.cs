@@ -7,19 +7,18 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using VSlices.Base;
 using VSlices.Base.Failures;
-using VSlices.Core;
 using VSlices.Base.Traits;
 using VSlices.Core.UseCases;
-using VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
+using VSlices.CrossCutting.Interceptor.Logging.MessageTemplates;
 using static LanguageExt.Prelude;
 
-namespace VSlices.CrossCutting.Pipeline.Logging.UnitTests;
+namespace VSlices.CrossCutting.Interceptor.Logging.UnitTests;
 
-public class LoggingBehaviorTests
+public class LoggingInterceptorTests
 {
-    public sealed record Request : IRequest;
+    public sealed record Input : IInput;
 
-    public abstract class Logger : ILogger<Request>
+    public abstract class Logger : ILogger<Input>
     {
         void ILogger.Log<TState1>(
             LogLevel logLevel, 
@@ -58,21 +57,21 @@ public class LoggingBehaviorTests
     public Task Define_Success_ShouldLogInputAndSuccessOutput(ILoggingMessageTemplate template)
     {
         // Arrange
-        LoggingBehavior<Request, Unit> sut = new();
+        LoggingInterceptor<Input, Unit> sut = new();
         DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
-        Request request = new();
+        Input input = new();
 
         string expStartMessage = string.Format(template.Start,
-            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request);
+            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Input).FullName, input);
 
         string expSuccessEndMessage = string.Format(template.SuccessEnd,
-            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request, unit);
+            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Input).FullName, input, unit);
 
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
         ServiceProvider provider = new ServiceCollection()
-                                   .AddSingleton<ILogger<Request>>(_logger)
+                                   .AddSingleton<ILogger<Input>>(_logger)
                                    .AddSingleton(_timeProvider)
                                    .AddSingleton(template)
                                    .BuildServiceProvider();
@@ -81,7 +80,7 @@ public class LoggingBehaviorTests
         var                runtime            = VSlicesRuntime.New(dependencyProvider);
 
         // Act
-        Fin<Unit> result = sut.Define(request, SuccessEff(unit))
+        Fin<Unit> result = sut.Define(input, SuccessEff(unit))
                               .Run(runtime, default(CancellationToken));
 
         // Assert
@@ -102,24 +101,24 @@ public class LoggingBehaviorTests
     public Task Define_Success_ShouldLogInputAndFailureOutput(ILoggingMessageTemplate template)
     {
         // Arrange
-        LoggingBehavior<Request, Unit> sut = new();
+        LoggingInterceptor<Input, Unit> sut = new();
         DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
 
-        Request request = new();
+        Input input = new();
         ExtensibleExpected exp = ExtensibleExpected.NotFound("NotFound", []);
 
         string expStartMessage = string.Format(template.Start,
-            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request);
+            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Input).FullName, input);
 
         string expFailureEndMessage = string.Format(template.FailureEnd,
-            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request, exp);
+            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Input).FullName, input, exp);
 
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
         ServiceProvider provider = new ServiceCollection()
                                    .AddVSlicesRuntime()
-                                   .AddSingleton<ILogger<Request>>(_logger)
+                                   .AddSingleton<ILogger<Input>>(_logger)
                                    .AddSingleton(_timeProvider)
                                    .AddSingleton(template)
                                    .BuildServiceProvider();
@@ -128,7 +127,7 @@ public class LoggingBehaviorTests
         var                runtime            = VSlicesRuntime.New(dependencyProvider);
 
         // Act
-        Fin<Unit> result = sut.Define(request, liftEff<Unit>(() => exp))
+        Fin<Unit> result = sut.Define(input, liftEff<Unit>(() => exp))
                               .Run(runtime, default(CancellationToken));
 
         // Assert
@@ -149,23 +148,23 @@ public class LoggingBehaviorTests
     public Task Define_Failure_ShouldLogInputAndFailureOutput(ILoggingMessageTemplate template)
     {
         // Arrange
-        LoggingBehavior<Request, Unit> sut = new();
+        LoggingInterceptor<Input, Unit> sut = new();
         DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
 
-        Request request = new();
+        Input input = new();
         Error expError = Error.New(new Exception("Unexpected error occurred"));
 
         string expStartMessage = string.Format(template.Start,
-            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request);
+            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Input).FullName, input);
 
         string expFailureEndMessage = string.Format(template.FailureEnd,
-            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Request).FullName, request, expError);
+            expFirstTime.ToString("MM/dd/yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture), typeof(Input).FullName, input, expError);
 
         _timeProvider.GetUtcNow()
             .Returns(expFirstTime);
 
         ServiceProvider provider = new ServiceCollection()
-                                   .AddSingleton<ILogger<Request>>(_logger)
+                                   .AddSingleton<ILogger<Input>>(_logger)
                                    .AddSingleton(_timeProvider)
                                    .AddSingleton(template)
                                    .BuildServiceProvider();
@@ -174,7 +173,7 @@ public class LoggingBehaviorTests
         var                runtime            = VSlicesRuntime.New(dependencyProvider);
 
         // Act
-        Fin<Unit> result = sut.Define(request, liftEff<Unit>(() => expError))
+        Fin<Unit> result = sut.Define(input, liftEff<Unit>(() => expError))
                               .Run(runtime, default(CancellationToken));
 
         // Assert

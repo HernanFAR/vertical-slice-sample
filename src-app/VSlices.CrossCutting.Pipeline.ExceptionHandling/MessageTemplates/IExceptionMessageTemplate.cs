@@ -1,4 +1,4 @@
-﻿namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.MessageTemplates;
+﻿namespace VSlices.CrossCutting.Interceptor.ExceptionHandling.MessageTemplates;
 
 /// <summary>
 /// Interface for logging message templates

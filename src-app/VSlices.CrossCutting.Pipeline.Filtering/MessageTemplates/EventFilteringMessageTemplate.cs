@@ -1,4 +1,4 @@
-﻿namespace VSlices.CrossCutting.Pipeline.Filtering.MessageTemplates;
+﻿namespace VSlices.CrossCutting.Interceptor.Filtering.MessageTemplates;
 
 internal sealed class SpanishEventFilteringMessageTemplate : IEventFilteringMessageTemplate
 {

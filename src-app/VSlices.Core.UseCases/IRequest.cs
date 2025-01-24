@@ -6,10 +6,10 @@ namespace VSlices.Core.UseCases;
 /// <summary>
 /// Represents the start point of a use case, with a specific response type.
 /// </summary>
-/// <typeparam name="TResponse">The expected response of this request</typeparam>
-public interface IRequest<TResponse> : IFeature<TResponse>;
+/// <typeparam name="TOut">The expected response of this input</typeparam>
+public interface IInput<TOut>;
 
 /// <summary>
 /// Represents the start point of a use case, with a success response.
 /// </summary>
-public interface IRequest : IRequest<Unit>;
+public interface IInput : IInput<Unit>;

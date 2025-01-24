@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events.InMemor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Events.ReflectionRunner", "src-app\VSlices.Core.Events.ReflectionPublisher\VSlices.Core.Events.ReflectionRunner.csproj", "{66E99E33-AAF8-44EC-AA6D-8408A052C0C9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Presentation.AspNetCore", "src-app\VSlices.Core.Presentation.AspNetCore\VSlices.Core.Presentation.AspNetCore.csproj", "{96F687A6-EC35-44FF-8982-1474A3345105}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Integration.AspNetCore", "src-app\VSlices.Core.Presentation.AspNetCore\VSlices.Core.Integration.AspNetCore.csproj", "{96F687A6-EC35-44FF-8982-1474A3345105}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Integration.AspNetCore", "src-app\VSlices.Integration.AspNetCore\VSlices.Integration.AspNetCore.csproj", "{83D8016E-6DA1-4CDB-AC58-4C8B1D2921A5}"
 EndProject
@@ -61,17 +61,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.UseCases.Refle
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cross-cutting", "cross-cutting", "{8715B3FE-1492-4CDC-9958-E73B21C71BBD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeline.ExceptionHandling", "src-app\VSlices.CrossCutting.Pipeline.ExceptionHandling\VSlices.CrossCutting.Pipeline.ExceptionHandling.csproj", "{1676DF29-933C-4D0A-BDA9-A2CC19027D21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Interceptor.ExceptionHandling", "src-app\VSlices.CrossCutting.Pipeline.ExceptionHandling\VSlices.CrossCutting.Interceptor.ExceptionHandling.csproj", "{1676DF29-933C-4D0A-BDA9-A2CC19027D21}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeline.FluentValidation", "src-app\VSlices.CrossCutting.Pipeline.FluentValidation\VSlices.CrossCutting.Pipeline.FluentValidation.csproj", "{5DB26679-6D11-4E8C-84D3-4A371DEE7899}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Interceptor.FluentValidation", "src-app\VSlices.CrossCutting.Pipeline.FluentValidation\VSlices.CrossCutting.Interceptor.FluentValidation.csproj", "{5DB26679-6D11-4E8C-84D3-4A371DEE7899}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pipeline", "pipeline", "{2D226E05-AE92-4C6A-961F-82B646B95D49}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "interceptor", "interceptor", "{2D226E05-AE92-4C6A-961F-82B646B95D49}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "pipeline", "pipeline", "{0DA14667-12C4-4019-A9CE-CF71901E82B6}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integrator", "integrator", "{0DA14667-12C4-4019-A9CE-CF71901E82B6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests", "tests-app\VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests\VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests.csproj", "{785FF361-758B-4347-8AED-28FAC236F2D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Interceptor.ExceptionHandling.UnitTests", "tests-app\VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests\VSlices.CrossCutting.Interceptor.ExceptionHandling.UnitTests.csproj", "{785FF361-758B-4347-8AED-28FAC236F2D4}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests", "tests-app\VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests\VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests.csproj", "{49A6653B-031D-487A-98DC-167CDC67456E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Interceptor.FluentValidation.UnitTests", "tests-app\VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests\VSlices.CrossCutting.Interceptor.FluentValidation.UnitTests.csproj", "{49A6653B-031D-487A-98DC-167CDC67456E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "examples", "examples", "{9DF2CF95-A558-40CD-9596-E3B575A6E28C}"
 EndProject
@@ -87,9 +87,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crud.Infrastructure", "exam
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crud.Integration.AspNetCore", "examples\crud-app\Crud.Integration.AspNetCore\Crud.Integration.AspNetCore.csproj", "{BAFE601A-4D35-4082-91C3-9B8B596642DF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeline.Logging", "src-app\VSlices.CrossCutting.Pipeline.Logging\VSlices.CrossCutting.Pipeline.Logging.csproj", "{2CF0F232-15FF-445B-856E-A1C6D9E58ADA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Interceptor.Logging", "src-app\VSlices.CrossCutting.Pipeline.Logging\VSlices.CrossCutting.Interceptor.Logging.csproj", "{2CF0F232-15FF-445B-856E-A1C6D9E58ADA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeline.Logging.UnitTests", "tests-app\VSlices.CrossCutting.Pipeline.Logging.UnitTests\VSlices.CrossCutting.Pipeline.Logging.UnitTests.csproj", "{2C3A5205-E894-4A19-BEAF-AB471190F673}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Interceptor.Logging.UnitTests", "tests-app\VSlices.CrossCutting.Pipeline.Logging.UnitTests\VSlices.CrossCutting.Interceptor.Logging.UnitTests.csproj", "{2C3A5205-E894-4A19-BEAF-AB471190F673}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "unit", "unit", "{CAC7D3FA-B294-44BD-A12C-F4CB28100D48}"
 EndProject
@@ -123,13 +123,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Infrastructure.Doma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Crud.Domain.Rules", "examples\crud-app\Crud.Domain.Rules\Crud.Domain.Rules.csproj", "{CD9D7D38-30A8-42B2-8F9D-FF756186D10D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.RecurringJob", "src-app\VSlices.Core.RecurringJob\VSlices.Core.RecurringJob.csproj", "{4AA892D1-50BC-462E-918C-AA55D5B9566B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.Integration.RecurringJob", "src-app\VSlices.Core.RecurringJob\VSlices.Core.Integration.RecurringJob.csproj", "{4AA892D1-50BC-462E-918C-AA55D5B9566B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.Core.RecurringJob.IntegTests", "tests-app\VSlices.Core.RecurringJob.IntegTests\VSlices.Core.RecurringJob.IntegTests.csproj", "{5A77A5AF-AB49-4EED-BAD2-90D3E5975C31}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Pipeline.Filtering", "src-app\VSlices.CrossCutting.Pipeline.Filtering\VSlices.CrossCutting.Pipeline.Filtering.csproj", "{FF51CFEE-2ECA-4DFE-A633-07AC675F4CD9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Interceptor.Filtering", "src-app\VSlices.CrossCutting.Pipeline.Filtering\VSlices.CrossCutting.Interceptor.Filtering.csproj", "{FF51CFEE-2ECA-4DFE-A633-07AC675F4CD9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSlices.CrossCutting.Pipeline.Filtering.UnitTests", "tests-app\VSlices.CrossCutting.Pipeline.Filtering.UnitTests\VSlices.CrossCutting.Pipeline.Filtering.UnitTests.csproj", "{3C972909-170B-43CF-A159-F83EFD4B7B7C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSlices.CrossCutting.Interceptor.Filtering.UnitTests", "tests-app\VSlices.CrossCutting.Pipeline.Filtering.UnitTests\VSlices.CrossCutting.Interceptor.Filtering.UnitTests.csproj", "{3C972909-170B-43CF-A159-F83EFD4B7B7C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

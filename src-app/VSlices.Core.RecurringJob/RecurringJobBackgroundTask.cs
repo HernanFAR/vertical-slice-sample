@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using VSlices.Base.Core;
 using VSlices.CrossCutting.BackgroundTaskListener;
 
-namespace VSlices.Core.RecurringJob;
+namespace VSlices.Core.Integration.RecurringJob;
 
 /// <summary>
 /// Listeners and executes recurring jobs in the background

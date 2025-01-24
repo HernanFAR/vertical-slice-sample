@@ -10,21 +10,21 @@ using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
 using System.ComponentModel.DataAnnotations.Extensions;
 using VSlices.Base.Builder;
 using VSlices.Base.Core;
+using VSlices.Base.Definitions;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Update;
 
-public sealed record Command(QuestionId Id, CategoryId CategoryId, NonEmptyString Text) : IRequest;
+public sealed record Command(QuestionId Id, CategoryId CategoryId, NonEmptyString Text) : IInput;
 
-public sealed class UpdateQuestionDependencies : IFeatureDependencies<Command>
+public sealed class UpdateQuestionDefinition : IFeatureDefinition
 {
-    public static void DefineDependencies(IFeatureStartBuilder<Command, Unit> feature) =>
-        feature.FromIntegration.Using<EndpointIntegrator>()
-               .Execute<Handler>()
-               .WithBehaviorChain(chain => chain
-                                      .AddLogging().InSpanish()
-                                      .AddFluentValidationUsing<Validator>()
-                                      .AddLoggingException().InSpanish());
+    public static Unit Define(FeatureComposer feature) =>
+        feature.With<Command>().ExpectNoOutput()
+               .ByExecuting<Behavior>(chain => chain.AddLogging().InSpanish()
+                                                    .AddFluentValidationUsing<Validator>()
+                                                    .AddLoggingException().InSpanish())
+               .AndBindTo<EndpointIntegrator>();
 }
 
 public sealed record UpdateQuestionContract(
@@ -66,7 +66,7 @@ internal sealed class EndpointIntegrator : IEndpointIntegrator
     }
 }
 
-internal sealed class Handler : IHandler<Command>
+internal sealed class Behavior : IBehavior<Command>
 {
     public Eff<VSlicesRuntime, Unit> Define(Command input) =>
         from token in cancelToken

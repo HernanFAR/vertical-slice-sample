@@ -7,8 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.ObjectModel;
 using LanguageExt;
 using VSlices.Base;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
+using VSlices.Base.Definitions;
 using VSlices.Core.Presentation;
 
 namespace VSlices.Integration.AspNetCore.IntegTests.Extensions;
@@ -26,17 +26,17 @@ public class WebApplicationExtensionsTests
         public ICollection<EndpointDataSource> DataSources { get; } = new Collection<EndpointDataSource>();
     }
 
-    public record Feature : IFeature<Unit>;
+    public record Input;
 
-    public record Handler : IHandler<Feature>
+    public record Behavior : IBehavior<Input>
     {
-        public Eff<VSlicesRuntime, Unit> Define(Feature input)
+        public Eff<VSlicesRuntime, Unit> Define(Input input)
         {
             throw new NotImplementedException();
         }
     }
 
-    public class EndpointIntegrator : IEndpointIntegrator, IFeatureDependencies<Feature>
+    public class EndpointIntegrator : IEndpointIntegrator, IFeatureDefinition
     {
         public const string ApiRoute = "api/test";
 
@@ -46,11 +46,11 @@ public class WebApplicationExtensionsTests
         }
 
         public static Task Test(HttpContext context) => Task.FromResult<IResult>(EmptyHttpResult.Instance);
-        public static void DefineDependencies(IFeatureStartBuilder<Feature, Unit> feature)
-        {
-            feature.FromIntegration.Using<EndpointIntegrator>()
-                   .Execute<Handler>();
-        }
+        
+        public static Unit Define(FeatureComposer feature) =>
+            feature.With<Input>().ExpectNoOutput()
+                   .ByExecuting<Behavior>()
+                   .AndBindTo<EndpointIntegrator>();
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class WebApplicationExtensionsTests
     {
         var services = new ServiceCollection();
 
-        EndpointIntegrator.DefineDependencies(new FeatureDefinition<Feature, Unit>(services));
+        EndpointIntegrator.Define(new FeatureComposer(services));
 
         var provider = services.BuildServiceProvider();
 

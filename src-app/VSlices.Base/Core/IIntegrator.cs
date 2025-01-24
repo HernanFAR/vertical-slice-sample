@@ -1,6 +1,6 @@
 ﻿namespace VSlices.Base.Core;
 
 /// <summary>
-/// Empty interface that must extend to other integration use cases
+/// Extension point of integrations of VSlices with other technologies.
 /// </summary>
 public interface IIntegrator;

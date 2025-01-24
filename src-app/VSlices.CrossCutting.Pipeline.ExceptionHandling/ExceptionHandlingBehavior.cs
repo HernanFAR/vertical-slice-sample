@@ -1,22 +1,19 @@
 ﻿using LanguageExt;
-using static LanguageExt.Prelude;
 using VSlices.Base;
-using VSlices.Core;
-using VSlices.Base.Core;
 using VSlices.Base.CrossCutting;
+using static LanguageExt.Prelude;
 
-namespace VSlices.CrossCutting.Pipeline.ExceptionHandling;
+namespace VSlices.CrossCutting.Interceptor.ExceptionHandling;
 
 /// <summary>
 /// Base exception handling behavior
 /// </summary>
-/// <typeparam name="TRequest">The intercepted request to handle</typeparam>
-/// <typeparam name="TResult">The expected successful result</typeparam>
-public abstract class ExceptionHandlingBehavior<TRequest, TResult> : AbstractPipelineBehavior<TRequest, TResult>
-    where TRequest : IFeature<TResult>
+/// <typeparam name="TIn">The intercepted input</typeparam>
+/// <typeparam name="TOut">The expected result</typeparam>
+public abstract class ExceptionHandlingInterceptor<TIn, TOut> : AbstractBehaviorInterceptor<TIn, TOut>
 {
     /// <inheritdoc />
-    protected internal override Eff<VSlicesRuntime, TResult> InHandle(TRequest request, Eff<VSlicesRuntime, TResult> next) =>
+    protected internal override Eff<VSlicesRuntime, TOut> InHandle(TIn request, Eff<VSlicesRuntime, TOut> next) =>
         from result in next | @catch(e => e.IsExceptional, 
                                      e => Process(e.ToException(), request))
         select result;
@@ -28,6 +25,6 @@ public abstract class ExceptionHandlingBehavior<TRequest, TResult> : AbstractPip
     /// <param name="ex">The throw exception</param>
     /// <param name="request">The related request information</param>
     /// <returns>A <see cref="ValueTask"/> representing the processing of the exception</returns>
-    protected internal abstract Eff<VSlicesRuntime, TResult> Process(Exception ex, TRequest request);
+    protected internal abstract Eff<VSlicesRuntime, TOut> Process(Exception ex, TIn request);
 
 }

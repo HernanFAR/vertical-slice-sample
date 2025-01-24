@@ -6,8 +6,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Moq;
 using VSlices.Base;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
+using VSlices.Base.Definitions;
 using VSlices.Domain;
 using static LanguageExt.Prelude;
 using static VSlices.VSlicesPrelude;
@@ -23,7 +23,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
     public sealed record AlwaysUnitEvent : Event;
 
-    public sealed class AlwaysUnitRequestHandler : IHandler<AlwaysUnitEvent>
+    public sealed class AlwaysUnitRequestBehavior : IBehavior<AlwaysUnitEvent>
     {
         public Eff<VSlicesRuntime, Unit> Define(AlwaysUnitEvent input) =>
             from accumulator in provide<Accumulator>()
@@ -33,7 +33,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
     public sealed record FirstFailureThenUnitEvent : Event;
 
-    public sealed class FirstFailureThenUnitRequestHandler : IHandler<FirstFailureThenUnitEvent>
+    public sealed class FirstFailureThenUnitRequestBehavior : IBehavior<FirstFailureThenUnitEvent>
     {
         public Eff<VSlicesRuntime, Unit> Define(FirstFailureThenUnitEvent input) =>
             from accumulator in provide<Accumulator>()
@@ -49,7 +49,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
     public sealed record FirstAndSecondFailureThenUnitEvent : Event;
 
-    public sealed class FirstAndSecondFailureThenUnitRequestHandler : IHandler<FirstAndSecondFailureThenUnitEvent>
+    public sealed class FirstAndSecondFailureThenUnitRequestBehavior : IBehavior<FirstAndSecondFailureThenUnitEvent>
     {
         public Eff<VSlicesRuntime, Unit> Define(FirstAndSecondFailureThenUnitEvent input) =>
             from accumulator in provide<Accumulator>()
@@ -69,7 +69,7 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
     public sealed record AlwaysFailureEvent : Event;
 
-    public sealed class AlwaysFailureRequestHandler : IHandler<AlwaysFailureEvent>
+    public sealed class AlwaysFailureRequestBehavior : IBehavior<AlwaysFailureEvent>
     {
         public Eff<VSlicesRuntime, Unit> Define(AlwaysFailureEvent input) => throw new Exception("Always failure");
     }
@@ -84,8 +84,8 @@ public class ReflectionRunnerInMemoryQueueHangfire
                                    .AddInMemoryEventQueue()
                                    .AddReflectionEventRunner()
                                    .AddLogging()
-                                   .AddSingleton<AlwaysUnitRequestHandler>()
-                                   .AddScoped<IHandler<AlwaysUnitEvent>>(s => s.GetRequiredService<AlwaysUnitRequestHandler>())
+                                   .AddSingleton<AlwaysUnitRequestBehavior>()
+                                   .AddScoped<IBehavior<AlwaysUnitEvent>>(s => s.GetRequiredService<AlwaysUnitRequestBehavior>())
                                    .BuildServiceProvider();
 
         IEnumerable<IHostedService> backgroundEventListener = provider.GetServices<IHostedService>();
@@ -100,8 +100,8 @@ public class ReflectionRunnerInMemoryQueueHangfire
 
         await eventQueue.EnqueueAsync(event1, default);
 
-        AlwaysUnitRequestHandler requestHandler = provider.GetRequiredService<AlwaysUnitRequestHandler>();
-        //requestHandler.HandledEvent.WaitOne(5000).Should().BeTrue();
+        AlwaysUnitRequestBehavior requestBehavior = provider.GetRequiredService<AlwaysUnitRequestBehavior>();
+        //requestBehavior.HandledEvent.WaitOne(5000).Should().BeTrue();
     }
 
     [Fact]
@@ -118,8 +118,13 @@ public class ReflectionRunnerInMemoryQueueHangfire
                        .AddLogging()
                        .AddSingleton<Accumulator>();
 
-        new FeatureDefinition<AlwaysUnitEvent, Unit>(services)
-            .Execute<AlwaysUnitRequestHandler>();
+        new FeatureComposer(services)
+            .With<AlwaysUnitEvent>().ExpectNoOutput()
+            .ByExecuting<AlwaysUnitRequestBehavior>();
+
+        new FeatureComposer(services)
+            .With<FirstAndSecondFailureThenUnitEvent>().ExpectNoOutput()
+            .ByExecuting<FirstAndSecondFailureThenUnitRequestBehavior>();
 
         var provider = services.BuildServiceProvider();
 
@@ -157,8 +162,9 @@ public class ReflectionRunnerInMemoryQueueHangfire
                        .AddLogging()
                        .AddSingleton<Accumulator>();
 
-        new FeatureDefinition<FirstFailureThenUnitEvent, Unit>(services)
-            .Execute<FirstFailureThenUnitRequestHandler>();
+        new FeatureComposer(services)
+            .With<FirstFailureThenUnitEvent>().ExpectNoOutput()
+            .ByExecuting<FirstFailureThenUnitRequestBehavior>();
 
         var provider = services.BuildServiceProvider();
 
@@ -195,8 +201,9 @@ public class ReflectionRunnerInMemoryQueueHangfire
                        .AddLogging()
                        .AddSingleton<Accumulator>();
 
-        new FeatureDefinition<FirstAndSecondFailureThenUnitEvent, Unit>(services)
-            .Execute<FirstAndSecondFailureThenUnitRequestHandler>();
+        new FeatureComposer(services)
+            .With<FirstAndSecondFailureThenUnitEvent>().ExpectNoOutput()
+            .ByExecuting<FirstAndSecondFailureThenUnitRequestBehavior>();
 
         var provider = services.BuildServiceProvider();
 
@@ -234,8 +241,9 @@ public class ReflectionRunnerInMemoryQueueHangfire
                        .AddReflectionEventRunner()
                        .AddScoped(_ => logger);
 
-        new FeatureDefinition<AlwaysFailureEvent, Unit>(services)
-            .Execute<AlwaysFailureRequestHandler>();
+        new FeatureComposer(services)
+            .With<AlwaysFailureEvent>().ExpectNoOutput()
+            .ByExecuting<AlwaysFailureRequestBehavior>();
 
         var provider = services.BuildServiceProvider();
 

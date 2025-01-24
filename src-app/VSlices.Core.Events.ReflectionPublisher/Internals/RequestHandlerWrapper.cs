@@ -1,11 +1,10 @@
 ﻿using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
 using VSlices.Base.CrossCutting;
+using VSlices.Base.Definitions;
 using VSlices.Core.Events.Strategies;
-using VSlices.Core.UseCases;
 using VSlices.Domain.Interfaces;
 
 namespace VSlices.Core.Events.Internals;
@@ -25,10 +24,10 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
     public override Fin<Unit> Handle(
         IEvent @event,
         IServiceProvider serviceProvider,
-        IPublishingStrategy strategy, 
+        IPublishingStrategy strategy,
         CancellationToken cancellationToken)
     {
-        IEnumerable<IHandler<TRequest, Unit>> handlers = serviceProvider.GetServices<IHandler<TRequest, Unit>>();
+        IEnumerable<IBehavior<TRequest, Unit>> handlers = serviceProvider.GetServices<IBehavior<TRequest, Unit>>();
 
         Eff<VSlicesRuntime, Unit>[] delegates =
             handlers.Select(handler =>
@@ -36,16 +35,16 @@ internal class RequestHandlerWrapper<TRequest> : AbstractHandlerWrapper
                                 Eff<VSlicesRuntime, Unit> handlerEffect =
                                     handler.Define((TRequest)@event);
 
-                                var handlerBehaviorChainType = typeof(HandlerBehaviorChain<>)
+                                Type handlerBehaviorChainType = typeof(BehaviorInterceptorChain<>)
                                     .MakeGenericType(handler.GetType());
 
-                                var pipelineChain = (HandlerBehaviorChain?)serviceProvider.GetService(handlerBehaviorChainType);
+                                HandlerBehaviorChain? pipelineChain = (HandlerBehaviorChain?)serviceProvider.GetService(handlerBehaviorChainType);
 
                                 var pipelines = pipelineChain is null
                                     ? []
                                     : pipelineChain.Behaviors
                                                    .Select(serviceProvider.GetService)
-                                                   .Cast<IPipelineBehavior<TRequest, Unit>>()
+                                                   .Cast<IBehaviorInterceptor<TRequest, Unit>>()
                                                    .Reverse();
 
                                 return pipelines.Aggregate(handlerEffect,

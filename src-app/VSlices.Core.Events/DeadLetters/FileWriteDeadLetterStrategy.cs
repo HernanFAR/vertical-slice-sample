@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿ using System.Text.Json;
 using VSlices.Core.Events.Configurations;
 using VSlices.Domain.Interfaces;
 

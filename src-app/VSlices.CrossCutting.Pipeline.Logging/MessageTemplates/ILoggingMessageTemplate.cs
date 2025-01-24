@@ -1,6 +1,4 @@
-﻿using LanguageExt.Common;
-
-namespace VSlices.CrossCutting.Pipeline.Logging.MessageTemplates;
+﻿namespace VSlices.CrossCutting.Interceptor.Logging.MessageTemplates;
 
 /// <summary>
 /// Interface for logging message templates

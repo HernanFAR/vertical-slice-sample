@@ -1,20 +1,20 @@
-using LanguageExt;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 using System.Globalization;
 using FluentAssertions;
+using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using VSlices.Base;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
 using VSlices.Base.Traits;
-using VSlices.CrossCutting.Pipeline.Filtering.MessageTemplates;
+using VSlices.CrossCutting.Interceptor.Filtering;
+using VSlices.CrossCutting.Interceptor.Filtering.MessageTemplates;
 using VSlices.Domain;
 using static LanguageExt.Prelude;
 
-namespace VSlices.CrossCutting.Pipeline.Filtering.UnitTests;
+namespace VSlices.CrossCutting.Integrator.Filtering.UnitTests;
 
-public sealed class FilteringBehaviorTests
+public sealed class FilteringBehaviorInterceptorTests
 {
     public sealed record Request : Event;
 
@@ -41,12 +41,12 @@ public sealed class FilteringBehaviorTests
 
     public delegate bool PassGet();
 
-    public sealed class Filter(PassGet canPass) : IEventFilter<Request, Handler>
+    public sealed class Filter(PassGet canPass) : IEventFilter<Request, Behavior>
     {
         public Eff<VSlicesRuntime, bool> DefineFilter(Request feature) => liftEff(_ => canPass());
     }
 
-    public sealed class Handler : IHandler<Request>
+    public sealed class Behavior : IBehavior<Request>
     {
         public Eff<VSlicesRuntime, Unit> Define(Request input) => throw new NotImplementedException();
     }
@@ -66,7 +66,7 @@ public sealed class FilteringBehaviorTests
     {
         // Arrange
         DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
-        FilteringBehavior<Request, Filter, Handler> sut = new();
+        FilteringBehaviorInterceptor<Request, Filter, Behavior> sut = new();
         Request request = new();
 
         IServiceCollection services = new ServiceCollection()
@@ -103,7 +103,7 @@ public sealed class FilteringBehaviorTests
     {
         // Arrange
         DateTimeOffset expFirstTime = DateTimeOffset.Now.UtcDateTime;
-        FilteringBehavior<Request, Filter, Handler> sut = new();
+        FilteringBehaviorInterceptor<Request, Filter, Behavior> sut = new();
         Request request = new();
 
         IServiceCollection services = new ServiceCollection()

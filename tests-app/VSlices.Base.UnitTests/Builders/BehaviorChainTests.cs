@@ -1,25 +1,24 @@
 ﻿using FluentAssertions;
 using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
 using VSlices.Base.CrossCutting;
+using VSlices.Base.Definitions;
 
 namespace VSlices.Base.UnitTests.Builders;
 
-public sealed class BehaviorChainTests
+public sealed class InterceptorChainTests
 {
     public sealed record Result;
 
-    public sealed record Feature : IFeature<Result>;
+    public sealed record Input;
 
-    public sealed class Handler : IHandler<Feature, Result>
+    public sealed class Behavior : IBehavior<Input, Result>
     {
-        public Eff<VSlicesRuntime, Result> Define(Feature input) => throw new NotImplementedException();
+        public Eff<VSlicesRuntime, Result> Define(Input input) => throw new NotImplementedException();
     }
 
-    public sealed class Pipeline<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
-        where TRequest : IFeature<TResult>
+    public sealed class Pipeline<TRequest, TResult> : IBehaviorInterceptor<TRequest, TResult>
     {
         public Eff<VSlicesRuntime, TResult> Define(TRequest request, Eff<VSlicesRuntime, TResult> next) => throw new NotImplementedException();
     }
@@ -32,7 +31,7 @@ public sealed class BehaviorChainTests
         const int expBehaviorCount = 1;
         var       services         = new ServiceCollection();
 
-        BehaviorChain chain = new(services, typeof(Feature), typeof(Result), typeof(Handler));
+        InterceptorChain chain = new(services, typeof(Input), typeof(Result), typeof(Behavior));
 
         // Act
         chain.Add(typeof(Pipeline<,>));
@@ -42,7 +41,7 @@ public sealed class BehaviorChainTests
         services.Single().ServiceType.Should().Be(typeof(Pipeline<,>));
 
         chain.Behaviors.Count.Should().Be(expBehaviorCount);
-        chain.Behaviors.Single().Should().Be(typeof(Pipeline<Feature, Result>));
+        chain.Behaviors.Single().Should().Be(typeof(Pipeline<Input, Result>));
 
     }
 
@@ -54,17 +53,17 @@ public sealed class BehaviorChainTests
         const int expBehaviorCount = 1;
         var       services         = new ServiceCollection();
 
-        BehaviorChain chain = new(services, typeof(Feature), typeof(Result), typeof(Handler));
+        InterceptorChain chain = new(services, typeof(Input), typeof(Result), typeof(Behavior));
 
         // Act
-        chain.AddConcrete(typeof(Pipeline<Feature, Result>));
+        chain.AddConcrete(typeof(Pipeline<Input, Result>));
 
         // Assert
         services.Count.Should().Be(expServiceCount);
-        services.Single().ServiceType.Should().Be(typeof(Pipeline<Feature, Result>));
+        services.Single().ServiceType.Should().Be(typeof(Pipeline<Input, Result>));
 
         chain.Behaviors.Count.Should().Be(expBehaviorCount);
-        chain.Behaviors.Single().Should().Be(typeof(Pipeline<Feature, Result>));
+        chain.Behaviors.Single().Should().Be(typeof(Pipeline<Input, Result>));
 
     }
 }

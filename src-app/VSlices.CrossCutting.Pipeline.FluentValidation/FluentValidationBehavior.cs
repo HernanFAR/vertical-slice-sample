@@ -1,27 +1,23 @@
 ﻿using FluentValidation;
 using FluentValidation.Results;
 using LanguageExt;
-using LanguageExt.Common;
+using VSlices.Base;
+using VSlices.Base.CrossCutting;
 using static LanguageExt.Prelude;
 using static VSlices.VSlicesPrelude;
-using VSlices.Base;
-using VSlices.Core;
-using VSlices.Base.Core;
-using VSlices.Base.CrossCutting;
 
-namespace VSlices.CrossCutting.Pipeline.FluentValidation;
+namespace VSlices.CrossCutting.Interceptor.FluentValidation;
 
 /// <summary>
 /// A validation behavior that uses FluentValidation
 /// </summary>
-/// <typeparam name="TRequest">The intercepted request to validate</typeparam>
-/// <typeparam name="TResult">The expected successful response</typeparam>
-public sealed class FluentValidationBehavior<TRequest, TResult> : AbstractPipelineBehavior<TRequest, TResult>
-    where TRequest : IFeature<TResult>
+/// <typeparam name="TIn">The intercepted input</typeparam>
+/// <typeparam name="TOut">The expected result</typeparam>
+public sealed class FluentValidationInterceptor<TIn, TOut> : AbstractBehaviorInterceptor<TIn, TOut>
 {
     /// <inheritdoc />
-    protected internal override Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request) =>
-        from validator in provide<IValidator<TRequest>>()
+    protected internal override Eff<VSlicesRuntime, Unit> BeforeHandle(TIn request) =>
+        from validator in provide<IValidator<TIn>>()
         from token in cancelToken
         from result in liftEff(async () => await validator.ValidateAsync(request, token))
         from _ in guard(result.IsValid, result.ToUnprocessable())
