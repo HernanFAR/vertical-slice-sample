@@ -1,7 +1,7 @@
 ﻿using Cronos;
 using VSlices.Base.Core;
 
-namespace VSlices.Core.RecurringJob;
+namespace VSlices.Core.Integration.RecurringJob;
 
 /// <summary>
 /// Defines the class as a presentation for a recurring job

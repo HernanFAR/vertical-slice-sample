@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using LanguageExt;
+using Microsoft.Extensions.DependencyInjection;
 using VSlices.Core.Events.Internals;
 using VSlices.Core.Events.Strategies;
 using VSlices.Domain.Interfaces;
@@ -8,7 +9,7 @@ using VSlices.Domain.Interfaces;
 namespace VSlices.Core.Events;
 
 /// <summary>
-/// Sends a request through the VSlices pipeline to handle by a many handlers, using reflection.
+/// Sends a input through the VSlices pipeline to handle by a many handlers, using reflection.
 /// </summary>
 /// 
 [RequiresDynamicCode("This class uses Type.MakeGenericType to create RequestHandlerWrapper instances")]
@@ -35,6 +36,9 @@ public sealed class ReflectionEventRunner(
                 return (AbstractHandlerWrapper)wrapper;
             });
 
-        return handler.Handle(request, _serviceProvider, _strategy, cancellationToken);
+
+        using IServiceScope scope = _serviceProvider.CreateScope();
+
+        return handler.Handle(request, scope.ServiceProvider, _strategy, cancellationToken);
     }
 }

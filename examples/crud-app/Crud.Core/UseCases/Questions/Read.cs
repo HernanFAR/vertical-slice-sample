@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using VSlices.Base.Builder;
 using VSlices.Base.Core;
+using VSlices.Base.Definitions;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Read;
@@ -10,19 +11,18 @@ public sealed record QuestionDto(Guid Id, Guid CategoryId, string Category, stri
 
 public sealed record ReadQuestionsDto(QuestionDto[] Questions);
 
-public sealed record Query : IRequest<ReadQuestionsDto>
+public sealed record Query : IInput<ReadQuestionsDto>
 {
     public static Query Instance { get; } = new();
 }
 
-public sealed class ReadQuestionDependencies : IFeatureDependencies<Query, ReadQuestionsDto>
+public sealed class ReadQuestionDefinition : IFeatureDefinition
 {
-    public static void DefineDependencies(IFeatureStartBuilder<Query, ReadQuestionsDto> feature) =>
-        feature.FromIntegration.Using<EndpointIntegrator>()
-               .Execute<Handler>()
-               .WithBehaviorChain(chain => chain
-                                      .AddLogging().InSpanish()
-                                      .AddLoggingException().InSpanish());
+    public static Unit Define(FeatureComposer feature) =>
+        feature.With<Query>().Expect<ReadQuestionsDto>()
+               .ByExecuting<Behavior>(chain => chain.AddLogging().InSpanish()
+                                                    .AddLoggingException().InSpanish())
+               .AndBindTo<EndpointIntegrator>();
 }
 
 internal sealed class EndpointIntegrator : IEndpointIntegrator
@@ -47,7 +47,7 @@ internal sealed class EndpointIntegrator : IEndpointIntegrator
     }
 }
 
-internal sealed class Handler : IHandler<Query, ReadQuestionsDto>
+internal sealed class Behavior : IBehavior<Query, ReadQuestionsDto>
 {
     public Eff<VSlicesRuntime, ReadQuestionsDto> Define(Query input) =>
         from context in provide<AppDbContext>()

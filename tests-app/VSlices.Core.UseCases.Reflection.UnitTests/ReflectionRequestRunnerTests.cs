@@ -3,9 +3,9 @@ using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
 using VSlices.Base;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
 using VSlices.Base.CrossCutting;
+using VSlices.Base.Definitions;
 using static LanguageExt.Prelude;
 using static VSlices.VSlicesPrelude;
 
@@ -21,8 +21,8 @@ public class ReflectionRequestRunnerTests
 
     }
 
-    public class PipelineBehaviorOne<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IRequest<TResponse>
+    public class BehaviorInterceptorOne<TRequest, TResponse> : IBehaviorInterceptor<TRequest, TResponse>
+        where TRequest : IInput<TResponse>
     {
         public Eff<VSlicesRuntime, TResponse> Define(TRequest request, Eff<VSlicesRuntime, TResponse> next) =>
             from accumulator in provide<Accumulator>()
@@ -37,8 +37,8 @@ public class ReflectionRequestRunnerTests
             select result;
     }
 
-    public class PipelineBehaviorTwo<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IRequest<TResponse>
+    public class BehaviorInterceptorTwo<TRequest, TResponse> : IBehaviorInterceptor<TRequest, TResponse>
+        where TRequest : IInput<TResponse>
     {
         public Eff<VSlicesRuntime, TResponse> Define(TRequest request, Eff<VSlicesRuntime, TResponse> next) =>
             from accumulator in provide<Accumulator>()
@@ -53,9 +53,9 @@ public class ReflectionRequestRunnerTests
             select result;
     }
 
-    public class ConcretePipelineBehaviorOne : IPipelineBehavior<RequestOne, Unit>
+    public class ConcreteBehaviorInterceptorOne : IBehaviorInterceptor<InputOne, Unit>
     {
-        public Eff<VSlicesRuntime, Unit> Define(RequestOne request, Eff<VSlicesRuntime, Unit> next) =>
+        public Eff<VSlicesRuntime, Unit> Define(InputOne input, Eff<VSlicesRuntime, Unit> next) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -68,11 +68,11 @@ public class ReflectionRequestRunnerTests
             select result;
     }
 
-    public record RequestOne : IRequest;
+    public record InputOne : IInput;
 
-    public class RequestHandlerOne : IHandler<RequestOne, Unit>
+    public class RequestBehaviorOne : IBehavior<InputOne, Unit>
     {        
-        public Eff<VSlicesRuntime, Unit> Define(RequestOne requestOne) =>
+        public Eff<VSlicesRuntime, Unit> Define(InputOne inputOne) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -84,11 +84,11 @@ public class ReflectionRequestRunnerTests
             select unit;
     }
 
-    public record RequestTwo : IRequest<Unit>;
+    public record InputTwo : IInput<Unit>;
 
-    public class RequestHandlerTwo : IHandler<RequestTwo, Unit>
+    public class RequestBehaviorTwo : IBehavior<InputTwo, Unit>
     {
-        public Eff<VSlicesRuntime, Unit> Define(RequestTwo request) =>
+        public Eff<VSlicesRuntime, Unit> Define(InputTwo input) =>
             from accumulator in provide<Accumulator>()
             from _ in liftEff(() =>
             {
@@ -110,14 +110,16 @@ public class ReflectionRequestRunnerTests
             .AddTransient<IRequestRunner, ReflectionRequestRunner>()
             .AddSingleton<Accumulator>();
 
-        new FeatureDefinition<RequestOne, Unit>(services).Execute<RequestHandlerOne>();
+        new FeatureComposer(services)
+            .With<InputOne>().ExpectNoOutput()
+            .ByExecuting<RequestBehaviorOne>();
 
         var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne());
+        Fin<Unit> effectResult = sender.Run(new InputOne());
 
         _ = effectResult.Match(
             _ => unit,
@@ -138,15 +140,16 @@ public class ReflectionRequestRunnerTests
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
                        .AddSingleton<Accumulator>();
 
-        new FeatureDefinition<RequestOne, Unit>(services).Execute<RequestHandlerOne>()
-                                                         .WithBehaviorChain(chain => chain.Add(typeof(PipelineBehaviorOne<,>)));
+        new FeatureComposer(services)
+            .With<InputOne>().ExpectNoOutput()
+            .ByExecuting<RequestBehaviorOne>(chain => chain.Add(typeof(BehaviorInterceptorOne<,>)));
 
         var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender      = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne());
+        Fin<Unit> effectResult = sender.Run(new InputOne());
 
         _ = effectResult.Match(
             _ => unit,
@@ -167,18 +170,18 @@ public class ReflectionRequestRunnerTests
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
                        .AddSingleton<Accumulator>();
 
-        new FeatureDefinition<RequestOne, Unit>(services).Execute<RequestHandlerOne>()
-                                                         .WithBehaviorChain(chain => chain
-                                                                                .Add(typeof(PipelineBehaviorOne<,>))
-                                                                                .AddConcrete(typeof(
-                                                                                    ConcretePipelineBehaviorOne)));
+        new FeatureComposer(services)
+            .With<InputOne>().ExpectNoOutput()
+            .ByExecuting<RequestBehaviorOne>(chain => chain
+                                                      .Add(typeof(BehaviorInterceptorOne<,>))
+                                                      .AddConcrete(typeof(ConcreteBehaviorInterceptorOne)));
 
         var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne());
+        Fin<Unit> effectResult = sender.Run(new InputOne());
 
         _ = effectResult.Match(
             _ => unit,
@@ -199,17 +202,18 @@ public class ReflectionRequestRunnerTests
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
                        .AddSingleton<Accumulator>();
 
-        new FeatureDefinition<RequestOne, Unit>(services).Execute<RequestHandlerOne>()
-                                                         .WithBehaviorChain(chain => chain
-                                                                                .Add(typeof(PipelineBehaviorOne<,>))
-                                                                                .Add(typeof(PipelineBehaviorTwo<,>)));
+        new FeatureComposer(services)
+            .With<InputOne>().ExpectNoOutput()
+            .ByExecuting<RequestBehaviorOne>(chain => chain
+                                                      .Add(typeof(BehaviorInterceptorOne<,>))
+                                                      .Add(typeof(BehaviorInterceptorTwo<,>)));
 
         var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne());
+        Fin<Unit> effectResult = sender.Run(new InputOne());
 
         _ = effectResult.Match(
             _ => unit,
@@ -230,18 +234,19 @@ public class ReflectionRequestRunnerTests
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
                        .AddSingleton<Accumulator>();
 
-        new FeatureDefinition<RequestOne, Unit>(services).Execute<RequestHandlerOne>()
-                                                         .WithBehaviorChain(chain => chain
-                                                                                .Add(typeof(PipelineBehaviorOne<,>))
-                                                                                .Add(typeof(PipelineBehaviorTwo<,>))
-                                                                                .AddConcrete(typeof(ConcretePipelineBehaviorOne)));
+        new FeatureComposer(services)
+            .With<InputOne>().ExpectNoOutput()
+            .ByExecuting<RequestBehaviorOne>(chain => chain
+                                                      .Add(typeof(BehaviorInterceptorOne<,>))
+                                                      .Add(typeof(BehaviorInterceptorTwo<,>))
+                                                      .AddConcrete(typeof(ConcreteBehaviorInterceptorOne)));
 
         var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestOne());
+        Fin<Unit> effectResult = sender.Run(new InputOne());
         
         _ = effectResult.Match(
             _ => unit,
@@ -262,23 +267,18 @@ public class ReflectionRequestRunnerTests
                        .AddTransient<IRequestRunner, ReflectionRequestRunner>()
                        .AddSingleton<Accumulator>();
 
-        new FeatureDefinition<RequestOne, Unit>(services).Execute<RequestHandlerOne>()
-                                                         .WithBehaviorChain(chain => chain
-                                                                                .Add(typeof(PipelineBehaviorOne<,>))
-                                                                                .Add(typeof(PipelineBehaviorTwo<,>))
-                                                                                .AddConcrete(typeof(ConcretePipelineBehaviorOne)));
-
-        new FeatureDefinition<RequestTwo, Unit>(services).Execute<RequestHandlerTwo>()
-                                                         .WithBehaviorChain(chain => chain
-                                                                                .Add(typeof(PipelineBehaviorOne<,>))
-                                                                                .Add(typeof(PipelineBehaviorTwo<,>)));
+        new FeatureComposer(services)
+            .With<InputTwo>().ExpectNoOutput()
+            .ByExecuting<RequestBehaviorTwo>(chain => chain
+                                                      .Add(typeof(BehaviorInterceptorOne<,>))
+                                                      .Add(typeof(BehaviorInterceptorTwo<,>)));
 
         var provider = services.BuildServiceProvider();
 
         var accumulator = provider.GetRequiredService<Accumulator>();
         var sender = provider.GetRequiredService<IRequestRunner>();
 
-        Fin<Unit> effectResult = sender.Run(new RequestTwo());
+        Fin<Unit> effectResult = sender.Run(new InputTwo());
 
         _ = effectResult.Match(
             _ => unit,

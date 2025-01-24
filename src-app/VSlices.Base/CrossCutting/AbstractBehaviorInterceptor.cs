@@ -5,16 +5,15 @@ using VSlices.Base.Failures;
 namespace VSlices.Base.CrossCutting;
 
 /// <summary>
-/// Abstract base class to simplify the implementations of <see cref="IPipelineBehavior{TRequest, TResult}"/>
+/// Abstract base class to simplify the implementations of <see cref="IBehaviorInterceptor{TIn, TOut}"/>
 /// </summary>
-/// <typeparam name="TRequest">The request to intercept</typeparam>
-/// <typeparam name="TResult">The expected result</typeparam>
-public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBehavior<TRequest, TResult>
-    where TRequest : IFeature<TResult>
+/// <typeparam name="TIn">The intercepted input</typeparam>
+/// <typeparam name="TOut">The expected result</typeparam>
+public abstract class AbstractBehaviorInterceptor<TIn, TOut> : IBehaviorInterceptor<TIn, TOut>
 {
     /// <summary>
-    /// Executed before the next action, which might be another <see cref="IPipelineBehavior{TRequest, TResult}"/>
-    /// or the final <see cref="IHandler{TRequest,TResult}"/>
+    /// Executed before the next action, which might be another <see cref="IBehaviorInterceptor{TIn, TOut}"/>
+    /// or the final <see cref="IBehavior{TIn, TOut}"/>
     /// </summary>
     /// <remarks>
     /// <para>
@@ -29,12 +28,12 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     /// <returns>
     /// A <see cref="LanguageExt.Eff{TRuntime, TResult}"/> that represents the operation in lazy evaluation, which returns a <see cref="Unit" />
     /// </returns>
-    protected internal virtual Eff<VSlicesRuntime, Unit> BeforeHandle(TRequest request)
+    protected internal virtual Eff<VSlicesRuntime, Unit> BeforeHandle(TIn request)
         => unitEff;
 
     /// <summary>
-    /// The next action, which might be another <see cref="IPipelineBehavior{TRequest, TResult}"/>
-    /// or the final <see cref="IHandler{TRequest,TResult}"/>
+    /// The next action, which might be another <see cref="IBehaviorInterceptor{TIn, TOut}"/>
+    /// or the final <see cref="IBehavior{TIn,TOut}"/>
     /// </summary>
     /// <remarks>
     /// <para>
@@ -47,9 +46,9 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     /// <param name="request">The intercepted request</param>
     /// <param name="next">The next action in the pipeline</param>
     /// <returns>
-    /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
+    /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TOut" />
     /// </returns>
-    protected internal virtual Eff<VSlicesRuntime, TResult> InHandle(TRequest request, Eff<VSlicesRuntime, TResult> next) => next;
+    protected internal virtual Eff<VSlicesRuntime, TOut> InHandle(TIn request, Eff<VSlicesRuntime, TOut> next) => next;
 
     /// <summary>
     /// Executed after the next action if returns the expected value
@@ -57,9 +56,9 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     /// <param name="request">The intercepted request</param>
     /// <param name="result">The result of the handler of the request</param>
     /// <returns>
-    /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
+    /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TOut" />
     /// </returns>
-    protected internal virtual Eff<VSlicesRuntime, TResult> AfterSuccessHandling(TRequest request, TResult result) => SuccessEff(result);
+    protected internal virtual Eff<VSlicesRuntime, TOut> AfterSuccessHandling(TIn request, TOut result) => SuccessEff(result);
 
     /// <summary>
     /// Executed after the next action if not returns the expected value
@@ -67,19 +66,19 @@ public abstract class AbstractPipelineBehavior<TRequest, TResult> : IPipelineBeh
     /// <param name="request">The intercepted request</param>
     /// <param name="result">The result of the handler of the request</param>
     /// <returns>
-    /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TResult" />
+    /// A <see cref="LanguageExt.Eff{T}"/> that represents the operation in lazy evaluation, which returns a <typeparamref name="TOut" />
     /// </returns>
-    protected internal virtual Eff<VSlicesRuntime, TResult> AfterFailureHandling(TRequest request, Error result)
-        => liftEff<VSlicesRuntime, TResult>(_ => result);
+    protected internal virtual Eff<VSlicesRuntime, TOut> AfterFailureHandling(TIn request, Error result)
+        => liftEff<VSlicesRuntime, TOut>(_ => result);
 
     /// <inheritdoc />
-    public Eff<VSlicesRuntime, TResult> Define(TRequest request, Eff<VSlicesRuntime, TResult> next) =>
+    public Eff<VSlicesRuntime, TOut> Define(TIn request, Eff<VSlicesRuntime, TOut> next) =>
         from handleResult in BeforeHandle(request)
                              .Match(Succ: _ => InHandle(request, next)
                                                .Match(Succ: result => AfterSuccessHandling(request, result),
                                                       Fail: error => AfterFailureHandling(request, error))
                                                .Flatten(),
-                                    Fail: FailEff<VSlicesRuntime, TResult>)
+                                    Fail: FailEff<VSlicesRuntime, TOut>)
                              .Flatten()
         select handleResult;
 }

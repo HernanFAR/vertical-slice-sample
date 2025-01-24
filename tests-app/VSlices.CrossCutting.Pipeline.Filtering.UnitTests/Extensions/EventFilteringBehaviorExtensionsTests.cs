@@ -4,21 +4,22 @@ using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
 using VSlices.Base.Builder;
 using VSlices.Base.Core;
-using VSlices.CrossCutting.Pipeline.Filtering.MessageTemplates;
+using VSlices.Base.Definitions;
+using VSlices.CrossCutting.Interceptor.Filtering.MessageTemplates;
 using VSlices.Domain;
 
-namespace VSlices.CrossCutting.Pipeline.Filtering.UnitTests.Extensions;
+namespace VSlices.CrossCutting.Interceptor.Filtering.UnitTests.Extensions;
 
 public sealed class EventFilteringBehaviorExtensionsTests
 {
-    public sealed record Filter : IEventFilter<Request, Handler>
+    public sealed record Filter : IEventFilter<Request, Behavior>
     {
         public Eff<VSlicesRuntime, bool> DefineFilter(Request feature) => throw new NotImplementedException();
     }
 
     public sealed record Request : Event;
 
-    public sealed class Handler : IHandler<Request>
+    public sealed class Behavior : IBehavior<Request>
     {
         public Eff<VSlicesRuntime, Unit> Define(Request input) => throw new NotImplementedException();
     }
@@ -38,13 +39,13 @@ public sealed class EventFilteringBehaviorExtensionsTests
 
         ServiceCollection services = new();
 
-        BehaviorChain chain = new(services, typeof(Request), typeof(Unit), typeof(Handler));
+        InterceptorChain chain = new(services, typeof(Request), typeof(Unit), typeof(Behavior));
 
         // Act
         chain.AddFilteringUsing<Filter>().InSpanish();
 
         // Assert
-        services.Where(e => e.ServiceType == typeof(FilteringBehavior<Request, Filter, Handler>))
+        services.Where(e => e.ServiceType == typeof(FilteringBehaviorInterceptor<Request, Filter, Behavior>))
                 .Any(e => e.Lifetime == ServiceLifetime.Transient)
                 .Should().BeTrue();
 
@@ -58,7 +59,7 @@ public sealed class EventFilteringBehaviorExtensionsTests
 
         chain.Behaviors.Should()
              .HaveCount(expBehaviorCount)
-             .And.Contain(type => type == typeof(FilteringBehavior<Request, Filter, Handler>));
+             .And.Contain(type => type == typeof(FilteringBehaviorInterceptor<Request, Filter, Behavior>));
     }
 
     [Fact]
@@ -69,13 +70,13 @@ public sealed class EventFilteringBehaviorExtensionsTests
 
         ServiceCollection services = new();
 
-        BehaviorChain chain = new(services, typeof(Request), typeof(Unit), typeof(Handler));
+        InterceptorChain chain = new(services, typeof(Request), typeof(Unit), typeof(Behavior));
 
         // Act
         chain.AddFilteringUsing<Filter>().InEnglish();
 
         // Assert
-        services.Where(e => e.ServiceType == typeof(FilteringBehavior<Request, Filter, Handler>))
+        services.Where(e => e.ServiceType == typeof(FilteringBehaviorInterceptor<Request, Filter, Behavior>))
                 .Any(e => e.Lifetime == ServiceLifetime.Transient)
                 .Should().BeTrue();
 
@@ -89,7 +90,7 @@ public sealed class EventFilteringBehaviorExtensionsTests
 
         chain.Behaviors.Should()
              .HaveCount(expBehaviorCount)
-             .And.Contain(type => type == typeof(FilteringBehavior<Request, Filter, Handler>));
+             .And.Contain(type => type == typeof(FilteringBehaviorInterceptor<Request, Filter, Behavior>));
     }
 
     [Fact]
@@ -100,13 +101,13 @@ public sealed class EventFilteringBehaviorExtensionsTests
 
         ServiceCollection services = new();
 
-        BehaviorChain chain = new(services, typeof(Request), typeof(Unit), typeof(Handler));
+        InterceptorChain chain = new(services, typeof(Request), typeof(Unit), typeof(Behavior));
 
         // Act
         chain.AddFilteringUsing<Filter>().In<CustomTemplate>();
 
         // Assert
-        services.Where(e => e.ServiceType == typeof(FilteringBehavior<Request, Filter, Handler>))
+        services.Where(e => e.ServiceType == typeof(FilteringBehaviorInterceptor<Request, Filter, Behavior>))
                 .Any(e => e.Lifetime == ServiceLifetime.Transient)
                 .Should().BeTrue();
 
@@ -120,6 +121,6 @@ public sealed class EventFilteringBehaviorExtensionsTests
 
         chain.Behaviors.Should()
              .HaveCount(expBehaviorCount)
-             .And.Contain(type => type == typeof(FilteringBehavior<Request, Filter, Handler>));
+             .And.Contain(type => type == typeof(FilteringBehaviorInterceptor<Request, Filter, Behavior>));
     }
 }

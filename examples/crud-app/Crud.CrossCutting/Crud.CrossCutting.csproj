@@ -7,22 +7,23 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hangfire.InMemory" Version="0.10.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.8" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.8">
+    <PackageReference Include="Hangfire.InMemory" Version="1.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.11" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\..\src-app\VSlices.Core.UseCases\VSlices.Core.UseCases.csproj" />
     <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.BackgroundTaskListener.Hangfire\VSlices.CrossCutting.BackgroundTaskListener.Hangfire.csproj" />
-    <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.ExceptionHandling\VSlices.CrossCutting.Pipeline.ExceptionHandling.csproj" />
-    <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.FluentValidation\VSlices.CrossCutting.Pipeline.FluentValidation.csproj" />
-    <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.Logging\VSlices.CrossCutting.Pipeline.Logging.csproj" />
+    <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.ExceptionHandling\VSlices.CrossCutting.Interceptor.ExceptionHandling.csproj" />
+    <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.FluentValidation\VSlices.CrossCutting.Interceptor.FluentValidation.csproj" />
+    <ProjectReference Include="..\..\..\src-app\VSlices.CrossCutting.Pipeline.Logging\VSlices.CrossCutting.Interceptor.Logging.csproj" />
     <ProjectReference Include="..\Crud.Domain\Crud.Domain.csproj" />
   </ItemGroup>
 

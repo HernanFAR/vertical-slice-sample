@@ -4,20 +4,20 @@ using Crud.Domain.Rules.DataAccess;
 using Crud.Domain.ValueObjects;
 using VSlices.Base.Builder;
 using VSlices.Base.Core;
+using VSlices.Base.Definitions;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Exists;
 
-public sealed record Query(QuestionId Id) : IRequest;
+public sealed record Query(QuestionId Id) : IInput;
 
-public sealed class ExistsQuestionDependencies : IFeatureDependencies<Query>
+public sealed class ExistsQuestionDefinition : IFeatureDefinition
 {
-    public static void DefineDependencies(IFeatureStartBuilder<Query, Unit> feature) =>
-        feature.FromIntegration.Using<EndpointIntegrator>()
-               .Execute<Handler>()
-               .WithBehaviorChain(chain => chain
-                                      .AddLogging().InSpanish()
-                                      .AddLoggingException().InSpanish());
+    public static Unit Define(FeatureComposer feature) =>
+        feature.With<Query>().ExpectNoOutput()
+               .ByExecuting<Behavior>(chain => chain.AddLogging().InSpanish()
+                                                    .AddLoggingException().InSpanish())
+               .AndBindTo<EndpointIntegrator>();
 }
 
 
@@ -48,7 +48,7 @@ internal sealed class EndpointIntegrator : IEndpointIntegrator
     }
 }
 
-internal sealed class Handler : IHandler<Query>
+internal sealed class Behavior : IBehavior<Query>
 {
     public Eff<VSlicesRuntime, Unit> Define(Query input) =>
         from repository in provide<IQuestionRepository>()

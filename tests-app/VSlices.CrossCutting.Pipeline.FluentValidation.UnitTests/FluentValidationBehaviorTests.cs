@@ -9,6 +9,7 @@ using VSlices.Base.Core;
 using VSlices.Base.Failures;
 using VSlices.Base.Traits;
 using VSlices.Core;
+using VSlices.CrossCutting.Interceptor.FluentValidation;
 
 namespace VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests;
 
@@ -16,9 +17,9 @@ public class AbstractExceptionHandlingBehaviorTests
 {
     public record Result;
 
-    public record Request(string Value) : IFeature<Result>;
+    public record Input(string Value);
 
-    public class Validator : AbstractValidator<Request>
+    public class Validator : AbstractValidator<Input>
     {
         public const string ValueEmptyMessage = "Test message";
 
@@ -32,18 +33,18 @@ public class AbstractExceptionHandlingBehaviorTests
     public Task BeforeHandleAsync_ShouldInterruptExecution()
     {
         const int expErrorCount = 1;
-        FluentValidationBehavior<Request, Result> pipeline = new();
-        Request request = new(null!);
+        FluentValidationInterceptor<Input, Result> pipeline = new();
+        Input input = new(null!);
 
         #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
         Eff<VSlicesRuntime, Result> next = liftEff<VSlicesRuntime, Result>(async _ => throw new UnreachableException());
         #pragma warning restore CS1998 // Async method lacks 'await' operators and will run synchronously
 
-        Eff<VSlicesRuntime, Result> pipelineEffect = pipeline.Define(request, next);
+        Eff<VSlicesRuntime, Result> pipelineEffect = pipeline.Define(input, next);
 
 
         ServiceProvider provider = new ServiceCollection()
-            .AddTransient<IValidator<Request>, Validator>()
+            .AddTransient<IValidator<Input>, Validator>()
             .BuildServiceProvider();
 
         DependencyProvider dependencyProvider = new(provider);

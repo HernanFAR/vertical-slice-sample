@@ -1,7 +1,9 @@
-﻿namespace VSlices.Core.Events.Configurations;
+﻿using VSlices.Base.Core;
+
+namespace VSlices.Core.Events.Configurations;
 
 /// <summary>
-/// Represents what to do in the background event listener when a problem occurs in the event's <see cref="IHandler{TRequest}"/>
+/// Represents what to do in the background event listener when a problem occurs in the event's <see cref="IBehavior{TIn}"/>
 /// </summary>
 public enum MoveActions
 {
@@ -10,7 +12,7 @@ public enum MoveActions
     /// </summary>
     MoveLast,
     /// <summary>
-    /// Immediate retry the event <see cref="IHandler{TRequest}"/>
+    /// Immediate retry the event <see cref="IBehavior{TRequest}"/>
     /// </summary>
     ImmediateRetry
 }
@@ -21,12 +23,12 @@ public enum MoveActions
 public sealed class EventListenerConfiguration
 {
     /// <summary>
-    /// Represents what to do then an exception occurs in the event's <see cref="IHandler{TRequest}"/>
+    /// Represents what to do then an exception occurs in the event's <see cref="IBehavior{TRequest}"/>
     /// </summary>
     public MoveActions ActionInException { get; set; } = MoveActions.MoveLast;
 
     /// <summary>
-    /// Represents the maximum number of retries for the event's <see cref="IHandler{TRequest}"/>
+    /// Represents the maximum number of retries for the event's <see cref="IBehavior{TRequest}"/>
     /// </summary>
     public int MaxRetries { get; set; } = 3;
 

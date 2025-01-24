@@ -1,22 +1,21 @@
 ﻿using Crud.Domain.Rules.DataAccess;
 using Crud.Domain.Rules.Services;
 using Crud.Domain.ValueObjects;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
+using VSlices.Base.Definitions;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Delete;
 
-public sealed record Command(QuestionId Id) : IRequest<Unit>;
+public sealed record Command(QuestionId Id) : IInput<Unit>;
 
-public sealed class DeleteQuestionDependencies : IFeatureDependencies<Command>
+public sealed class DeleteQuestionDefinition : IFeatureDefinition
 {
-    public static void DefineDependencies(IFeatureStartBuilder<Command, Unit> feature) =>
-        feature.FromIntegration.Using<EndpointIntegrator>()
-               .Execute<RequestHandler>()
-               .WithBehaviorChain(chain => chain
-                                      .AddLogging().InSpanish()
-                                      .AddLoggingException().InSpanish());
+    public static Unit Define(FeatureComposer feature) =>
+        feature.With<Command>().ExpectNoOutput()
+               .ByExecuting<RequestBehavior>(chain => chain.AddLogging().InSpanish()
+                                                           .AddLoggingException().InSpanish())
+               .AndBindTo<EndpointIntegrator>();
 }
 
 internal sealed class EndpointIntegrator : IEndpointIntegrator
@@ -46,7 +45,7 @@ internal sealed class EndpointIntegrator : IEndpointIntegrator
     }
 }
 
-internal sealed class RequestHandler : IHandler<Command>
+internal sealed class RequestBehavior : IBehavior<Command>
 {
     public Eff<VSlicesRuntime, Unit> Define(Command input) =>
         from repository in provide<IQuestionRepository>()

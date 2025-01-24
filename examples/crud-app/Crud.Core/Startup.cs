@@ -15,25 +15,29 @@ global using static VSlices.VSlicesPrelude;
 global using static LanguageExt.Prelude;
 
 // ReSharper disable once CheckNamespace
-namespace Microsoft.Extensions.DependencyInjection;
-
-public static class Startup
+namespace Microsoft.Extensions.DependencyInjection
 {
-    public static IServiceCollection AddCore(this IServiceCollection services) =>
-        services.AddFeatureDependenciesFromAssemblyContaining<Anchor>()
-                .AddVSlicesRuntime()
-                // Recurring jobs
-                .AddRecurringJobListener()
-                // Request
-                .AddReflectionRequestRunner()
-                // Events
-                .AddReflectionEventRunner()
-                .AddInMemoryEventQueue()
-                .AddEventListener().WithFileWriteInDeadLetterCase(config =>
-                {
-                    config.AbsolutePath = "C:\\DeadLetters";
-                    config.JsonOptions.IncludeFields = true;
-                });
+    public static class Startup
+    {
+        public static IServiceCollection AddCore(this IServiceCollection services) =>
+            services.AddVSlicesRuntime()
+                    // Recurring jobs
+                    .AddRecurringJobListener()
+                    // Input
+                    .AddReflectionRequestRunner()
+                    // Events
+                    .AddReflectionEventRunner()
+                    .AddInMemoryEventQueue()
+                    .AddEventListener()
+                    .WithFileWriteInDeadLetterCase(config =>
+                    {
+                        config.AbsolutePath = "C:\\DeadLetters";
+                        config.JsonOptions.IncludeFields = true;
+                    });
+    }
 }
 
-internal sealed class Anchor;
+namespace Crud.Core
+{
+    public sealed class Anchor;
+}

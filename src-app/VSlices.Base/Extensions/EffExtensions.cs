@@ -2,7 +2,7 @@
 namespace LanguageExt;
 
 /// <summary>
-/// <see cref="Eff{TRuntime, TResult}"/> extensions"/>
+/// <see cref="Eff{TRuntime, TResult}"/> extensions
 /// </summary>
 public static class EffExtensions
 {

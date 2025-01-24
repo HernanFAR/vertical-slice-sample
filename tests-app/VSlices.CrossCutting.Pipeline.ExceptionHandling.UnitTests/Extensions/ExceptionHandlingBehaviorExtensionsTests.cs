@@ -1,28 +1,26 @@
 ﻿using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics;
 using LanguageExt;
+using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
 using VSlices.Base.CrossCutting;
-using VSlices.Core;
+using VSlices.Base.Definitions;
 using VSlices.Core.Builder;
-using VSlices.CrossCutting.Pipeline.ExceptionHandling.MessageTemplates;
+using VSlices.CrossCutting.Interceptor.ExceptionHandling.MessageTemplates;
 
-namespace VSlices.CrossCutting.Pipeline.ExceptionHandling.UnitTests.Extensions;
+namespace VSlices.CrossCutting.Interceptor.ExceptionHandling.UnitTests.Extensions;
 
 public class ExceptionHandlingBehaviorExtensionsTests
 {
-    public record FalsePipeline : IPipelineBehavior;
+    public record False : IBehaviorInterceptor;
 
     public record Result;
 
-    public record Request : IFeature<Result>;
+    public record Input;
     
-    public record Handler : IHandler<Request, Result>
+    public record Behavior : IBehavior<Input, Result>
     {
-        public Eff<VSlicesRuntime, Result> Define(Request input)
+        public Eff<VSlicesRuntime, Result> Define(Input input)
         {
             throw new NotImplementedException();
         }
@@ -43,13 +41,13 @@ public class ExceptionHandlingBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        var chain = new BehaviorChain(services, typeof(Request), typeof(Result), typeof(Handler));
+        var chain = new InterceptorChain(services, typeof(Input), typeof(Result), typeof(Behavior));
 
         // Act
         chain.AddLoggingException().InEnglish();
 
         // Arrange
-        services.Where(e => e.ServiceType      == typeof(LoggingExceptionBehavior<,>))
+        services.Where(e => e.ServiceType      == typeof(LoggingExceptionInterceptor<,>))
                 .Any(e => e.Lifetime == ServiceLifetime.Transient)
                 .Should().BeTrue();
 
@@ -64,7 +62,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
 
         chain.Behaviors.Should()
              .HaveCount(expBehaviorCount)
-             .And.Contain(type => type == typeof(LoggingExceptionBehavior<Request, Result>));
+             .And.Contain(type => type == typeof(LoggingExceptionInterceptor<Input, Result>));
 
     }
 
@@ -76,13 +74,13 @@ public class ExceptionHandlingBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        var chain = new BehaviorChain(services, typeof(Request), typeof(Result), typeof(Handler));
+        var chain = new InterceptorChain(services, typeof(Input), typeof(Result), typeof(Behavior));
 
         // Act
         chain.AddLoggingException().InSpanish();
 
         // Arrange
-        services.Where(e => e.ServiceType == typeof(LoggingExceptionBehavior<,>))
+        services.Where(e => e.ServiceType == typeof(LoggingExceptionInterceptor<,>))
                 .Any(e => e.Lifetime      == ServiceLifetime.Transient)
                 .Should().BeTrue();
 
@@ -97,7 +95,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
 
         chain.Behaviors.Should()
              .HaveCount(expBehaviorCount)
-             .And.Contain(type => type == typeof(LoggingExceptionBehavior<Request, Result>));
+             .And.Contain(type => type == typeof(LoggingExceptionInterceptor<Input, Result>));
 
     }
 
@@ -109,13 +107,13 @@ public class ExceptionHandlingBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        var chain = new BehaviorChain(services, typeof(Request), typeof(Result), typeof(Handler));
+        var chain = new InterceptorChain(services, typeof(Input), typeof(Result), typeof(Behavior));
 
         // Act
         chain.AddLoggingException().In<CustomTemplate>();
 
         // Arrange
-        services.Where(e => e.ServiceType == typeof(LoggingExceptionBehavior<,>))
+        services.Where(e => e.ServiceType == typeof(LoggingExceptionInterceptor<,>))
                 .Any(e => e.Lifetime      == ServiceLifetime.Transient)
                 .Should().BeTrue();
 
@@ -130,7 +128,7 @@ public class ExceptionHandlingBehaviorExtensionsTests
 
         chain.Behaviors.Should()
              .HaveCount(expBehaviorCount)
-             .And.Contain(type => type == typeof(LoggingExceptionBehavior<Request, Result>));
+             .And.Contain(type => type == typeof(LoggingExceptionInterceptor<Input, Result>));
 
     }
 }

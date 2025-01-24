@@ -6,25 +6,24 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
 using VSlices.Base.CrossCutting;
+using VSlices.Base.Definitions;
 
 namespace VSlices.Base.UnitTests.Builders;
 
-public sealed class FeatureDefinitionTests
+public sealed class FeatureComposerTests
 {
     public sealed record Result;
 
-    public sealed record Feature : IFeature<Result>;
+    public sealed record Input;
 
-    public sealed class Handler : IHandler<Feature, Result>
+    public sealed class Behavior : IBehavior<Input, Result>
     {
-        public Eff<VSlicesRuntime, Result> Define(Feature input) => throw new NotImplementedException();
+        public Eff<VSlicesRuntime, Result> Define(Input input) => throw new NotImplementedException();
     }
 
-    public sealed class PipelineBehavior<TFeature, TResult> : IPipelineBehavior<TFeature, TResult>
-        where TFeature : IFeature<TResult>
+    public sealed class BehaviorInterceptor<TFeature, TResult> : IBehaviorInterceptor<TFeature, TResult>
     {
         public Eff<VSlicesRuntime, TResult> Define(TFeature request, Eff<VSlicesRuntime, TResult> next) => throw new NotImplementedException();
     }
@@ -41,17 +40,17 @@ public sealed class FeatureDefinitionTests
 
         var services = new ServiceCollection();
 
-        IFeatureStartBuilder<Feature, Result> feature = new FeatureDefinition<Feature, Result>(services);
+        var feature = new FeatureComposer(services).With<Input>().Expect<Result>();
 
         // Act
-        feature.Execute<Handler>();
+        feature.ByExecuting<Behavior>();
 
         // Assert
         services.Count.Should().Be(expServiceCount);
 
-        var descriptor = services.Single(x => x.ImplementationType == typeof(Handler));
+        var descriptor = services.Single(x => x.ImplementationType == typeof(Behavior));
 
-        descriptor.ServiceType.Should().Be(typeof(IHandler<Feature, Result>));
+        descriptor.ServiceType.Should().Be(typeof(IBehavior<Input, Result>));
     }
 
     [Fact]
@@ -62,22 +61,21 @@ public sealed class FeatureDefinitionTests
 
         var services = new ServiceCollection();
 
-        IFeatureStartBuilder<Feature, Result> feature = new FeatureDefinition<Feature, Result>(services);
+        var feature = new FeatureComposer(services).With<Input>().Expect<Result>();
 
         // Act
-        feature.Execute<Handler>()
-               .WithBehaviorChain(chain => chain.Add(typeof(PipelineBehavior<,>)));
+        feature.ByExecuting<Behavior>(chain => chain.Add(typeof(BehaviorInterceptor<,>)));
 
         // Assert
         services.Count.Should().Be(expServiceCount);
 
-        var handlerDescriptor = services.Single(x => x.ImplementationType == typeof(Handler));
-        handlerDescriptor.ServiceType.Should().Be(typeof(IHandler<Feature, Result>));
+        var handlerDescriptor = services.Single(x => x.ImplementationType == typeof(Behavior));
+        handlerDescriptor.ServiceType.Should().Be(typeof(IBehavior<Input, Result>));
 
-        var behaviorDescriptor = services.Single(x => x.ImplementationType == typeof(PipelineBehavior<,>));
-        behaviorDescriptor.ServiceType.Should().Be(typeof(PipelineBehavior<,>));
+        var behaviorDescriptor = services.Single(x => x.ImplementationType == typeof(BehaviorInterceptor<,>));
+        behaviorDescriptor.ServiceType.Should().Be(typeof(BehaviorInterceptor<,>));
 
-        var behaviorChainDescriptor = services.Single(x => x.ServiceType == typeof(HandlerBehaviorChain<Handler>));
+        var behaviorChainDescriptor = services.Single(x => x.ServiceType == typeof(BehaviorInterceptorChain<Behavior>));
         behaviorChainDescriptor.ImplementationType.Should().BeNull();
     }
 
@@ -89,11 +87,11 @@ public sealed class FeatureDefinitionTests
 
         var services = new ServiceCollection();
 
-        IFeatureStartBuilder<Feature, Result> feature = new FeatureDefinition<Feature, Result>(services);
+        var feature = new FeatureComposer(services).With<Input>().Expect<Result>();
 
         // Act
-        feature.FromIntegration.Using<Integrator>()
-               .Execute<Handler>();
+        feature.ByExecuting<Behavior>()
+               .AndBindTo<Integrator>();
 
         // Assert
         services.Count.Should().Be(expServiceCount);
@@ -101,8 +99,8 @@ public sealed class FeatureDefinitionTests
         var presentationDescriptor = services.Single(x => x.ImplementationType == typeof(Integrator));
         presentationDescriptor.ServiceType.Should().Be(typeof(IIntegrator));    
 
-        var handlerDescriptor = services.Single(x => x.ImplementationType == typeof(Handler));
-        handlerDescriptor.ServiceType.Should().Be(typeof(IHandler<Feature, Result>));
+        var handlerDescriptor = services.Single(x => x.ImplementationType == typeof(Behavior));
+        handlerDescriptor.ServiceType.Should().Be(typeof(IBehavior<Input, Result>));
 
     }
 
@@ -114,12 +112,11 @@ public sealed class FeatureDefinitionTests
 
         var services = new ServiceCollection();
 
-        IFeatureStartBuilder<Feature, Result> feature = new FeatureDefinition<Feature, Result>(services);
+        var feature = new FeatureComposer(services).With<Input>().Expect<Result>();
 
         // Act
-        feature.FromIntegration.Using<Integrator>()
-               .Execute<Handler>()
-               .WithBehaviorChain(chain => chain.Add(typeof(PipelineBehavior<,>)));
+        feature.ByExecuting<Behavior>(chain => chain.Add(typeof(BehaviorInterceptor<,>)))
+               .AndBindTo<Integrator>();
 
         // Assert
         services.Count.Should().Be(expServiceCount);
@@ -127,13 +124,13 @@ public sealed class FeatureDefinitionTests
         var presentationDescriptor = services.Single(x => x.ImplementationType == typeof(Integrator));
         presentationDescriptor.ServiceType.Should().Be(typeof(IIntegrator));
 
-        var handlerDescriptor = services.Single(x => x.ImplementationType == typeof(Handler));
-        handlerDescriptor.ServiceType.Should().Be(typeof(IHandler<Feature, Result>));
+        var handlerDescriptor = services.Single(x => x.ImplementationType == typeof(Behavior));
+        handlerDescriptor.ServiceType.Should().Be(typeof(IBehavior<Input, Result>));
 
-        var behaviorDescriptor = services.Single(x => x.ImplementationType == typeof(PipelineBehavior<,>));
-        behaviorDescriptor.ServiceType.Should().Be(typeof(PipelineBehavior<,>));
+        var behaviorDescriptor = services.Single(x => x.ImplementationType == typeof(BehaviorInterceptor<,>));
+        behaviorDescriptor.ServiceType.Should().Be(typeof(BehaviorInterceptor<,>));
 
-        var behaviorChainDescriptor = services.Single(x => x.ServiceType == typeof(HandlerBehaviorChain<Handler>));
+        var behaviorChainDescriptor = services.Single(x => x.ServiceType == typeof(BehaviorInterceptorChain<Behavior>));
         behaviorChainDescriptor.ImplementationType.Should().BeNull();
 
     }
@@ -146,12 +143,11 @@ public sealed class FeatureDefinitionTests
 
         var services = new ServiceCollection();
 
-        IFeatureStartBuilder<Feature, Result> feature = new FeatureDefinition<Feature, Result>(services);
+        var feature = new FeatureComposer(services).With<Input>().Expect<Result>();
 
         // Act
-        feature.FromIntegration.Using<Integrator>().And<OtherIntegrator>()
-               .Execute<Handler>()
-               .WithBehaviorChain(chain => chain.Add(typeof(PipelineBehavior<,>)));
+        feature.ByExecuting<Behavior>(chain => chain.Add(typeof(BehaviorInterceptor<,>)))
+               .AndBindTo<Integrator, OtherIntegrator>();
 
         // Assert
         services.Count.Should().Be(expServiceCount);
@@ -162,13 +158,13 @@ public sealed class FeatureDefinitionTests
         var presentationDescriptor2 = services.Single(x => x.ImplementationType == typeof(OtherIntegrator));
         presentationDescriptor2.ServiceType.Should().Be(typeof(IIntegrator));
 
-        var handlerDescriptor = services.Single(x => x.ImplementationType == typeof(Handler));
-        handlerDescriptor.ServiceType.Should().Be(typeof(IHandler<Feature, Result>));
+        var handlerDescriptor = services.Single(x => x.ImplementationType == typeof(Behavior));
+        handlerDescriptor.ServiceType.Should().Be(typeof(IBehavior<Input, Result>));
 
-        var behaviorDescriptor = services.Single(x => x.ImplementationType == typeof(PipelineBehavior<,>));
-        behaviorDescriptor.ServiceType.Should().Be(typeof(PipelineBehavior<,>));
+        var behaviorDescriptor = services.Single(x => x.ImplementationType == typeof(BehaviorInterceptor<,>));
+        behaviorDescriptor.ServiceType.Should().Be(typeof(BehaviorInterceptor<,>));
 
-        var behaviorChainDescriptor = services.Single(x => x.ServiceType == typeof(HandlerBehaviorChain<Handler>));
+        var behaviorChainDescriptor = services.Single(x => x.ServiceType == typeof(BehaviorInterceptorChain<Behavior>));
         behaviorChainDescriptor.ImplementationType.Should().BeNull();
 
     }

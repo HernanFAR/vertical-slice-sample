@@ -6,8 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Testcontainers.MsSql;
 using VSlices.Base;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
+using VSlices.Base.Definitions;
+using VSlices.Core.Integration.RecurringJob;
 using VSlices.Core.UseCases;
 using VSlices.CrossCutting.BackgroundTaskListener;
 using static LanguageExt.Prelude;
@@ -24,9 +25,9 @@ public class RecurringJobTests
         public void Reset() => Count = 0;    
     }
 
-    public record Query : IRequest;
+    public record Query : IInput;
 
-    public class RequestHandler : IHandler<Query>
+    public class RequestBehavior : IBehavior<Query>
     {
         public Eff<VSlicesRuntime, Unit> Define(Query request) =>
             from accumulator in provide<Accumulator>()
@@ -61,8 +62,10 @@ public class RecurringJobTests
                        .AddRecurringJobListener()
                        .AddSingleton<Accumulator>();
 
-        new FeatureDefinition<Query, Unit>(services).FromIntegration.Using<RecurringJobListener>()
-                                                    .Execute<RequestHandler>();
+        new FeatureComposer(services)
+            .With<Query>().ExpectNoOutput()
+            .ByExecuting<RequestBehavior>()
+            .AndBindTo<RecurringJobListener>();
 
         var provider = services.BuildServiceProvider();
 
@@ -81,22 +84,18 @@ public class RecurringJobTests
     [Fact]
     public async Task StartRecurringJob_Hangfire()
     {
-        MsSqlContainer container = new MsSqlBuilder()
-                                    .WithPassword("Hangfire.2024IB")
-                                    .Build();
-
-        await container.StartAsync();
-
         var services = new ServiceCollection()
                        .AddVSlicesRuntime()
                        .AddReflectionRequestRunner()
-                       .AddHangfireTaskListener(config => config.UseSqlServerStorage(container.GetConnectionString()))
+                       .AddHangfireTaskListener(config => config.UseInMemoryStorage())
                        .AddLogging()
                        .AddRecurringJobListener()
                        .AddSingleton<Accumulator>();
 
-        new FeatureDefinition<Query, Unit>(services).FromIntegration.Using<RecurringJobListener>()
-                                                    .Execute<RequestHandler>();
+        new FeatureComposer(services)
+            .With<Query>().ExpectNoOutput()
+            .ByExecuting<RequestBehavior>()
+            .AndBindTo<RecurringJobListener>();
 
         var provider = services.BuildServiceProvider();
 
@@ -113,7 +112,5 @@ public class RecurringJobTests
         await Task.Delay(7500);
 
         accumulator.Count.Should().BeGreaterOrEqualTo(1);
-
-        await container.StopAsync();
     }
 }

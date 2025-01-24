@@ -5,11 +5,11 @@ using LanguageExt;
 using static LanguageExt.Prelude;
 using static VSlices.VSlicesPrelude;
 using VSlices.Base;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
 using VSlices.Base.CrossCutting;
 using VSlices.Core.Events.Strategies;
 using VSlices.Domain;
+using VSlices.Base.Definitions;
 
 // ReSharper disable once CheckNamespace
 namespace VSlices.Core.Events._ReflectionRunner.UnitTests;
@@ -24,8 +24,7 @@ public class ReflectionEventRunnerTests
 
     }
 
-    public sealed class PipelineBehaviorOne<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IFeature<TResponse>
+    public sealed class BehaviorInterceptorOne<TRequest, TResponse> : IBehaviorInterceptor<TRequest, TResponse>
     {
         public Eff<VSlicesRuntime, TResponse> Define(TRequest request, Eff<VSlicesRuntime, TResponse> next) =>
             from accumulator in provide<Accumulator>()
@@ -40,8 +39,7 @@ public class ReflectionEventRunnerTests
             select result;
     }
 
-    public sealed class PipelineBehaviorTwo<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IFeature<TResponse>
+    public sealed class BehaviorInterceptorTwo<TRequest, TResponse> : IBehaviorInterceptor<TRequest, TResponse>
     {
         public Eff<VSlicesRuntime, TResponse> Define(TRequest request, Eff<VSlicesRuntime, TResponse> next) =>
             from accumulator in provide<Accumulator>()
@@ -56,7 +54,7 @@ public class ReflectionEventRunnerTests
             select result;
     }
 
-    public sealed class ConcretePipelineBehaviorOne : IPipelineBehavior<EventOne, Unit>
+    public sealed class ConcreteBehaviorInterceptorOne : IBehaviorInterceptor<EventOne, Unit>
     {
         public Eff<VSlicesRuntime, Unit> Define(EventOne @event, Eff<VSlicesRuntime, Unit> next) =>
             from accumulator in provide<Accumulator>()
@@ -73,7 +71,7 @@ public class ReflectionEventRunnerTests
 
     public sealed record EventOne : Event;
 
-    public sealed class HandlerOne : IHandler<EventOne>
+    public sealed class BehaviorOne : IBehavior<EventOne>
     {
         public Eff<VSlicesRuntime, Unit> Define(EventOne input) =>
             from accumulator in provide<Accumulator>()
@@ -89,7 +87,7 @@ public class ReflectionEventRunnerTests
 
     public sealed record EventTwo : Event;
 
-    public sealed class HandlerTwo : IHandler<EventTwo>
+    public sealed class BehaviorTwo : IBehavior<EventTwo>
     {
         public Eff<VSlicesRuntime, Unit> Define(EventTwo input) =>
             from accumulator in provide<Accumulator>()
@@ -104,7 +102,7 @@ public class ReflectionEventRunnerTests
     }
     public sealed record RequestThree : Event;
 
-    public sealed class RequestThreeRequestHandlerA : IHandler<RequestThree>
+    public sealed class RequestThreeRequestBehaviorA : IBehavior<RequestThree>
     {
         public AutoResetEvent EventHandled { get; } = new(false);
 
@@ -120,7 +118,7 @@ public class ReflectionEventRunnerTests
             select unit;
     }
 
-    public sealed class RequestThreeRequestHandlerB : IHandler<RequestThree>
+    public sealed class RequestThreeRequestBehaviorB : IBehavior<RequestThree>
     {
         public AutoResetEvent EventHandled { get; } = new(false);
 
@@ -147,9 +145,10 @@ public class ReflectionEventRunnerTests
                        .AddTransient<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                        .AddSingleton<Accumulator>();
-
-        new FeatureDefinition<EventOne, Unit>(services)
-            .Execute<HandlerOne>();
+        
+        new FeatureComposer(services)
+            .With<EventOne>().ExpectNoOutput()
+            .ByExecuting<BehaviorOne>();
 
         var provider = services.BuildServiceProvider();
 
@@ -172,10 +171,10 @@ public class ReflectionEventRunnerTests
     {
         var provider = new ServiceCollection()
             .AddVSlicesRuntime()
-            .AddScoped<RequestThreeRequestHandlerA>()
-            .AddScoped<IHandler<RequestThree, Unit>>(s => s.GetRequiredService<RequestThreeRequestHandlerA>())
-            .AddScoped<RequestThreeRequestHandlerB>()
-            .AddScoped<IHandler<RequestThree, Unit>>(s => s.GetRequiredService<RequestThreeRequestHandlerB>())
+            .AddSingleton<RequestThreeRequestBehaviorA>()
+            .AddScoped<IBehavior<RequestThree, Unit>>(s => s.GetRequiredService<RequestThreeRequestBehaviorA>())
+            .AddSingleton<RequestThreeRequestBehaviorB>()
+            .AddScoped<IBehavior<RequestThree, Unit>>(s => s.GetRequiredService<RequestThreeRequestBehaviorB>())
             .AddScoped<IEventRunner, ReflectionEventRunner>()
             .AddSingleton<Accumulator>()
             .AddScoped(typeof(IPublishingStrategy), strategyType)
@@ -193,8 +192,8 @@ public class ReflectionEventRunnerTests
 
         stopwatch.ElapsedMilliseconds.Should().BeGreaterOrEqualTo(time);
 
-        var handlerA = provider.GetRequiredService<RequestThreeRequestHandlerA>();
-        var handlerB = provider.GetRequiredService<RequestThreeRequestHandlerB>();
+        var handlerA = provider.GetRequiredService<RequestThreeRequestBehaviorA>();
+        var handlerB = provider.GetRequiredService<RequestThreeRequestBehaviorB>();
 
         handlerA.EventHandled.WaitOne(1000)
             .Should().BeTrue();
@@ -207,13 +206,13 @@ public class ReflectionEventRunnerTests
     {
         const int expCount = 2;
 
-        var behaviorChain = new HandlerBehaviorChain<HandlerOne>([typeof(PipelineBehaviorOne<EventOne, Unit>)]);
+        var behaviorChain = new BehaviorInterceptorChain<BehaviorOne>([typeof(BehaviorInterceptorOne<EventOne, Unit>)]);
 
         var provider = new ServiceCollection()
                        .AddVSlicesRuntime()
                        .AddSingleton(behaviorChain)
-                       .AddTransient(typeof(PipelineBehaviorOne<,>))
-                       .AddTransient<IHandler<EventOne, Unit>, HandlerOne>()
+                       .AddTransient(typeof(BehaviorInterceptorOne<,>))
+                       .AddTransient<IBehavior<EventOne, Unit>, BehaviorOne>()
                        .AddScoped<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                        .AddSingleton<Accumulator>()
@@ -234,17 +233,17 @@ public class ReflectionEventRunnerTests
     {
         const int expCount = 3;
 
-        var behaviorChain = new HandlerBehaviorChain<HandlerOne>([
-            typeof(PipelineBehaviorOne<EventOne, Unit>), 
-            typeof(ConcretePipelineBehaviorOne)
+        var behaviorChain = new BehaviorInterceptorChain<BehaviorOne>([
+            typeof(BehaviorInterceptorOne<EventOne, Unit>), 
+            typeof(ConcreteBehaviorInterceptorOne)
         ]);
 
         var provider = new ServiceCollection()
                        .AddVSlicesRuntime()
                        .AddSingleton(behaviorChain)
-                       .AddTransient(typeof(PipelineBehaviorOne<,>))
-                       .AddTransient(typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IHandler<EventOne, Unit>, HandlerOne>()
+                       .AddTransient(typeof(BehaviorInterceptorOne<,>))
+                       .AddTransient(typeof(ConcreteBehaviorInterceptorOne))
+                       .AddTransient<IBehavior<EventOne, Unit>, BehaviorOne>()
                        .AddTransient<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
@@ -265,17 +264,17 @@ public class ReflectionEventRunnerTests
     {
         const int expCount = 3;
 
-        var behaviorChain = new HandlerBehaviorChain<HandlerOne>([
-            typeof(PipelineBehaviorOne<EventOne, Unit>),
-            typeof(PipelineBehaviorTwo<EventOne, Unit>)
+        var behaviorChain = new BehaviorInterceptorChain<BehaviorOne>([
+            typeof(BehaviorInterceptorOne<EventOne, Unit>),
+            typeof(BehaviorInterceptorTwo<EventOne, Unit>)
         ]);
 
         ServiceProvider provider = new ServiceCollection()
                                    .AddVSlicesRuntime()
                                    .AddSingleton(behaviorChain)
-                                   .AddTransient(typeof(PipelineBehaviorOne<,>))
-                                   .AddTransient(typeof(PipelineBehaviorTwo<,>))
-                                   .AddTransient<IHandler<EventOne, Unit>, HandlerOne>()
+                                   .AddTransient(typeof(BehaviorInterceptorOne<,>))
+                                   .AddTransient(typeof(BehaviorInterceptorTwo<,>))
+                                   .AddTransient<IBehavior<EventOne, Unit>, BehaviorOne>()
                                    .AddScoped<IEventRunner, ReflectionEventRunner>()
                                    .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                                    .AddSingleton<Accumulator>()
@@ -295,19 +294,19 @@ public class ReflectionEventRunnerTests
     {
         const int expCount = 4;
 
-        var behaviorChain = new HandlerBehaviorChain<HandlerOne>([
-            typeof(PipelineBehaviorOne<EventOne, Unit>),
-            typeof(PipelineBehaviorTwo<EventOne, Unit>),
-            typeof(ConcretePipelineBehaviorOne)
+        var behaviorChain = new BehaviorInterceptorChain<BehaviorOne>([
+            typeof(BehaviorInterceptorOne<EventOne, Unit>),
+            typeof(BehaviorInterceptorTwo<EventOne, Unit>),
+            typeof(ConcreteBehaviorInterceptorOne)
         ]);
 
         var provider = new ServiceCollection()
                        .AddVSlicesRuntime()
                        .AddSingleton(behaviorChain)
-                       .AddTransient(typeof(PipelineBehaviorOne<,>))
-                       .AddTransient(typeof(PipelineBehaviorTwo<,>))
-                       .AddTransient(typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IHandler<EventOne, Unit>, HandlerOne>()
+                       .AddTransient(typeof(BehaviorInterceptorOne<,>))
+                       .AddTransient(typeof(BehaviorInterceptorTwo<,>))
+                       .AddTransient(typeof(ConcreteBehaviorInterceptorOne))
+                       .AddTransient<IBehavior<EventOne, Unit>, BehaviorOne>()
                        .AddScoped<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                        .AddSingleton<Accumulator>()
@@ -327,19 +326,19 @@ public class ReflectionEventRunnerTests
     {
         const int expCount = 3;
 
-        var behaviorChain = new HandlerBehaviorChain<HandlerTwo>([
-            typeof(PipelineBehaviorOne<EventTwo, Unit>),
-            typeof(PipelineBehaviorTwo<EventTwo, Unit>)
+        var behaviorChain = new BehaviorInterceptorChain<BehaviorTwo>([
+            typeof(BehaviorInterceptorOne<EventTwo, Unit>),
+            typeof(BehaviorInterceptorTwo<EventTwo, Unit>)
         ]);
 
         var provider = new ServiceCollection()
                        .AddVSlicesRuntime()
                        .AddSingleton(behaviorChain)
-                       .AddTransient(typeof(PipelineBehaviorOne<,>))
-                       .AddTransient(typeof(PipelineBehaviorTwo<,>))
-                       .AddTransient(typeof(ConcretePipelineBehaviorOne))
-                       .AddTransient<IHandler<EventOne, Unit>, HandlerOne>()
-                       .AddTransient<IHandler<EventTwo, Unit>, HandlerTwo>()
+                       .AddTransient(typeof(BehaviorInterceptorOne<,>))
+                       .AddTransient(typeof(BehaviorInterceptorTwo<,>))
+                       .AddTransient(typeof(ConcreteBehaviorInterceptorOne))
+                       .AddTransient<IBehavior<EventOne, Unit>, BehaviorOne>()
+                       .AddTransient<IBehavior<EventTwo, Unit>, BehaviorTwo>()
                        .AddScoped<IEventRunner, ReflectionEventRunner>()
                        .AddScoped<IPublishingStrategy, AwaitForEachStrategy>()
                        .AddSingleton<Accumulator>()

@@ -9,12 +9,12 @@ public class RequestRunnerExtensionsTests
 {
     public class RequestRunner : IRequestRunner
     {
-        public Fin<TResult1> Run<TResult1>(IRequest<TResult1> request, VSlicesRuntime runtime)
+        public Fin<TResult1> Run<TResult1>(IInput<TResult1> input, VSlicesRuntime runtime)
         {
             throw new NotImplementedException();
         }
 
-        public Fin<TResult1> Run<TResult1>(IRequest<TResult1> request, CancellationToken cancellationToken = default)
+        public Fin<TResult1> Run<TResult1>(IInput<TResult1> input, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }

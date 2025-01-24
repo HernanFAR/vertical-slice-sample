@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\VSlices.Core.Presentation.AspNetCore\VSlices.Core.Presentation.AspNetCore.csproj" />
+		<ProjectReference Include="..\VSlices.Core.Presentation.AspNetCore\VSlices.Core.Integration.AspNetCore.csproj" />
 	</ItemGroup>
 
 </Project>

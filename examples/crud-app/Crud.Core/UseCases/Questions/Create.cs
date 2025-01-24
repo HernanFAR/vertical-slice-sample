@@ -9,22 +9,22 @@ using FluentValidation;
 using Microsoft.Extensions.Logging;
 using VSlices.Base.Builder;
 using VSlices.Base.Core;
+using VSlices.Base.Definitions;
 using VSlices.CrossCutting.AspNetCore.DataAnnotationMiddleware;
 
 // ReSharper disable once CheckNamespace
 namespace Crud.Core.UseCases.Questions.Create;
 
-public sealed record Command(CategoryId CategoryId, NonEmptyString Text) : IRequest<Unit>;
+public sealed record Command(CategoryId CategoryId, NonEmptyString Text) : IInput<Unit>;
 
-public sealed class CreateQuestionDependencies : IFeatureDependencies<Command, Unit>
+public sealed class CreateQuestionDefinition : IFeatureDefinition
 {
-    public static void DefineDependencies(IFeatureStartBuilder<Command, Unit> feature) =>
-        feature.FromIntegration.Using<EndpointIntegrator>()
-               .Execute<RequestHandler>()
-               .WithBehaviorChain(chain => chain
-                                      .AddLogging().InSpanish()
-                                      .AddFluentValidationUsing<Validator>()
-                                      .AddLoggingException().InSpanish());
+    public static Unit Define(FeatureComposer feature) =>
+        feature.With<Command>().ExpectNoOutput()
+               .ByExecuting<RequestBehavior>(chain => chain.AddLogging().InSpanish()
+                                                           .AddFluentValidationUsing<Validator>()
+                                                           .AddLoggingException().InSpanish())
+               .AndBindTo<EndpointIntegrator>();
 }
 
 public sealed record CreateQuestionContract(
@@ -62,7 +62,7 @@ internal sealed class EndpointIntegrator : IEndpointIntegrator
     }
 }
 
-internal sealed class RequestHandler : IHandler<Command>
+internal sealed class RequestBehavior : IBehavior<Command>
 {
     public Eff<VSlicesRuntime, Unit> Define(Command input) =>
         from manager in provide<QuestionManager>()

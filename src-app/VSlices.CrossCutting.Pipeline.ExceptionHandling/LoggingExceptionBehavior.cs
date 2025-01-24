@@ -1,32 +1,30 @@
 ﻿using LanguageExt;
 using Microsoft.Extensions.Logging;
-using static LanguageExt.Prelude;
-using static VSlices.VSlicesPrelude;
 using VSlices.Base;
-using VSlices.CrossCutting.Pipeline.ExceptionHandling.MessageTemplates;
-using VSlices.Base.Core;
+using VSlices.CrossCutting.Interceptor.ExceptionHandling.MessageTemplates;
+using static VSlices.VSlicesPrelude;
+using static LanguageExt.Prelude;
 
-namespace VSlices.CrossCutting.Pipeline.ExceptionHandling;
+namespace VSlices.CrossCutting.Interceptor.ExceptionHandling;
 
 /// <summary>
 /// Base exception handling behavior
 /// </summary>
-/// <typeparam name="TRequest">The intercepted request to handle</typeparam>
-/// <typeparam name="TResult">The expected successful result</typeparam>
-public sealed class LoggingExceptionBehavior<TRequest, TResult> : ExceptionHandlingBehavior<TRequest, TResult>
-    where TRequest : IFeature<TResult>
+/// <typeparam name="TIn">The intercepted input</typeparam>
+/// <typeparam name="TOut">The expected result</typeparam>
+public sealed class LoggingExceptionInterceptor<TIn, TOut> : ExceptionHandlingInterceptor<TIn, TOut>
 {
     /// <inheritdoc />
-    protected internal override Eff<VSlicesRuntime, TResult> Process(Exception ex, TRequest request) =>
-        from logger in provide<ILogger<TRequest>>()
+    protected internal override Eff<VSlicesRuntime, TOut> Process(Exception ex, TIn request) =>
+        from logger in provide<ILogger<TIn>>()
         from template in provide<IExceptionMessageTemplate>()
         from time in provide<TimeProvider>()
-        from result in liftEff<TResult>(() =>
+        from result in liftEff<TOut>(() =>
         {
             logger.LogError(ex, 
                             template.LogException,
                             time.GetUtcNow(), 
-                            typeof(TRequest).FullName, 
+                            typeof(TIn).FullName, 
                             request);
 
             return serverError(template.ErrorMessage);

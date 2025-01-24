@@ -3,23 +3,24 @@ using FluentValidation;
 using LanguageExt;
 using Microsoft.Extensions.DependencyInjection;
 using VSlices.Base;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
+using VSlices.Base.Definitions;
 using VSlices.Core.Builder;
+using VSlices.CrossCutting.Interceptor.FluentValidation;
 
 namespace VSlices.CrossCutting.Pipeline.FluentValidation.UnitTests.Extensions;
 
 public class FluentValidationBehaviorExtensionsTests
 {
     public record Result;
-    public record Request : IFeature<Result>;
+    public record Input;
 
-    public class Handler : IHandler<Request, Result>
+    public class Behavior : IBehavior<Input, Result>
     {
-        public Eff<VSlicesRuntime, Result> Define(Request input) => throw new NotImplementedException();
+        public Eff<VSlicesRuntime, Result> Define(Input input) => throw new NotImplementedException();
     }
 
-    public class Validator : AbstractValidator<Request>;
+    public class Validator : AbstractValidator<Input>;
 
     [Fact]
     public void AddFluentValidationPipeline_ShouldRegisterInServiceContainer()
@@ -29,24 +30,24 @@ public class FluentValidationBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        BehaviorChain chain = new(services, typeof(Request), typeof(Result), typeof(Handler));
+        InterceptorChain chain = new(services, typeof(Input), typeof(Result), typeof(Behavior));
 
         // Act
         chain.AddFluentValidationUsing<Validator>();
 
         // Assert
-        services.Where(e => e.ServiceType == typeof(FluentValidationBehavior<,>))
+        services.Where(e => e.ServiceType == typeof(FluentValidationInterceptor<,>))
                 .Any(e => e.Lifetime      == ServiceLifetime.Transient)
                 .Should().BeTrue();
 
-        services.Where(e => e.ServiceType        == typeof(IValidator<Request>))
+        services.Where(e => e.ServiceType        == typeof(IValidator<Input>))
                 .Where(e => e.ImplementationType == typeof(Validator))
                 .Any(e => e.Lifetime             == ServiceLifetime.Transient)
                 .Should().BeTrue();
 
         chain.Behaviors.Should()
              .HaveCount(expBehaviorCount)
-             .And.Contain(type => type == typeof(FluentValidationBehavior<Request, Result>));
+             .And.Contain(type => type == typeof(FluentValidationInterceptor<Input, Result>));
 
     }
 }

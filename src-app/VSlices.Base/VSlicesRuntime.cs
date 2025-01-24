@@ -4,7 +4,7 @@ using Implementations = LanguageExt.Sys.Live.Implementations;
 namespace VSlices.Base;
 
 /// <summary>
-/// Handler runtime implementation
+/// Behavior runtime implementation
 /// </summary>
 public sealed class VSlicesRuntime
     : Has<Eff<VSlicesRuntime>, DependencyProvider>,
