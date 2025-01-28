@@ -42,24 +42,30 @@ After all of that, we will have the folling branches:
 - In "master", we have the release code of v8.1.0
 - In "v7/master", we have the release code of v7.0.1
 
-# Branch naming and commit messages conventions
+# Git convertions
 We use the following classification to name branches and write commits. They are based on [convencional commits v1](https://www.conventionalcommits.org/en/v1.0.0/).
 
-For commits, the templates are like this: "[Commit type]([Related issue number]): [Commit message]". Like this:
-- fix(#10): Solved SharepointAccess policy in SharepointConnectionclass
+## Type naming
+For branch and commits types, we use the followings:
+- feat: Development of new functionalities in the system. Related to MAJOR or MINOR upgrades in the semantic versioning.
+- fix: Fixing of detected bugs in the system. Related to PATCH upgrades in the semantic versioning.
+- dx: For commits related to development experience.
+- test: For commits related to testing.
+- tools: For commits related to internal functionalities.
+- docs: For commits related to the framework documentation.
+- refac: For commits related to refactorizations in the framework.
+- devops: For commits related to dev ops CI or CD.
+
+## Commits conventions
+The templates must be like this: "[Commit type]([Related issue number]): [Commit message]". Like this:
+- fix(#10): Solved SharepointAccessPolicy bug in SharepointConnectionclass
 - docs(#17): Adding branch nameing and commit messages conventions in readme.md
 - tools(#10): Adding MinIO support
 
-For branches, the templates are like this: "v[Version number]/[Branch type]/[Branch name]": Like this
-- v6.0.0/tools/readme.md-update
-- v5.2.1/tools/mailtrap-implementation
-- v5.2.2/sharepoint-access-policy
+If the commit has breaking changes, must have "Breaking changes!" at the bottom and must update the issue, if any, to have the label "breaking change"
 
-The branch and commits types definitions are this:
-- fix: Fixing of detected bugs in the system. Related to PATCH upgrades in the semantic versioning.
-- feat: Development of new functionalities in thesystem. Related to MINOR upgrades in the semantic versioning.
-- test: For commits related to testing.
-- tools: For commits related to internal functionalities.
-- docs: For commits related to the system documentation.
-- refac: For commits related to refactorizations in the system.
-- devops: For commits related to dev ops CI or CD.
+## Branches conventions
+The templates are like this: "v[Major version number]/[Branch type]/[Branch name]": Like this
+- v6/tools/readme.md-update
+- v5/tools/mailtrap-implementation
+- v5/sharepoint-access-policy

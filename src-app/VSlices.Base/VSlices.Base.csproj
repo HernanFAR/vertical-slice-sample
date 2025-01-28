@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Base package</Description>
+		<PackageTags>functional;request;result</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="LanguageExt.Sys" Version="5.0.0-beta-45" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.1" />
+	</ItemGroup>
+</Project>

@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Extension package for event implementations in Core projects</Description>
+		<PackageTags>functional;request;result;vertical-slice;event;event-listener;event-queue;runner;event-runner</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.1" />
+	  <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\VSlices.CrossCutting.BackgroundTaskListener\VSlices.CrossCutting.BackgroundTaskListener.csproj" />
+		<ProjectReference Include="..\VSlices.Domain\VSlices.Domain.csproj" />
+	</ItemGroup>
+
+</Project>

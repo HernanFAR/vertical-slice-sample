@@ -20,7 +20,7 @@
 # About
 VSlices is a high-level, develop in C#, modular framework  that aims to a faster but clean and pragmatic software developtment Is heavy inspired in the vertical slices architecture and the functional programming. Is also Domain Driven Development friendly.
 
-The documentation of the software is in [link](https://vslice-framework.readthedocs.io/en/latest/), there you can start to use it and learn the functionalities that the framework brings. It also has and explication of the implementation of the proposed architecture and the way of work
+The documentation of the software is [here in readthedocs](https://vslice-framework.readthedocs.io/en/latest/), there you'll learn the functionalities that the framework brings. It also has and explication of the implementation of the proposed architecture and the good practices
 
 If you find a problem with the documentation, have a improvement or clarification proposal, you can generate a ticket here: [link](https://github.com/HernanFAR/vslice-framework/issues)
 

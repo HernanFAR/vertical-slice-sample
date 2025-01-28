@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<Description>Extension package for use case implementations in Core projects</Description>
+		<PackageTags>functional;request;result;vertical-slice;runner;request-runner</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\VSlices.Base\VSlices.Base.csproj" />
+	</ItemGroup>
+
+</Project>

@@ -7,14 +7,18 @@ on:
     branches:
     - master
     - v**/master
+env:    
+  PROJECT_PATH: 'VSlices.sln'
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-    - name: Build
-      run: dotnet build --configuration Release
-    - name: Test
-      run: dotnet test --configuration Release --no-build
+    - name: 'Restore packages'
+      run: dotnet restore ${{ env.PROJECT_PATH }}
+    - name: 'Build solution'
+      run: dotnet build ${{ env.PROJECT_PATH }} --no-restore --configuration Release
+    - name: 'Test solution'
+      run: dotnet test ${{ env.PROJECT_PATH }} --configuration Release --no-build
