@@ -1,8 +1,5 @@
-﻿using Crud.Core.UseCases.Questions.Counter;
-using Crud.CrossCutting.Pipelines;
-using Crud.Domain.Rules.DataAccess;
+﻿using Crud.Domain.Rules.DataAccess;
 using Crud.Domain.ValueObjects;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
 using VSlices.Base.Definitions;
 
@@ -16,10 +13,9 @@ public sealed class ExistsQuestionDefinition : IFeatureDefinition
     public static Unit Define(FeatureComposer feature) =>
         feature.With<Query>().ExpectNoOutput()
                .ByExecuting<Behavior>(chain => chain.AddLogging().InSpanish()
-                                                    .AddLoggingException().InSpanish())
+                                                    .AddExceptionHandling().UsingLogging().InSpanish())
                .AndBindTo<EndpointIntegrator>();
 }
-
 
 internal sealed class EndpointIntegrator : IEndpointIntegrator
 {

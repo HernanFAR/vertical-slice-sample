@@ -14,10 +14,10 @@ public sealed class QuestionCreatedDefinition : IFeatureDefinition
     public static Unit Define(FeatureComposer starting) =>
         starting.With<QuestionMutatedEvent>()
                 .ExpectNoOutput()
-                .ByExecuting<RequestBehavior>(chain => 
-                                                  chain.AddFilteringUsing<Filter>().InSpanish()
+                .ByExecuting<RequestBehavior>(chain =>
+                                                  chain.AddFiltering().Using<Filter>().InSpanish()
                                                        .AddLogging().InSpanish()
-                                                       .AddLoggingException().InSpanish())
+                                                       .AddExceptionHandling().UsingLogging().InSpanish())
                 .AndNoBind();
 }
 
@@ -31,16 +31,6 @@ internal sealed class Filter : IEventFilter<QuestionMutatedEvent, RequestBehavio
 internal sealed class RequestBehavior : IBehavior<QuestionMutatedEvent>
 {
     public Eff<VSlicesRuntime, Unit> Define(QuestionMutatedEvent input) =>
-        from _1 in liftEff<VSlicesRuntime, Unit>(async _ => throw new InvalidOperationException("Testing"))
-        from repository in provide<IQuestionRepository>()
-        from logger in provide<ILogger<QuestionMutatedEvent>>()
-        from question in repository.Get(input.Id)
-        from _ in liftEff(env =>
-        {
-            logger.LogInformation("Se ha creado un nuevo recurso en la tabla Questions, " +
-                                  "con valores: {Entity}", question);
-
-            return unit;
-        })
+        from _1 in liftEff(() => throw new InvalidOperationException("Testing"))
         select unit;
 }

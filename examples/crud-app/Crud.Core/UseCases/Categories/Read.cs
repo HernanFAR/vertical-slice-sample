@@ -1,7 +1,5 @@
 ﻿using Crud.CrossCutting;
-using Crud.CrossCutting.Pipelines;
 using Microsoft.EntityFrameworkCore;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
 using VSlices.Base.Definitions;
 
@@ -18,7 +16,7 @@ public sealed class ReadCategoriesDefinition : IFeatureDefinition
     public static Unit Define(FeatureComposer define) =>
         define.With<Query>().Expect<ReadCategoriesDto>()
               .ByExecuting<RequestBehavior>(chain => chain.AddLogging().InSpanish()
-                                                          .AddLoggingException().InSpanish())
+                                                          .AddExceptionHandling().UsingLogging().InSpanish())
               .AndBindTo<EndpointIntegrator>();
 }
 

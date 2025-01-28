@@ -37,7 +37,7 @@ public sealed class LoggingBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        var chain = new InterceptorChain(services, typeof(Input), typeof(Result), typeof(Behavior));
+        InterceptorChain<Input, Result, Behavior> chain = new(services);
 
         // Act
         chain.AddLogging().InSpanish();
@@ -65,7 +65,7 @@ public sealed class LoggingBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        var chain = new InterceptorChain(services, typeof(Input), typeof(Result), typeof(Behavior));
+        var chain = new InterceptorChain<Input, Result, Behavior>(services);
 
         // Act
         chain.AddLogging().InEnglish();
@@ -93,7 +93,7 @@ public sealed class LoggingBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        var chain = new InterceptorChain(services, typeof(Input), typeof(Result), typeof(Behavior));
+        var chain = new InterceptorChain<Input, Result, Behavior>(services);
         
         // Act
         chain.AddLogging().In<CustomTemplate>();

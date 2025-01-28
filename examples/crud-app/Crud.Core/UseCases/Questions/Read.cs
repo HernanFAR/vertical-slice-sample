@@ -1,6 +1,5 @@
 ﻿using Crud.CrossCutting;
 using Microsoft.EntityFrameworkCore;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
 using VSlices.Base.Definitions;
 
@@ -21,7 +20,7 @@ public sealed class ReadQuestionDefinition : IFeatureDefinition
     public static Unit Define(FeatureComposer feature) =>
         feature.With<Query>().Expect<ReadQuestionsDto>()
                .ByExecuting<Behavior>(chain => chain.AddLogging().InSpanish()
-                                                    .AddLoggingException().InSpanish())
+                                                    .AddExceptionHandling().UsingLogging().InSpanish())
                .AndBindTo<EndpointIntegrator>();
 }
 

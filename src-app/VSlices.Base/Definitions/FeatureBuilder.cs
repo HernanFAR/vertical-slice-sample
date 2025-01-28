@@ -63,12 +63,12 @@ public sealed class FeatureBehavior<TIn, TOut>(IServiceCollection services)
     /// </summary>
     /// <typeparam name="TBehavior">The <see cref="IBehavior{IBehaviorInterceptor,TOut}" /> to use</typeparam>
     /// <returns>A builder to set the <see cref="IIntegrator"/> of the feature</returns>
-    public FeatureIntegrator ByExecuting<TBehavior>(InterceptorChainConfigAction chain)
+    public FeatureIntegrator ByExecuting<TBehavior>(InterceptorChainConfigAction<TIn, TOut, TBehavior> chain)
         where TBehavior : class, IBehavior<TIn, TOut>
     {
         services.AddScoped<IBehavior<TIn, TOut>, TBehavior>();
 
-        InterceptorChain order = new(services, typeof(TIn), typeof(TOut), typeof(TBehavior));
+        InterceptorChain<TIn, TOut, TBehavior> order = new(services);
 
         chain(order);
 
@@ -136,4 +136,5 @@ public sealed class FeatureIntegrator(IServiceCollection services)
 /// <summary>
 /// Define the behavior chain related to a concrete handler type
 /// </summary>
-public delegate void InterceptorChainConfigAction(InterceptorChain chain);
+public delegate void InterceptorChainConfigAction<TIn, TOut, TBehavior>(InterceptorChain<TIn, TOut, TBehavior> chain)
+    where TBehavior : IBehavior<TIn, TOut>;

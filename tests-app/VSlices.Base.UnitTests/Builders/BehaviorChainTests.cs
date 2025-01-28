@@ -31,7 +31,7 @@ public sealed class InterceptorChainTests
         const int expBehaviorCount = 1;
         var       services         = new ServiceCollection();
 
-        InterceptorChain chain = new(services, typeof(Input), typeof(Result), typeof(Behavior));
+        InterceptorChain<Input, Result, Behavior> chain = new(services);
 
         // Act
         chain.Add(typeof(Pipeline<,>));
@@ -53,7 +53,7 @@ public sealed class InterceptorChainTests
         const int expBehaviorCount = 1;
         var       services         = new ServiceCollection();
 
-        InterceptorChain chain = new(services, typeof(Input), typeof(Result), typeof(Behavior));
+        InterceptorChain<Input, Result, Behavior> chain = new(services);
 
         // Act
         chain.AddConcrete(typeof(Pipeline<Input, Result>));

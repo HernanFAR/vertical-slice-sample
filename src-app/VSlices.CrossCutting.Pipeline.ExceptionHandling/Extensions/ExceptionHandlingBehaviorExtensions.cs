@@ -9,52 +9,67 @@ using VSlices.CrossCutting.Interceptor.ExceptionHandling.MessageTemplates;
 namespace VSlices.Core.Builder;
 
 /// <summary>
-/// <see cref="InterceptorChain"/> extensions for <see cref="ExceptionHandlingInterceptor{TIn,TOut}"/>
+/// <see cref="InterceptorChain{TIn,TOut, TBehavior}"/> extensions for <see cref="ExceptionHandlingInterceptor{TIn,TOut}"/>
 /// </summary>
-public static class ExceptionHandlingBehaviorExtensions
+public static class ExceptionHandlingInterceptorExtensions
 {
     /// <summary>
-    /// Adds a LoggingExceptionInterceptor to the <see cref="InterceptorChain"/> of the associated <see cref="IBehavior{TIn, TOut}"/>
+    /// Adds a LoggingExceptionInterceptor to the <see cref="InterceptorChain{TIn,TOut, TBehavior}"/> of the associated <see cref="IBehavior{TIn, TOut}"/>
     /// </summary>
     /// <param name="handlerEffects">The interceptor chain of the associated <see cref="IBehavior{TIn,TOut}"/></param>
     /// <returns>Builder for more specific configuration</returns>
-    public static ExceptionBehaviorBuilder AddLoggingException(this InterceptorChain handlerEffects)
+    public static ExceptionHandlingInterceptorImplementationBuilder<TIn, TOut, TBehavior> AddExceptionHandling<TIn, TOut, TBehavior>(
+        this InterceptorChain<TIn, TOut, TBehavior> handlerEffects)
+        where TBehavior : IBehavior<TIn, TOut> =>
+        new(handlerEffects);
+}
+
+/// <summary>
+/// Builder for <see cref="LoggingExceptionInterceptor{TIn,TOut}"/>
+/// </summary>
+/// <param name="handlerEffects">Interceptor chain of the associated <see cref="IBehavior{TIn,TOut}"/></param>
+public sealed class ExceptionHandlingInterceptorImplementationBuilder<TIn, TOut, TBehavior>(InterceptorChain<TIn, TOut, TBehavior> handlerEffects)
+    where TBehavior : IBehavior<TIn, TOut>
+{
+    /// <summary>
+    /// Adds a <see cref="LoggingExceptionInterceptor{TIn,TOut}" /> to the specified handler
+    /// </summary>
+    /// <returns>Next step builder</returns>
+    public ExceptionHandlingInterceptorLanguageBuilder<TIn, TOut, TBehavior> UsingLogging()
     {
         handlerEffects.Add(typeof(LoggingExceptionInterceptor<,>))
-                         .Services.TryAddSingleton(TimeProvider.System);
+                      .Services.TryAddSingleton(TimeProvider.System);
 
-        return new ExceptionBehaviorBuilder(handlerEffects);
-
+        return new ExceptionHandlingInterceptorLanguageBuilder<TIn, TOut, TBehavior>(handlerEffects);
     }
 }
 
 /// <summary>
 /// Builder for <see cref="LoggingExceptionInterceptor{TIn,TOut}"/>
 /// </summary>
-/// <param name="definition">Interceptor chain of the associated <see cref="IBehavior{TIn,TOut}"/></param>
-public sealed class ExceptionBehaviorBuilder(InterceptorChain definition)
+/// <param name="handlerEffects">Interceptor chain of the associated <see cref="IBehavior{TIn,TOut}"/></param>
+public sealed class ExceptionHandlingInterceptorLanguageBuilder<TIn, TOut, TBehavior>(InterceptorChain<TIn, TOut, TBehavior> handlerEffects)
+    where TBehavior : IBehavior<TIn, TOut>
 {
-    private readonly InterceptorChain _definition = definition;
-
     /// <summary>
     /// Add a custom <see cref="IExceptionMessageTemplate"/>
     /// </summary>
-    public InterceptorChain In<TMessageTemplate>()
+    public InterceptorChain<TIn, TOut, TBehavior> In<TMessageTemplate>()
         where TMessageTemplate : class, IExceptionMessageTemplate
     {
-        _definition.Services.AddSingleton<IExceptionMessageTemplate, TMessageTemplate>();
+        handlerEffects.Services.AddSingleton<IExceptionMessageTemplate, TMessageTemplate>();
 
-        return _definition;
+        return handlerEffects;
     }
 
     /// <summary>
     /// Add an english <see cref="IExceptionMessageTemplate"/>
     /// </summary>
-    public InterceptorChain InEnglish() => In<EnglishExceptionMessageTemplate>();
+    public InterceptorChain<TIn, TOut, TBehavior> InEnglish() => In<EnglishExceptionMessageTemplate>();
 
     /// <summary>
     /// Add a spanish <see cref="IExceptionMessageTemplate"/>
     /// </summary>
-    public InterceptorChain InSpanish() => In<SpanishExceptionMessageTemplate>();
+    public InterceptorChain<TIn, TOut, TBehavior> InSpanish() => In<SpanishExceptionMessageTemplate>();
 
 }

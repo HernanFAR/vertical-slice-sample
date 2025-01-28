@@ -2,7 +2,6 @@
 using Crud.CrossCutting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using VSlices.Base.Builder;
 using VSlices.Base.Core;
 using VSlices.Base.Definitions;
 using VSlices.Core.Integration.RecurringJob;
@@ -20,7 +19,7 @@ public sealed class CounterFeatureDefinition : IFeatureDefinition
     public static Unit Define(FeatureComposer feature) =>
         feature.With<Query>().ExpectNoOutput()
                .ByExecuting<Behavior>(chain => chain.AddLogging().InSpanish()
-                                                           .AddLoggingException().InSpanish())
+                                                           .AddExceptionHandling().UsingLogging().InSpanish())
                .AndBindTo<RecurringJobIntegrator>();
 }
 
@@ -52,7 +51,7 @@ internal sealed class Behavior : IBehavior<Query>
             int count = await context.Questions.CountAsync(cancelToken);
 
             logger.LogInformation("Total questions: {Count} at: {CurrentTime}.",
-                                  count, 
+                                  count,
                                   timeProvider.GetUtcNow().UtcDateTime);
 
         })

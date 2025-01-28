@@ -30,10 +30,10 @@ public class FluentValidationBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        InterceptorChain chain = new(services, typeof(Input), typeof(Result), typeof(Behavior));
+        InterceptorChain<Input, Result, Behavior> chain = new(services);
 
         // Act
-        chain.AddFluentValidationUsing<Validator>();
+        chain.AddValidation().UsingFluent<Validator>();
 
         // Assert
         services.Where(e => e.ServiceType == typeof(FluentValidationInterceptor<,>))

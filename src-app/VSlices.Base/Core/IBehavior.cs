@@ -14,7 +14,7 @@ public interface IBehavior<in TIn, TOut>
     /// </summary>
     /// <param name="input">The input to process</param>
     /// <returns>
-    /// An <see cref="Eff{TRuntime, TResult}"/> that represents the operation in lazy evaluation, which when ran
+    /// An <see cref="LanguageExt.Eff{TRuntime, TResult}"/> that represents the operation in lazy evaluation, which when ran
     /// returns a <typeparamref name="TOut"/>
     /// </returns>
     Eff<VSlicesRuntime, TOut> Define(TIn input);

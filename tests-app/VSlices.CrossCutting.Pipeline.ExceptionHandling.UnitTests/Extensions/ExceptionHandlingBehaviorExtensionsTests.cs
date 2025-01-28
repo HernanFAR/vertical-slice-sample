@@ -10,7 +10,7 @@ using VSlices.CrossCutting.Interceptor.ExceptionHandling.MessageTemplates;
 
 namespace VSlices.CrossCutting.Interceptor.ExceptionHandling.UnitTests.Extensions;
 
-public class ExceptionHandlingBehaviorExtensionsTests
+public class ExceptionHandlingInterceptorExtensionsTests
 {
     public record False : IBehaviorInterceptor;
 
@@ -41,10 +41,10 @@ public class ExceptionHandlingBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        var chain = new InterceptorChain(services, typeof(Input), typeof(Result), typeof(Behavior));
+        InterceptorChain<Input, Result, Behavior> chain = new(services);
 
         // Act
-        chain.AddLoggingException().InEnglish();
+        chain.AddExceptionHandling().UsingLogging().InEnglish();
 
         // Arrange
         services.Where(e => e.ServiceType      == typeof(LoggingExceptionInterceptor<,>))
@@ -74,10 +74,10 @@ public class ExceptionHandlingBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        var chain = new InterceptorChain(services, typeof(Input), typeof(Result), typeof(Behavior));
+        InterceptorChain<Input, Result, Behavior> chain = new(services);
 
         // Act
-        chain.AddLoggingException().InSpanish();
+        chain.AddExceptionHandling().UsingLogging().InSpanish();
 
         // Arrange
         services.Where(e => e.ServiceType == typeof(LoggingExceptionInterceptor<,>))
@@ -107,10 +107,10 @@ public class ExceptionHandlingBehaviorExtensionsTests
 
         var services = new ServiceCollection();
 
-        var chain = new InterceptorChain(services, typeof(Input), typeof(Result), typeof(Behavior));
+        InterceptorChain<Input, Result, Behavior> chain = new(services);
 
         // Act
-        chain.AddLoggingException().In<CustomTemplate>();
+        chain.AddExceptionHandling().UsingLogging().In<CustomTemplate>();
 
         // Arrange
         services.Where(e => e.ServiceType == typeof(LoggingExceptionInterceptor<,>))

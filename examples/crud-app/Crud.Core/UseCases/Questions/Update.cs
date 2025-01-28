@@ -22,8 +22,8 @@ public sealed class UpdateQuestionDefinition : IFeatureDefinition
     public static Unit Define(FeatureComposer feature) =>
         feature.With<Command>().ExpectNoOutput()
                .ByExecuting<Behavior>(chain => chain.AddLogging().InSpanish()
-                                                    .AddFluentValidationUsing<Validator>()
-                                                    .AddLoggingException().InSpanish())
+                                                    .AddValidation().UsingFluent<Validator>()
+                                                    .AddExceptionHandling().UsingLogging().InSpanish())
                .AndBindTo<EndpointIntegrator>();
 }
 

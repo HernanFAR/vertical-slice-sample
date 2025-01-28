@@ -13,9 +13,9 @@ public sealed class QuestionMutatedDefinition : IFeatureDefinition
     public static Unit Define(FeatureComposer starting) =>
         starting.With<QuestionMutatedEvent>()
                 .ExpectNoOutput()
-                .ByExecuting<RequestBehavior>(chain => chain.AddFilteringUsing<Filter>().InSpanish()
+                .ByExecuting<RequestBehavior>(chain => chain.AddFiltering().Using<Filter>().InSpanish()
                                                             .AddLogging().InSpanish()
-                                                            .AddLoggingException().InSpanish())
+                                                            .AddExceptionHandling().UsingLogging().InSpanish())
                 .AndNoBind();
 }
 

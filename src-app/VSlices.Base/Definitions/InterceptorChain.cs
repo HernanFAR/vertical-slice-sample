@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using VSlices.Base.Core;
 using VSlices.Base.CrossCutting;
 
 namespace VSlices.Base.Definitions;
@@ -7,19 +8,21 @@ namespace VSlices.Base.Definitions;
 /// <summary>
 /// Define the behavior chain related to a concrete handler type
 /// </summary>
-public sealed class InterceptorChain(IServiceCollection services, Type inType, Type outType, Type behaviorType)
+public sealed class InterceptorChain<TIn, TOut, TBehavior>(IServiceCollection services)
+    where TBehavior : IBehavior<TIn, TOut>
 {
-    internal readonly IServiceCollection Services = services;
-    internal readonly Type InType = inType;
-    internal readonly Type OutType = outType;
-    internal readonly Type BehaviorType = behaviorType;
+    /// <summary>
+    /// Service collection in use
+    /// </summary>
+    public IServiceCollection Services { get; } = services;
+
     internal readonly List<Type> Behaviors = [];
 
 
     /// <summary>
     /// Adds a custom behavior
     /// </summary>
-    public InterceptorChain Add(Type type)
+    public InterceptorChain<TIn, TOut, TBehavior> Add(Type type)
     {
         var pipType = typeof(IBehaviorInterceptor<,>);
         var implementsType = type.GetInterfaces()
@@ -30,7 +33,7 @@ public sealed class InterceptorChain(IServiceCollection services, Type inType, T
             throw new InvalidOperationException($"{type.FullName} does not implement {pipType.FullName}");
         }
 
-        Behaviors.Add(type.MakeGenericType(InType, OutType));
+        Behaviors.Add(type.MakeGenericType(typeof(TIn), typeof(TOut)));
         Services.TryAddTransient(type);
 
         return this;
@@ -39,10 +42,10 @@ public sealed class InterceptorChain(IServiceCollection services, Type inType, T
     /// <summary>
     /// Adds a custom behavior, in a closed-generic way
     /// </summary>
-    public InterceptorChain AddConcrete(Type type)
+    public InterceptorChain<TIn, TOut, TBehavior> AddConcrete(Type type)
     {
         var pipType = typeof(IBehaviorInterceptor<,>)
-            .MakeGenericType(InType, OutType);
+            .MakeGenericType(typeof(TIn), typeof(TOut));
 
         var implementsType = type.GetInterfaces().Any(@interface => @interface == pipType);
 

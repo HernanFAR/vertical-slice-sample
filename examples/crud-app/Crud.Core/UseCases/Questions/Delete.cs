@@ -14,7 +14,7 @@ public sealed class DeleteQuestionDefinition : IFeatureDefinition
     public static Unit Define(FeatureComposer feature) =>
         feature.With<Command>().ExpectNoOutput()
                .ByExecuting<RequestBehavior>(chain => chain.AddLogging().InSpanish()
-                                                           .AddLoggingException().InSpanish())
+                                                           .AddExceptionHandling().UsingLogging().InSpanish())
                .AndBindTo<EndpointIntegrator>();
 }
 

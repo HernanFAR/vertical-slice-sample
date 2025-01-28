@@ -10,7 +10,7 @@ using VSlices.Domain;
 
 namespace VSlices.CrossCutting.Interceptor.Filtering.UnitTests.Extensions;
 
-public sealed class EventFilteringBehaviorExtensionsTests
+public sealed class EventFilteringInterceptorExtensionsTests
 {
     public sealed record Filter : IEventFilter<Request, Behavior>
     {
@@ -39,10 +39,10 @@ public sealed class EventFilteringBehaviorExtensionsTests
 
         ServiceCollection services = new();
 
-        InterceptorChain chain = new(services, typeof(Request), typeof(Unit), typeof(Behavior));
+        InterceptorChain<Request, Unit, Behavior> chain = new(services);
 
         // Act
-        chain.AddFilteringUsing<Filter>().InSpanish();
+        chain.AddFiltering().Using<Filter>().InSpanish();
 
         // Assert
         services.Where(e => e.ServiceType == typeof(FilteringBehaviorInterceptor<Request, Filter, Behavior>))
@@ -70,10 +70,10 @@ public sealed class EventFilteringBehaviorExtensionsTests
 
         ServiceCollection services = new();
 
-        InterceptorChain chain = new(services, typeof(Request), typeof(Unit), typeof(Behavior));
+        InterceptorChain<Request, Unit, Behavior> chain = new(services);
 
         // Act
-        chain.AddFilteringUsing<Filter>().InEnglish();
+        chain.AddFiltering().Using<Filter>().InEnglish();
 
         // Assert
         services.Where(e => e.ServiceType == typeof(FilteringBehaviorInterceptor<Request, Filter, Behavior>))
@@ -101,10 +101,10 @@ public sealed class EventFilteringBehaviorExtensionsTests
 
         ServiceCollection services = new();
 
-        InterceptorChain chain = new(services, typeof(Request), typeof(Unit), typeof(Behavior));
+        InterceptorChain<Request, Unit, Behavior> chain = new(services);
 
         // Act
-        chain.AddFilteringUsing<Filter>().In<CustomTemplate>();
+        chain.AddFiltering().Using<Filter>().In<CustomTemplate>();
 
         // Assert
         services.Where(e => e.ServiceType == typeof(FilteringBehaviorInterceptor<Request, Filter, Behavior>))
